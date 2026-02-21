@@ -39,8 +39,38 @@ public class PlayerMovement : MonoBehaviour
     public float wallCheckDistance = 0.1f;
     public float wallSlideSpeed = 3f;
     public float wallJumpForce = 14f;
-    public float wallJumpHorizontalForce = 11f;
+    public float wallJumpHorizontalForce = 16f;
     public float wallJumpLockTime = 0.15f;
+
+    [Header("Sprint")]
+    public float runSpeed = 14f;
+    public float walkSpeed = 9f;
+    private bool isRunning;
+
+    [Header("Crouch")]
+    public float crouchSpeed = 4f;
+    private bool isCrouching;
+    private Vector2 originalColliderSize;
+    private Vector2 originalColliderOffset;
+    public Vector2 crouchColliderSize = new Vector2(1f, 1f);
+    public Vector2 crouchColliderOffset = new Vector2(0f, -0.5f);
+
+    [Header("Dash")]
+    public float dashSpeed = 20f;
+    public float dashDuration = 0.2f;
+    public float dashCooldown = 0.6f;
+    private bool isDashing;
+    private float dashTimer;
+    private float dashCooldownTimer;
+    private Vector2 dashDirection;
+
+    [Header("Celeste Dash FX")]
+    public float freezeDuration = 0.05f;
+    public float stretchX = 1.6f;
+    public float stretchY = 0.6f;
+    private Vector3 originalScale;
+    private SpriteRenderer sr;
+    private bool hasDashedInAir;
 
     private Rigidbody2D rb;
     private Collider2D col;
@@ -62,6 +92,13 @@ public class PlayerMovement : MonoBehaviour
 
         rb.freezeRotation = true;
         rb.gravityScale = baseGravityScale;
+
+        BoxCollider2D box = GetComponent<BoxCollider2D>();
+        originalColliderSize = box.size;
+        originalColliderOffset = box.offset;
+
+        originalScale = transform.localScale;
+        sr = GetComponent<SpriteRenderer>();
     }
 
     private void FixedUpdate()
@@ -80,7 +117,37 @@ public class PlayerMovement : MonoBehaviour
         HandleGravity();
         TryBufferedJump();
 
+        // Dash handling
+        if (isDashing)
+        {
+            rb.linearVelocity = dashDirection * dashSpeed;
+            dashTimer -= Time.fixedDeltaTime;
+
+            if (dashTimer <= 0f)
+            {
+                isDashing = false;
+                rb.gravityScale = baseGravityScale;
+
+                rb.linearVelocity = Vector2.zero; // hard stop
+
+                transform.localScale = originalScale;
+
+                if (sr != null)
+                    sr.color = Color.white;
+            }
+
+            return; // stop other movement while dashing
+        }
+
         wallJumpLockCounter -= Time.fixedDeltaTime;
+        dashCooldownTimer -= Time.fixedDeltaTime;
+    }
+
+    private System.Collections.IEnumerator FreezeFrame(float duration)
+    {
+        Time.timeScale = 0f;
+        yield return new WaitForSecondsRealtime(duration);
+        Time.timeScale = 1f;
     }
 
     // -----------------------
@@ -95,6 +162,9 @@ public class PlayerMovement : MonoBehaviour
         Debug.DrawRay(origin, Vector2.down * groundCheckDistance, Color.green);
 
         isGrounded = hit;
+
+        if (isGrounded)
+            hasDashedInAir = false;
     }
 
     // -----------------------
@@ -134,13 +204,21 @@ public class PlayerMovement : MonoBehaviour
     // -----------------------
     private void HandleHorizontalMovement()
     {
-        // Preserve wall jump momentum
         if (wallJumpLockCounter > 0f)
             return;
 
-        float targetSpeed = moveInput.x * moveSpeed;
+        float currentSpeed;
 
-        // If airborne and no input, preserve horizontal momentum
+        if (isCrouching)
+            currentSpeed = crouchSpeed;
+        else if (isRunning)
+            currentSpeed = runSpeed;
+        else
+            currentSpeed = walkSpeed;
+
+        float targetSpeed = moveInput.x * currentSpeed;
+
+        // Preserve air momentum if no input
         if (!isGrounded && Mathf.Abs(moveInput.x) < 0.1f)
             return;
 
@@ -153,6 +231,9 @@ public class PlayerMovement : MonoBehaviour
             targetSpeed,
             smoothRate * Time.fixedDeltaTime
         );
+
+        // Clamp using currentSpeed
+        newX = Mathf.Clamp(newX, -currentSpeed, currentSpeed);
 
         rb.linearVelocity = new Vector2(newX, rb.linearVelocity.y);
     }
@@ -255,6 +336,68 @@ public class PlayerMovement : MonoBehaviour
         isWallSliding = false;
     }
 
+    private void ApplyCrouch()
+    {
+        BoxCollider2D box = GetComponent<BoxCollider2D>();
+
+        float heightDifference = originalColliderSize.y - crouchColliderSize.y;
+
+        box.size = crouchColliderSize;
+
+        // Move collider DOWN by half the removed height
+        box.offset = new Vector2(
+            originalColliderOffset.x,
+            originalColliderOffset.y - heightDifference / 2f
+        );
+
+        isRunning = false;
+
+        Debug.Log("Crouch Start");
+    }
+
+    private void ApplyStand()
+    {
+        BoxCollider2D box = GetComponent<BoxCollider2D>();
+
+        box.size = originalColliderSize;
+        box.offset = originalColliderOffset;
+
+        Debug.Log("Crouch End");
+    }
+    private void StartDash()
+    {
+        isDashing = true;
+        dashTimer = dashDuration;
+        dashCooldownTimer = dashCooldown;
+
+        // One air dash limit
+        if (!isGrounded)
+            hasDashedInAir = true;
+
+        // Direction
+        if (Mathf.Abs(moveInput.x) > 0.1f || Mathf.Abs(moveInput.y) > 0.1f)
+            dashDirection = moveInput.normalized;
+        else
+            dashDirection = transform.localScale.x > 0 ? Vector2.right : Vector2.left;
+
+        rb.gravityScale = 0f;
+
+        // Freeze frame
+        StartCoroutine(FreezeFrame(freezeDuration));
+
+        // Squash & stretch
+        transform.localScale = new Vector3(
+            originalScale.x * stretchX,
+            originalScale.y * stretchY,
+            originalScale.z
+        );
+
+        // Flash
+        if (sr != null)
+            sr.color = Color.white * 2f;
+    }
+
+
     // -----------------------
     // INPUT
     // -----------------------
@@ -272,5 +415,46 @@ public class PlayerMovement : MonoBehaviour
 
         if (!value.isPressed && rb.linearVelocity.y > 0f)
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * 0.5f);
+    }
+
+    public void OnSprint(InputValue value)
+    {
+        if (isCrouching) return; // cannot sprint while crouching
+
+        isRunning = true;
+    }
+
+    public void OnSprintRelease(InputValue value)
+    {
+        isRunning = false;
+    }
+
+    public void OnCrouch(InputValue value)
+    {
+        isCrouching = true;
+        ApplyCrouch();
+    }
+
+    public void OnCrouchRelease(InputValue value)
+    {
+        isCrouching = false;
+        ApplyStand();
+    }
+
+    public void OnDash(InputValue value)
+    {
+        if (!isGrounded && hasDashedInAir)
+            return;
+
+        if (!value.isPressed)
+            return;
+
+        if (dashCooldownTimer > 0f)
+            return;
+
+        if (isDashing)
+            return;
+
+        StartDash();
     }
 }
