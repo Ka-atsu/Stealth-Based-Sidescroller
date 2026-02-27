@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 public class EnemyAI : MonoBehaviour
 {
@@ -19,6 +20,7 @@ public class EnemyAI : MonoBehaviour
     [Header("Detection")]
     public float detectionRange = 5f;
     public float losePlayerRange = 8f;
+    public float visionAngle = 30f;
 
     [Header("Ground & Wall Detection")]
     public Transform groundCheck;
@@ -29,6 +31,10 @@ public class EnemyAI : MonoBehaviour
 
     private Rigidbody2D rb;
     private Transform player;
+    private PlayerMovement playerMovement;
+
+    private SpriteRenderer sr;
+    private Light2D visionLight;
 
     private bool movingRight = true;
 
@@ -39,10 +45,17 @@ public class EnemyAI : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        sr = GetComponent<SpriteRenderer>();
+        visionLight = GetComponentInChildren<Light2D>();
 
         GameObject p = GameObject.FindGameObjectWithTag("Player");
         if (p != null)
+        {
             player = p.transform;
+            playerMovement = p.GetComponent<PlayerMovement>();
+        }
+
+        UpdateLightDirection();
     }
 
     void FixedUpdate()
@@ -69,9 +82,6 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    // =========================
-    // PATROL (EDGE + WALL DETECTION)
-    // =========================
     void Patrol()
     {
         Move(patrolSpeed);
@@ -96,42 +106,17 @@ public class EnemyAI : MonoBehaviour
             Flip();
         }
 
-        // ---- IMPROVED PLAYER DETECTION ----
-        if (player != null)
-        {
-            Vector2 directionToPlayer = player.position - transform.position;
-
-            // Check distance
-            if (directionToPlayer.magnitude < detectionRange)
-            {
-                // Check if player is in front
-                float dot = Vector2.Dot(directionToPlayer.normalized,
-                                         movingRight ? Vector2.right : Vector2.left);
-
-                if (dot > 0.5f) // player roughly in front
-                {
-                    // Check line of sight (not blocked by ground)
-                    RaycastHit2D hit = Physics2D.Raycast(
-                        transform.position,
-                        directionToPlayer.normalized,
-                        detectionRange,
-                        groundLayer
-                    );
-
-                    if (hit.collider == null)
-                    {
-                        currentState = EnemyState.Alerted;
-                    }
-                }
-            }
-        }
+        DetectPlayer();
     }
 
-    // =========================
-    // ALERTED (CHASE PLAYER)
-    // =========================
     void Alerted()
     {
+        if (playerMovement != null && playerMovement.isHidden)
+        {
+            currentState = EnemyState.Search;
+            return;
+        }
+
         lastKnownPlayerPosition = player.position;
 
         Vector2 direction = (player.position - transform.position).normalized;
@@ -155,9 +140,6 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    // =========================
-    // SEARCH LAST POSITION
-    // =========================
     void Search()
     {
         Vector2 direction = (lastKnownPlayerPosition - (Vector2)transform.position).normalized;
@@ -179,24 +161,15 @@ public class EnemyAI : MonoBehaviour
             }
         }
 
-        if (Vector2.Distance(transform.position, player.position) < detectionRange)
-        {
-            currentState = EnemyState.Alerted;
-        }
+        DetectPlayer();
     }
 
-    // =========================
-    // RETURN TO PATROL
-    // =========================
     void Return()
     {
         Move(patrolSpeed);
         currentState = EnemyState.Patrol;
     }
 
-    // =========================
-    // BASIC MOVEMENT
-    // =========================
     void Move(float speed)
     {
         rb.linearVelocity = new Vector2(
@@ -205,21 +178,59 @@ public class EnemyAI : MonoBehaviour
         );
     }
 
-    // =========================
-    // FLIP ENEMY
-    // =========================
     void Flip()
     {
         movingRight = !movingRight;
 
-        Vector3 scale = transform.localScale;
-        scale.x *= -1;
-        transform.localScale = scale;
+        if (sr != null)
+            sr.flipX = !movingRight;
+
+        // Move wallCheck to correct side
+        Vector3 wcPos = wallCheck.localPosition;
+        wcPos.x = Mathf.Abs(wcPos.x) * (movingRight ? 1 : -1);
+        wallCheck.localPosition = wcPos;
+
+        UpdateLightDirection();
     }
 
-    // =========================
-    // DEBUG VISUALS
-    // =========================
+    void UpdateLightDirection()
+    {
+        if (visionLight == null) return;
+
+        visionLight.transform.localRotation = movingRight
+            ? Quaternion.Euler(0, 0, -90)  // Right
+            : Quaternion.Euler(0, 0, 90);  // Left
+    }
+
+    void DetectPlayer()
+    {
+        if (playerMovement != null && playerMovement.isHidden)
+            return;
+
+        Vector2 directionToPlayer = player.position - transform.position;
+
+        if (directionToPlayer.magnitude > detectionRange)
+            return;
+
+        Vector2 forward = movingRight ? Vector2.right : Vector2.left;
+        float angle = Vector2.Angle(forward, directionToPlayer);
+
+        if (angle < visionAngle)
+        {
+            RaycastHit2D hit = Physics2D.Raycast(
+                transform.position,
+                directionToPlayer.normalized,
+                detectionRange,
+                groundLayer
+            );
+
+            if (hit.collider == null)
+            {
+                currentState = EnemyState.Alerted;
+            }
+        }
+    }
+
     void OnDrawGizmos()
     {
         if (groundCheck != null)

@@ -85,6 +85,9 @@ public class PlayerMovement : MonoBehaviour
     private float wallJumpLockCounter;
     private int wallDirection;
 
+    [Header("Stealth")]
+    public bool isHidden = false;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
