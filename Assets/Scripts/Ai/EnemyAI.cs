@@ -32,6 +32,13 @@ public class EnemyAI : MonoBehaviour
             case EnemyStateMachine.EnemyState.Alerted:
                 movement.Chase(player.position);
                 break;
+            case EnemyStateMachine.EnemyState.Search:
+                // EnemyHearing handles movement to the noise
+                break;
+            case EnemyStateMachine.EnemyState.Return:
+                movement.Patrol();
+                stateMachine.SetState(EnemyStateMachine.EnemyState.Patrol);
+                break;
         }
     }
 }

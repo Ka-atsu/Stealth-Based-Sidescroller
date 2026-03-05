@@ -81,9 +81,13 @@ public class PlayerMovement : MonoBehaviour
     private bool isTouchingWall;
     private bool isWallSliding;
     private bool isJumpPressed;
+    private bool wasGrounded;
 
     private float wallJumpLockCounter;
     private int wallDirection;
+
+    float stepTimer;
+    public float stepInterval = 0.5f;
 
     [Header("Stealth")]
     public bool isHidden = false;
@@ -166,8 +170,15 @@ public class PlayerMovement : MonoBehaviour
 
         isGrounded = hit;
 
+        if (!wasGrounded && isGrounded)
+        {
+            NoiseSystem.MakeNoise(transform.position, 4f, NoiseType.JumpLanding);
+        }
+
         if (isGrounded)
             hasDashedInAir = false;
+
+        wasGrounded = isGrounded;
     }
 
     // -----------------------
@@ -239,6 +250,28 @@ public class PlayerMovement : MonoBehaviour
         newX = Mathf.Clamp(newX, -currentSpeed, currentSpeed);
 
         rb.linearVelocity = new Vector2(newX, rb.linearVelocity.y);
+
+        if (isGrounded && Mathf.Abs(moveInput.x) > 0.2f)
+        {
+            stepTimer += Time.fixedDeltaTime;
+
+            if (stepTimer >= stepInterval)
+            {
+                if (isCrouching)
+                    return;
+
+                if (isRunning)
+                    NoiseSystem.MakeNoise(transform.position, 4f, NoiseType.Run);
+                else
+                    NoiseSystem.MakeNoise(transform.position, 2f, NoiseType.Walk);
+
+                stepTimer = 0f;
+            }
+        }
+        else
+        {
+            stepTimer = 0f;
+        }
     }
 
     // -----------------------
@@ -370,6 +403,9 @@ public class PlayerMovement : MonoBehaviour
     private void StartDash()
     {
         isDashing = true;
+
+        NoiseSystem.MakeNoise(transform.position, 6f, NoiseType.Roll);
+
         dashTimer = dashDuration;
         dashCooldownTimer = dashCooldown;
 

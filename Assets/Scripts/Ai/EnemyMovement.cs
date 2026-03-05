@@ -75,6 +75,13 @@ public class EnemyMovement : MonoBehaviour
         if (sr != null)
             sr.flipX = !movingRight;
 
+        if (wallCheck != null)
+        {
+            Vector3 wcPos = wallCheck.localPosition;
+            wcPos.x = Mathf.Abs(wcPos.x) * (movingRight ? 1 : -1);
+            wallCheck.localPosition = wcPos;
+        }
+
         if (light2D != null)
         {
             light2D.transform.localRotation =
