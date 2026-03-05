@@ -2,37 +2,52 @@ using UnityEngine;
 
 public class BushHideZone : MonoBehaviour
 {
+    [Header("Layers")]
+    [SerializeField] private string hiddenLayerName = "PlayerHidden";
+    [SerializeField] private string normalLayerName = "Player";
+
+    private int hiddenLayer;
+    private int normalLayer;
+
+    private void Awake()
+    {
+        hiddenLayer = LayerMask.NameToLayer(hiddenLayerName);
+        normalLayer = LayerMask.NameToLayer(normalLayerName);
+
+        if (hiddenLayer == -1) Debug.LogError($"Layer '{hiddenLayerName}' does not exist!");
+        if (normalLayer == -1) Debug.LogError($"Layer '{normalLayerName}' does not exist!");
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
-        {
-            PlayerMovement player = other.GetComponent<PlayerMovement>();
-            if (player != null)
-            {
-                player.isHidden = true;
+        // In modular setups, the collider might be on a child, so use InParent
+        var noise = other.GetComponentInParent<PlayerNoiseEmitter2D>();
+        var controller = other.GetComponentInParent<PlayerController2D>();
 
-                // Change layer so enemy can't collide
-                other.gameObject.layer = LayerMask.NameToLayer("PlayerHidden");
+        if (controller == null) return; // not the player
 
-                Debug.Log("Player is hiding");
-            }
-        }
+        if (noise != null)
+            noise.isHidden = true;
+
+        if (hiddenLayer != -1)
+            controller.gameObject.layer = hiddenLayer;
+
+        Debug.Log("Player is hiding");
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
-        {
-            PlayerMovement player = other.GetComponent<PlayerMovement>();
-            if (player != null)
-            {
-                player.isHidden = false;
+        var noise = other.GetComponentInParent<PlayerNoiseEmitter2D>();
+        var controller = other.GetComponentInParent<PlayerController2D>();
 
-                // Restore normal collision
-                other.gameObject.layer = LayerMask.NameToLayer("Player");
+        if (controller == null) return;
 
-                Debug.Log("Player left bush");
-            }
-        }
+        if (noise != null)
+            noise.isHidden = false;
+
+        if (normalLayer != -1)
+            controller.gameObject.layer = normalLayer;
+
+        Debug.Log("Player left bush");
     }
 }

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class EnemyVision : MonoBehaviour
 {
@@ -11,7 +11,7 @@ public class EnemyVision : MonoBehaviour
     public DetectionMeterUI detectionUI;
 
     Transform player;
-    PlayerMovement playerMovement;
+    PlayerNoiseEmitter2D playerNoise;
 
     float detectionMeter;
 
@@ -25,7 +25,7 @@ public class EnemyVision : MonoBehaviour
         if (p != null)
         {
             player = p.transform;
-            playerMovement = p.GetComponent<PlayerMovement>();
+            playerNoise = p.GetComponent<PlayerNoiseEmitter2D>();
         }
 
         stateMachine = GetComponent<EnemyStateMachine>();
@@ -36,22 +36,16 @@ public class EnemyVision : MonoBehaviour
     {
         if (player == null) return;
 
-        if (CanSeePlayer())
-        {
-            IncreaseDetection();
-        }
-        else
-        {
-            DecreaseDetection();
-        }
+        if (CanSeePlayer()) IncreaseDetection();
+        else DecreaseDetection();
     }
 
     bool CanSeePlayer()
     {
-        if (playerMovement != null && playerMovement.isHidden)
+        if (playerNoise != null && playerNoise.isHidden)
             return false;
 
-        Vector2 direction = player.position - transform.position;
+        Vector2 direction = (Vector2)(player.position - transform.position);
 
         if (direction.magnitude > detectionRange)
             return false;
