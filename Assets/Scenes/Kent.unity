@@ -537,6 +537,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e74f12ff10b2e64199e6038dba4da74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BushHideZone
+  hiddenLayerName: PlayerHidden
+  normalLayerName: Player
 --- !u!212 &578290255
 SpriteRenderer:
   serializedVersion: 2
@@ -4836,7 +4838,14 @@ GameObject:
   - component: {fileID: 2574759762120819306}
   - component: {fileID: 8744417677171919639}
   - component: {fileID: 6030415435846163066}
-  - component: {fileID: 5441327526702123853}
+  - component: {fileID: 8744417677171919643}
+  - component: {fileID: 8744417677171919642}
+  - component: {fileID: 8744417677171919646}
+  - component: {fileID: 8744417677171919645}
+  - component: {fileID: 8744417677171919644}
+  - component: {fileID: 8744417677171919641}
+  - component: {fileID: 8744417677171919640}
+  - component: {fileID: 8744417677171919647}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -5030,51 +5039,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &5441327526702123853
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 89356060533020096}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f613a5760d2347b42a61578c7394eda2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  moveSpeed: 9
-  acceleration: 12
-  deceleration: 18
-  jumpForce: 14
-  baseGravityScale: 3.5
-  fallGravityMultiplier: 1.8
-  lowJumpGravityMultiplier: 1.5
-  maxFallSpeed: -28
-  apexThreshold: 0.5
-  apexGravityMultiplier: 0.7
-  coyoteTime: 0.1
-  jumpBufferTime: 0.1
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 8
-  groundCheckDistance: 0.2
-  wallCheckDistance: 0.1
-  wallSlideSpeed: 3
-  wallJumpForce: 14
-  wallJumpHorizontalForce: 16
-  wallJumpLockTime: 0.15
-  runSpeed: 14
-  walkSpeed: 9
-  crouchSpeed: 4
-  crouchColliderSize: {x: 1, y: 1}
-  crouchColliderOffset: {x: 0, y: -0.5}
-  dashSpeed: 20
-  dashDuration: 0.2
-  dashCooldown: 0.6
-  freezeDuration: 0.05
-  stretchX: 1.6
-  stretchY: 0.6
-  isHidden: 0
 --- !u!1 &5830562666353785368
 GameObject:
   m_ObjectHideFlags: 0
@@ -5091,6 +5055,7 @@ GameObject:
   - component: {fileID: 9194313088563764784}
   - component: {fileID: 9194313088563764783}
   - component: {fileID: 9194313088563764782}
+  - component: {fileID: 9194313088563764786}
   m_Layer: 8
   m_Name: Enemy
   m_TagString: Untagged
@@ -5171,6 +5136,135 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
+--- !u!114 &8744417677171919640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 89356060533020096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3907b7a6ee6a1f14e9e6fdc5ffe59de5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerCrouch2D
+  crouchColliderSize: {x: 1, y: 1}
+  crouchColliderOffset: {x: 0, y: -0.5}
+--- !u!114 &8744417677171919641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 89356060533020096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8585f36cdde264841a5fcd57ce73d739, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerDash2D
+  dashSpeed: 20
+  dashDuration: 0.2
+  dashCooldown: 0.6
+  freezeDuration: 0.05
+  stretchX: 1.6
+  stretchY: 0.6
+--- !u!114 &8744417677171919642
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 89356060533020096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce629e9852cb87e41b048a7cfd0ce856, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInputHandler
+--- !u!114 &8744417677171919643
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 89356060533020096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e268ca0b45fdb024b8be930e70ee69a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerController2D
+--- !u!114 &8744417677171919644
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 89356060533020096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e952ee77d7257134eb0db63e310a40f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerJump2D
+  jumpForce: 14
+  coyoteTime: 0.1
+  jumpBufferTime: 0.1
+  wallSlideSpeed: 3
+  wallJumpForce: 14
+  wallJumpHorizontalForce: 16
+  wallJumpLockTime: 0.15
+  baseGravityScale: 3.5
+  fallGravityMultiplier: 1.8
+  lowJumpGravityMultiplier: 1.5
+  maxFallSpeed: -28
+  apexThreshold: 0.5
+  apexGravityMultiplier: 0.7
+--- !u!114 &8744417677171919645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 89356060533020096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 417dbfe26a23fef419cb82aa2afa89a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMotor2D
+  acceleration: 12
+  deceleration: 18
+  runSpeed: 14
+  walkSpeed: 9
+  crouchSpeed: 4
+  stepInterval: 0.5
+--- !u!114 &8744417677171919646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 89356060533020096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d48b0ccaa53d7c9478b9011be60ed0e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSensors2D
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  groundCheckDistance: 0.2
+  wallCheckDistance: 0.1
+--- !u!114 &8744417677171919647
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 89356060533020096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fa8cd84c6594c54c81a1496cb92fa6d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerNoiseEmitter2D
+  isHidden: 0
 --- !u!212 &9194313088563764781
 SpriteRenderer:
   serializedVersion: 2
@@ -5293,6 +5387,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e571b23d220bebf4494c80d6124d8de9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
+--- !u!114 &9194313088563764786
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5830562666353785368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db072ccdaedd0cf4da53bbe03f4157c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyHearing
+  hearingRange: 6
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
