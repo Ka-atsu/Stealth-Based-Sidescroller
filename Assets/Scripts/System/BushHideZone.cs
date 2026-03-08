@@ -31,8 +31,6 @@ public class BushHideZone : MonoBehaviour
 
         if (hiddenLayer != -1)
             controller.gameObject.layer = hiddenLayer;
-
-        Debug.Log("Player is hiding");
     }
 
     private void OnTriggerExit2D(Collider2D other)
@@ -47,7 +45,5 @@ public class BushHideZone : MonoBehaviour
 
         if (normalLayer != -1)
             controller.gameObject.layer = normalLayer;
-
-        Debug.Log("Player left bush");
     }
 }

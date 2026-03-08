@@ -6,7 +6,9 @@ public class EnemyStateMachine : MonoBehaviour
     {
         Patrol,
         Alerted,
+        Attack,
         Search,
+        FollowBlood,
         Return
     }
 

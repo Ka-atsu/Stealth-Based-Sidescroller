@@ -17,6 +17,8 @@ public class EnemyMovement : MonoBehaviour
     bool movingRight = true;
     public bool MovingRight => movingRight;
 
+    public Transform attackPoint;
+
     Rigidbody2D rb;
     SpriteRenderer sr;
     Light2D light2D;
@@ -32,25 +34,43 @@ public class EnemyMovement : MonoBehaviour
     {
         Move(patrolSpeed);
 
+        // Combined wall check and ground check
         if (!GroundAhead() || WallAhead())
             Flip();
     }
 
     public void Chase(Vector2 target)
     {
-        Vector2 dir = (target - (Vector2)transform.position).normalized;
+        Vector2 direction = (target - (Vector2)transform.position).normalized;
 
-        rb.linearVelocity = new Vector2(dir.x * chaseSpeed, rb.linearVelocity.y);
+        // Ensure we're only modifying the x component, preserving the y component for gravity or platforming
+        rb.linearVelocity = new Vector2(direction.x * chaseSpeed, rb.linearVelocity.y);
 
-        if (dir.x > 0 && !movingRight)
+        // Flip the sprite and adjust position if needed
+        if (direction.x > 0 && !movingRight)
             Flip();
-        else if (dir.x < 0 && movingRight)
+        else if (direction.x < 0 && movingRight)
+            Flip();
+    }
+
+    // New MoveTo method to move directly to a target position (used for random or specific movement)
+    public void MoveTo(Vector3 targetPosition)
+    {
+        Vector2 direction = (targetPosition - transform.position).normalized;
+
+        // Move to the target position, modifying only the x component to preserve y (gravity/other forces)
+        rb.linearVelocity = new Vector2(direction.x * patrolSpeed, rb.linearVelocity.y);
+
+        // Flip the sprite if needed to face the target
+        if (direction.x > 0 && !movingRight)
+            Flip();
+        else if (direction.x < 0 && movingRight)
             Flip();
     }
 
     void Move(float speed)
     {
-        rb.linearVelocity = new Vector2((movingRight ? 1 : -1) * speed, rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2((movingRight ? 1 : -1) * speed, rb.linearVelocity.y);  // Only modify x for movement
     }
 
     bool GroundAhead()
@@ -72,9 +92,11 @@ public class EnemyMovement : MonoBehaviour
     {
         movingRight = !movingRight;
 
+        // Flip sprite
         if (sr != null)
             sr.flipX = !movingRight;
 
+        // Flip wall check position
         if (wallCheck != null)
         {
             Vector3 wcPos = wallCheck.localPosition;
@@ -82,12 +104,21 @@ public class EnemyMovement : MonoBehaviour
             wallCheck.localPosition = wcPos;
         }
 
+        // Adjust light rotation
         if (light2D != null)
         {
             light2D.transform.localRotation =
                 movingRight
                 ? Quaternion.Euler(0, 0, -90)
                 : Quaternion.Euler(0, 0, 90);
+        }
+
+        // Adjust attack point if needed
+        if (attackPoint != null)
+        {
+            Vector3 atkPos = attackPoint.localPosition;
+            atkPos.x = Mathf.Abs(atkPos.x) * (movingRight ? 1 : -1);
+            attackPoint.localPosition = atkPos;
         }
     }
 }

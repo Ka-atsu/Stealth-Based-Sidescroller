@@ -18,6 +18,9 @@ public class EnemyVision : MonoBehaviour
     EnemyStateMachine stateMachine;
     EnemyMovement movement;
 
+    public bool CanSeePlayerNow { get; private set; }
+    public Vector3 LastSeenPosition { get; private set; }
+
     void Start()
     {
         GameObject p = GameObject.FindGameObjectWithTag("Player");
@@ -26,6 +29,7 @@ public class EnemyVision : MonoBehaviour
         {
             player = p.transform;
             playerNoise = p.GetComponent<PlayerNoiseEmitter2D>();
+            LastSeenPosition = player.position;
         }
 
         stateMachine = GetComponent<EnemyStateMachine>();
@@ -34,28 +38,49 @@ public class EnemyVision : MonoBehaviour
 
     public void Detect()
     {
-        if (player == null) return;
+        if (player == null)
+        {
+            CanSeePlayerNow = false;
+            return;
+        }
 
-        if (CanSeePlayer()) IncreaseDetection();
-        else DecreaseDetection();
+        bool seesPlayer = CanSeePlayer();
+
+        CanSeePlayerNow = seesPlayer;
+
+        if (seesPlayer)
+        {
+            LastSeenPosition = player.position;
+            IncreaseDetection();
+        }
+        else
+        {
+            DecreaseDetection();
+        }
     }
 
     bool CanSeePlayer()
     {
         if (playerNoise != null && playerNoise.isHidden)
+        {
             return false;
+        }
 
         Vector2 direction = (Vector2)(player.position - transform.position);
 
         if (direction.magnitude > detectionRange)
+        {
             return false;
+        }
 
         Vector2 forward = movement.MovingRight ? Vector2.right : Vector2.left;
 
-        float angle = Vector2.Angle(forward, direction);
+        float angle = Vector2.Angle(forward, direction.normalized);
 
         if (angle > visionAngle)
+        {
             return false;
+        }
 
         return true;
     }
@@ -65,7 +90,8 @@ public class EnemyVision : MonoBehaviour
         detectionMeter += detectionBuildSpeed * Time.deltaTime;
         detectionMeter = Mathf.Clamp01(detectionMeter);
 
-        detectionUI.SetValue(detectionMeter);
+        if (detectionUI != null)
+            detectionUI.SetValue(detectionMeter);
 
         if (detectionMeter >= 1f)
             stateMachine.SetState(EnemyStateMachine.EnemyState.Alerted);
@@ -76,6 +102,18 @@ public class EnemyVision : MonoBehaviour
         detectionMeter -= detectionDecaySpeed * Time.deltaTime;
         detectionMeter = Mathf.Clamp01(detectionMeter);
 
-        detectionUI.SetValue(detectionMeter);
+        if (detectionUI != null)
+            detectionUI.SetValue(detectionMeter);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.green;
+        Vector3 left = Quaternion.Euler(0, 0, -visionAngle / 2) * transform.right * detectionRange;
+        Vector3 right = Quaternion.Euler(0, 0, visionAngle / 2) * transform.right * detectionRange;
+
+        Gizmos.DrawLine(transform.position, transform.position + left);  // Left side of the cone
+        Gizmos.DrawLine(transform.position, transform.position + right);  // Right side of the cone
+        Gizmos.DrawWireSphere(transform.position, detectionRange);  // Show the detection range
     }
 }
