@@ -1,54 +1,104 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
+
+[System.Serializable]
+public class BloodTrailPoint
+{
+    public int id;
+    public Vector3 position;
+    public float expireTime;
+
+    public BloodTrailPoint(int id, Vector3 position, float expireTime)
+    {
+        this.id = id;
+        this.position = position;
+        this.expireTime = expireTime;
+    }
+}
 
 public class BloodTrailManager : MonoBehaviour
 {
-    public Transform player;  // Reference to the player
-    public List<Vector3> bloodTrailPositions = new List<Vector3>();  // List of blood trail positions
-    public float trailUpdateInterval = 0.5f;  // How often the trail updates
+    public Transform player;
+    public float trailUpdateInterval = 0.5f;
+    public float minMoveDistance = 0.3f;
+    public float bloodLifetime = 5f;
+
+    public List<BloodTrailPoint> bloodTrailPoints = new List<BloodTrailPoint>();
 
     private float timeSinceLastUpdate = 0f;
+    private Vector3 lastRecordedPosition;
+    private PlayerBleeding playerBleeding;
+    private int nextBloodId = 0;
+
+    void Start()
+    {
+        if (player != null)
+        {
+            playerBleeding = player.GetComponent<PlayerBleeding>();
+            lastRecordedPosition = player.position;
+        }
+
+        bloodTrailPoints.Clear();
+    }
 
     void Update()
     {
-        // Only update the trail if the player is moving
-        if (player != null)
+        CleanupExpiredBlood();
+
+        if (player == null || playerBleeding == null) return;
+        if (!playerBleeding.IsBleeding) return;
+
+        timeSinceLastUpdate += Time.deltaTime;
+
+        if (timeSinceLastUpdate >= trailUpdateInterval)
         {
-            timeSinceLastUpdate += Time.deltaTime;
+            float dist = Vector3.Distance(player.position, lastRecordedPosition);
 
-            if (timeSinceLastUpdate >= trailUpdateInterval)
+            if (dist >= minMoveDistance)
             {
-                // Add current position to blood trail
-                bloodTrailPositions.Add(player.position);
+                AddBloodPoint(player.position);
+                lastRecordedPosition = player.position;
+            }
 
-                // Register the blood position in the EnemyBloodTracker
-                EnemyBloodTracker bloodTracker = player.GetComponent<EnemyBloodTracker>();
-                if (bloodTracker != null)
-                {
-                    bloodTracker.RegisterBloodPosition(player.position);
-                }
+            timeSinceLastUpdate = 0f;
+        }
+    }
 
-                timeSinceLastUpdate = 0f;
+    private void AddBloodPoint(Vector3 position)
+    {
+        BloodTrailPoint point = new BloodTrailPoint(
+            nextBloodId++,
+            position,
+            Time.time + bloodLifetime
+        );
+
+        bloodTrailPoints.Add(point);
+    }
+
+    private void CleanupExpiredBlood()
+    {
+        for (int i = bloodTrailPoints.Count - 1; i >= 0; i--)
+        {
+            if (Time.time >= bloodTrailPoints[i].expireTime)
+            {
+                bloodTrailPoints.RemoveAt(i);
             }
         }
     }
 
-    // Get the next blood position for the enemy to follow
-    public Vector3 GetNextBloodPosition()
+    public BloodTrailPoint GetBloodPointById(int id)
     {
-        if (bloodTrailPositions.Count > 0)
+        for (int i = 0; i < bloodTrailPoints.Count; i++)
         {
-            // Return the first blood position, and remove it from the list
-            Vector3 nextPosition = bloodTrailPositions[0];
-            bloodTrailPositions.RemoveAt(0);  // Remove it after it has been used
-            return nextPosition;
+            if (bloodTrailPoints[i].id == id)
+                return bloodTrailPoints[i];
         }
 
-        return Vector3.zero;  // No more blood, return vector3.zero
+        return null;
     }
 
-    public bool HasBloodTarget()
+    public bool IsBloodValid(int id)
     {
-        return bloodTrailPositions.Count > 0;
+        return GetBloodPointById(id) != null;
     }
 }

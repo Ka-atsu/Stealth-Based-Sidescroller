@@ -3,13 +3,13 @@ using System.Collections;
 
 public class PlayerHealth : MonoBehaviour, IDamageable
 {
-    [SerializeField] private int maxHealth = 3;
-    [SerializeField] private float bleedDurationOnHit = 4f;
+    [SerializeField] private int maxHealth = 5;
+    [SerializeField] private float bleedDurationOnHit = 10f;
 
     private int currentHealth;
     private SpriteRenderer sr;
     private PlayerBleeding bleeding;
-    private TrailRenderer bloodTrail;  // Reference to the TrailRenderer
+    private TrailRenderer bloodTrail;
 
     private void Awake()
     {

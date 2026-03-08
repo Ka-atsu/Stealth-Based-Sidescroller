@@ -63,11 +63,8 @@ public class EnemyAttack : MonoBehaviour
         // Check for collision within the attack range
         Collider2D hit = Physics2D.OverlapBox(attackPoint.position, attackBoxSize, 0f, playerLayer);
 
-        Debug.Log($"Checking attack area at {attackPoint.position}, box size {attackBoxSize}");
-
         if (hit == null)
         {
-            Debug.Log("No hit detected.");
             return;
         }
 

@@ -34,6 +34,11 @@ public class EnemyVision : MonoBehaviour
 
         stateMachine = GetComponent<EnemyStateMachine>();
         movement = GetComponent<EnemyMovement>();
+
+        if (movement == null)
+        {
+            Debug.LogError("EnemyMovement is not assigned or missing at runtime!");
+        }
     }
 
     public void Detect()
@@ -109,9 +114,20 @@ public class EnemyVision : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.green;
-        Vector3 left = Quaternion.Euler(0, 0, -visionAngle / 2) * transform.right * detectionRange;
-        Vector3 right = Quaternion.Euler(0, 0, visionAngle / 2) * transform.right * detectionRange;
 
+        if (movement == null)
+        {
+            return;  // Exit early to avoid errors
+        }
+
+        // Get the forward direction based on movement direction (flipped or not)
+        Vector3 forward = movement.MovingRight ? transform.right : -transform.right;
+
+        // Left and right points of the cone
+        Vector3 left = Quaternion.Euler(0, 0, -visionAngle / 2) * forward * detectionRange;
+        Vector3 right = Quaternion.Euler(0, 0, visionAngle / 2) * forward * detectionRange;
+
+        // Draw the vision cone as a triangle-like shape
         Gizmos.DrawLine(transform.position, transform.position + left);  // Left side of the cone
         Gizmos.DrawLine(transform.position, transform.position + right);  // Right side of the cone
         Gizmos.DrawWireSphere(transform.position, detectionRange);  // Show the detection range

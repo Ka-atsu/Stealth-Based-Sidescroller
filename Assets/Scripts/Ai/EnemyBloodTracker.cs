@@ -1,65 +1,129 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class EnemyBloodTracker : MonoBehaviour
 {
-    public float bloodDetectRadius = 4f;  // Radius within which blood is detected
-    public LayerMask bloodLayer;  // Layer mask for blood objects (if needed for detection)
+    public float bloodDetectRadius = 5f;
+    public float minDistanceBetweenBloodPoints = 0.3f;
+    public float maxDistanceFromEnemy = 15f;
+    public BloodTrailManager bloodTrailManager;
 
-    private List<Vector3> allDetectedBloodPositions = new List<Vector3>();  // Track all detected blood positions
-    private int currentBloodIndex = 0;  // Keeps track of which blood position the AI should follow
+    private Queue<int> queuedBloodIds = new Queue<int>();
+    private HashSet<int> queuedBloodSet = new HashSet<int>();
+    private HashSet<int> visitedBloodSet = new HashSet<int>();
 
-    // Register a blood position to follow (called by another script, such as BloodTrailManager)
-    public void RegisterBloodPosition(Vector3 bloodPosition)
+    void Start()
     {
-        if (!allDetectedBloodPositions.Contains(bloodPosition))
+        if (bloodTrailManager == null)
+            bloodTrailManager = FindFirstObjectByType<BloodTrailManager>();
+    }
+
+    void Update()
+    {
+        CleanupTrackedBlood();
+    }
+
+    public void DetectNearbyBlood()
+    {
+        if (bloodTrailManager == null) return;
+
+        foreach (BloodTrailPoint point in bloodTrailManager.bloodTrailPoints)
         {
-            allDetectedBloodPositions.Add(bloodPosition);
-            Debug.Log("New blood position registered at: " + bloodPosition);
+            if (Vector2.Distance(transform.position, point.position) > bloodDetectRadius)
+                continue;
+
+            if (queuedBloodSet.Contains(point.id) || visitedBloodSet.Contains(point.id))
+                continue;
+
+            if (HasQueuedBloodCloseTo(point.position))
+                continue;
+
+            RegisterBloodPoint(point.id);
         }
     }
 
-    // Get the next blood target position
-    public Vector3 GetBloodTargetPosition()
+    private bool HasQueuedBloodCloseTo(Vector3 position)
     {
-        if (allDetectedBloodPositions.Count > currentBloodIndex)
+        foreach (int id in queuedBloodIds)
         {
-            // Return the next blood position, and move the index forward
-            Vector3 nextPosition = allDetectedBloodPositions[currentBloodIndex];
-            return nextPosition;
+            BloodTrailPoint point = bloodTrailManager.GetBloodPointById(id);
+            if (point == null) continue;
+
+            if (Vector3.Distance(point.position, position) < minDistanceBetweenBloodPoints)
+                return true;
         }
-        return Vector3.zero;  // No more blood to follow
+
+        return false;
     }
 
-    // Move to the next blood target position in the list
-    public void MoveToNextBloodTarget()
+    private void RegisterBloodPoint(int bloodId)
     {
-        if (allDetectedBloodPositions.Count > currentBloodIndex)
-        {
-            currentBloodIndex++;
-        }
-        else
-        {
-            Debug.Log("No more blood positions to follow.");
-        }
+        queuedBloodIds.Enqueue(bloodId);
+        queuedBloodSet.Add(bloodId);
+
+        BloodTrailPoint point = bloodTrailManager.GetBloodPointById(bloodId);
     }
 
-    // Check if there are any blood positions to follow
+    private void CleanupTrackedBlood()
+    {
+        if (bloodTrailManager == null) return;
+
+        Queue<int> rebuiltQueue = new Queue<int>();
+        queuedBloodSet.Clear();
+
+        foreach (int id in queuedBloodIds)
+        {
+            BloodTrailPoint point = bloodTrailManager.GetBloodPointById(id);
+
+            if (point == null)
+                continue;
+
+            if (Vector2.Distance(transform.position, point.position) > maxDistanceFromEnemy)
+                continue;
+
+            rebuiltQueue.Enqueue(id);
+            queuedBloodSet.Add(id);
+        }
+
+        queuedBloodIds = rebuiltQueue;
+
+        visitedBloodSet.RemoveWhere(id => !bloodTrailManager.IsBloodValid(id));
+    }
+
     public bool HasBloodTarget()
     {
-        return allDetectedBloodPositions.Count > 0;  // Return true if there are any blood positions
+        CleanupTrackedBlood();
+        return queuedBloodIds.Count > 0;
     }
 
-    // Clean up outdated or invalid blood positions (if necessary)
-    public void CleanUpBloodPositions()
+    public Vector3 GetBloodTargetPosition()
     {
-        for (int i = allDetectedBloodPositions.Count - 1; i >= 0; i--)
-        {
-            if (Vector2.Distance(transform.position, allDetectedBloodPositions[i]) > bloodDetectRadius)
-            {
-                Debug.Log("Removing outdated blood position at: " + allDetectedBloodPositions[i]);
-                allDetectedBloodPositions.RemoveAt(i);
-            }
+        CleanupTrackedBlood();
+
+        if (queuedBloodIds.Count == 0)
+            return transform.position;
+
+        BloodTrailPoint point = bloodTrailManager.GetBloodPointById(queuedBloodIds.Peek());
+
+        if (point == null)
+            return transform.position;
+
+        return point.position;
+    }
+
+    public void MoveToNextBloodTarget()
+    {
+        CleanupTrackedBlood();
+
+        if (queuedBloodIds.Count == 0)
+        { 
+            return;
         }
+
+        int reachedId = queuedBloodIds.Dequeue();
+        queuedBloodSet.Remove(reachedId);
+        visitedBloodSet.Add(reachedId);
+
+        BloodTrailPoint point = bloodTrailManager.GetBloodPointById(reachedId);
     }
 }

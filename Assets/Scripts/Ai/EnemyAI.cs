@@ -42,10 +42,17 @@ public class EnemyAI : MonoBehaviour
     {
         if (player == null) return;
 
+        if (bloodTracker != null)
+            bloodTracker.DetectNearbyBlood();
+
         // Decrease the search timer during search
         if (stateMachine.currentState == EnemyStateMachine.EnemyState.Search)
         {
             searchTimer -= Time.deltaTime;
+            if (searchTimer <= 0f) // Ensure search time is exhausted before returning
+            {
+                stateMachine.SetState(EnemyStateMachine.EnemyState.Return);  // Transition to Return if search time is up
+            }
         }
 
         // Perform the vision detection
@@ -68,7 +75,7 @@ public class EnemyAI : MonoBehaviour
         EnemyStateMachine.EnemyState currentState = stateMachine.currentState;
         if (currentState != previousState)
         {
-            Debug.Log("State changed from " + previousState.ToString() + " to " + currentState.ToString());
+            //Debug.Log("State changed from " + previousState.ToString() + " to " + currentState.ToString());
             previousState = currentState;  // Update previous state
         }
 
@@ -97,7 +104,7 @@ public class EnemyAI : MonoBehaviour
             case EnemyStateMachine.EnemyState.Alerted:
                 if (canSeePlayer)
                 {
-                    if (attack != null && attack.CanAttack())
+                    if (attack != null && attack.CanAttack() && !attack.IsAttacking) // Ensure it is not already attacking
                     {
                         stateMachine.SetState(EnemyStateMachine.EnemyState.Attack);  // Transition to Attack state
                     }
@@ -121,30 +128,35 @@ public class EnemyAI : MonoBehaviour
                 break;
 
             case EnemyStateMachine.EnemyState.FollowBlood:
-                if (hasBlood)
+                if (canSeePlayer)
+                {
+                    stateMachine.SetState(EnemyStateMachine.EnemyState.Alerted);
+                }
+                else if (hearingSearch)
+                {
+                    stateMachine.SetState(EnemyStateMachine.EnemyState.Search);
+                }
+                else if (hasBlood)
                 {
                     Vector3 bloodTargetPosition = bloodTracker.GetBloodTargetPosition();
-                    if (bloodTargetPosition != Vector3.zero)
-                    {
-                        movement.Chase(bloodTargetPosition);  // Chase blood target
+                    movement.Chase(bloodTargetPosition);
 
-                        float distToBlood = Vector2.Distance(transform.position, bloodTargetPosition);
-                        if (distToBlood <= 0.5f)
-                        {
-                            bloodTracker.MoveToNextBloodTarget();  // Move to next blood target
-                        }
+                    float distToBlood = Vector2.Distance(transform.position, bloodTargetPosition);
+                    if (distToBlood <= 0.5f)
+                    {
+                        bloodTracker.MoveToNextBloodTarget();
                     }
                 }
                 else
                 {
-                    stateMachine.SetState(EnemyStateMachine.EnemyState.Search);  // Fallback to Search if no blood
+                    stateMachine.SetState(EnemyStateMachine.EnemyState.Search);
                 }
                 break;
 
             case EnemyStateMachine.EnemyState.Search:
-                if (searchTimer <= 0f)  // Check if the search time has expired
+                if (searchTimer <= 0f)  // Transition to Return if time is up
                 {
-                    stateMachine.SetState(EnemyStateMachine.EnemyState.Return);  // Return to patrol if time is up
+                    stateMachine.SetState(EnemyStateMachine.EnemyState.Return);
                 }
                 else
                 {
@@ -153,14 +165,26 @@ public class EnemyAI : MonoBehaviour
 
                     if (dist > searchReachDistance)
                     {
-                        // If we're not close enough to the search target, keep chasing it
                         movement.Chase(searchTarget);  // Move towards the target
                     }
                     else
                     {
-                        // Once close enough, start random search behavior
                         searchBehavior.SearchRandomly(searchTarget);  // Search randomly in the area
                     }
+                }
+                break;
+
+            case EnemyStateMachine.EnemyState.Attack:
+                if (attack != null)
+                    attack.TryAttack();
+
+                if (!canSeePlayer)
+                {
+                    stateMachine.SetState(EnemyStateMachine.EnemyState.Search);
+                }
+                else if (!attack.IsAttacking && !attack.CanAttack())
+                {
+                    stateMachine.SetState(EnemyStateMachine.EnemyState.Alerted);
                 }
                 break;
 
