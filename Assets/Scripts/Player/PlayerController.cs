@@ -12,9 +12,10 @@ public class PlayerController2D : MonoBehaviour
 
     public bool IsHanging { get; private set; }
 
-    private PlayerControls playerControls;  // Reference to Input System actions
+    public float DefaultGravity => defaultGravity;
 
-    private SmokeBombController smokeBombController;  // Reference to the SmokeBombController
+    private PlayerControls playerControls;
+    private SmokeBombController smokeBombController;
 
     Rigidbody2D rb;
     float defaultGravity;
@@ -24,6 +25,8 @@ public class PlayerController2D : MonoBehaviour
     PlayerMotor2D motor;
     PlayerJump2D jump;
     PlayerDash2D dash;
+
+    PlayerGrappleHang2D grapple;
 
     void Awake()
     {
@@ -37,26 +40,21 @@ public class PlayerController2D : MonoBehaviour
         motor = GetComponent<PlayerMotor2D>();
         jump = GetComponent<PlayerJump2D>();
         dash = GetComponent<PlayerDash2D>();
+        grapple = GetComponent<PlayerGrappleHang2D>();
 
-        // Initialize the Input System actions
         playerControls = new PlayerControls();
 
-        // Find the SmokeBombController component (either attached to the player or a separate object)
         smokeBombController = GetComponentInChildren<SmokeBombController>();
     }
 
     void OnEnable()
     {
-        // Enable the input actions
         playerControls.Enable();
-
-        // Listen for Smoke Bomb input (Q button) and trigger the action
         playerControls.Player.SmokeBomb.performed += context => TriggerSmokeBomb();
     }
 
     void OnDisable()
     {
-        // Disable the input actions
         playerControls.Disable();
     }
 
@@ -66,21 +64,18 @@ public class PlayerController2D : MonoBehaviour
 
         if (IsHanging)
         {
-            rb.linearVelocity = Vector2.zero; // Stop all movement when hanging
+            rb.linearVelocity = Vector2.zero;
             return;
         }
 
-        // When dashing: keep sensors updated, but stop other movement systems (cleaner than your current version)
         if (dash.IsDashing)
         {
             dash.TickFixed(Time.fixedDeltaTime, sensors.IsGrounded);
             return;
         }
 
-        // Update jump system first (coyote/buffer/wall slide/gravity/jump)
         jump.TickFixed(Time.fixedDeltaTime, sensors, JumpHeld);
 
-        // Horizontal movement (blocked by wall jump lock like your original)
         motor.TickFixed(
             Time.fixedDeltaTime,
             MoveInput,
@@ -90,13 +85,13 @@ public class PlayerController2D : MonoBehaviour
             jump.IsMovementLocked
         );
 
-        // Dash cooldown ticks only when not dashing (matches your original return behavior)
         dash.TickCooldown(Time.fixedDeltaTime, sensors.IsGrounded);
     }
 
     // -----------------------
-    // Called by PlayerInputHandler
+    // Input
     // -----------------------
+
     public void SetMove(Vector2 v)
     {
         if (IsHanging)
@@ -114,7 +109,7 @@ public class PlayerController2D : MonoBehaviour
 
         if (IsHanging && held)
         {
-            StopHang();
+            grapple.DropHang();
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, 8f);
             return;
         }
@@ -137,7 +132,7 @@ public class PlayerController2D : MonoBehaviour
     {
         if (IsHanging && crouching)
         {
-            StopHang();
+            grapple.DropHang();
             return;
         }
 
@@ -156,35 +151,29 @@ public class PlayerController2D : MonoBehaviour
         );
     }
 
-    public void StartHang(Vector2 hangPosition)
+    // -----------------------
+    // Hang state (called by grapple system)
+    // -----------------------
+
+    public void SetHanging(bool state)
     {
-        IsHanging = true;
+        IsHanging = state;
 
-        rb.linearVelocity = Vector2.zero;
-        rb.gravityScale = 0f;
-
-        transform.position = hangPosition;
-    }
-
-    public void StopHang()
-    {
-        IsHanging = false;
-
-        rb.gravityScale = defaultGravity;
-        MoveInput = Vector2.zero;
-
-        PlayerHang2D hang = GetComponent<PlayerHang2D>();
-
-        if (hang != null)
+        if (state)
         {
-            hang.SetHangCooldown(0.25f);
-            hang.SetRehangCooldown(0.35f);
+            rb.linearVelocity = Vector2.zero;
+            rb.gravityScale = 0f;
+        }
+        else
+        {
+            rb.gravityScale = defaultGravity;
         }
     }
 
     // -------------------------
-    // smoke bomb logic
+    // Smoke bomb
     // -------------------------
+
     private void TriggerSmokeBomb()
     {
         if (smokeBombController != null)

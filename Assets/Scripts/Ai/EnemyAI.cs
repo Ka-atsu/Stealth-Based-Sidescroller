@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
 {
@@ -14,8 +14,10 @@ public class EnemyAI : MonoBehaviour
 
     Vector3 currentSearchTarget;
 
-    float searchReachDistance = 0.2f;
-    float searchTimer = 10f;
+    EnemyStateMachine.EnemyState lastState;
+
+    float searchTimer = 0f;
+    float searchDuration = 5f;
 
     void Start()
     {
@@ -52,192 +54,179 @@ public class EnemyAI : MonoBehaviour
         Vector3 hearingTarget = hearingSearch ? hearing.lastHeardPosition : Vector3.zero;
 
         //----------------------------------
-        // STATE LOGIC
+        // STATE DECISION (PRIORITY)
+        //----------------------------------
+
+        if (attack != null && attack.CanAttack() && canSeePlayer)
+        {
+            stateMachine.SetState(EnemyStateMachine.EnemyState.Attack);
+        }
+        else if (canSeePlayer)
+        {
+            stateMachine.SetState(EnemyStateMachine.EnemyState.Alerted);
+        }
+        else if (hasBlood)
+        {
+            stateMachine.SetState(EnemyStateMachine.EnemyState.FollowBlood);
+        }
+        else if (hearingSearch && stateMachine.currentState != EnemyStateMachine.EnemyState.Search)
+        {
+            EnterSearch(hearingTarget);
+            hearing.StopInvestigating();
+        }
+        else if (stateMachine.currentState == EnemyStateMachine.EnemyState.Search)
+        {
+            // let search logic run
+        }
+        else if (stateMachine.currentState == EnemyStateMachine.EnemyState.FollowBlood && !hasBlood)
+        {
+            EnterSearch(transform.position);
+        }
+        else if (stateMachine.currentState != EnemyStateMachine.EnemyState.Patrol)
+        {
+            stateMachine.SetState(EnemyStateMachine.EnemyState.Patrol);
+        }
+
+        //----------------------------------
+        // DEBUG STATE CHANGE
+        //----------------------------------
+
+        if (stateMachine.currentState != lastState)
+        {
+            Debug.Log("CURRENT AI STATE → " + stateMachine.currentState);
+            lastState = stateMachine.currentState;
+        }
+
+        //----------------------------------
+        // STATE EXECUTION
         //----------------------------------
 
         switch (stateMachine.currentState)
         {
-
-            //----------------------------------
-            // PATROL
-            //----------------------------------
-
             case EnemyStateMachine.EnemyState.Patrol:
 
-                if (canSeePlayer)
-                {
-                    stateMachine.SetState(EnemyStateMachine.EnemyState.Alerted);
-                }
-                else if (hasBlood)
-                {
-                    stateMachine.SetState(EnemyStateMachine.EnemyState.FollowBlood);
-                }
-                else if (hearingSearch)
-                {
-                    EnterSearch(hearingTarget);
-                }
-                else
-                {
-                    movement.Patrol();
-                }
-
+                movement.Patrol();
                 break;
 
-
-            //----------------------------------
-            // ALERTED (CHASE PLAYER)
-            //----------------------------------
 
             case EnemyStateMachine.EnemyState.Alerted:
 
-                if (canSeePlayer)
+                movement.Chase(player.position);
+                break;
+
+
+            case EnemyStateMachine.EnemyState.FollowBlood:
+
+                if (hasBlood)
                 {
-                    if (attack != null && attack.CanAttack())
-                    {
-                        stateMachine.SetState(EnemyStateMachine.EnemyState.Attack);
-                    }
-                    else
-                    {
-                        movement.Chase(player.position);
-                    }
-                }
-                else if (hasBlood)
-                {
-                    stateMachine.SetState(EnemyStateMachine.EnemyState.FollowBlood);
-                }
-                else if (hearingSearch)
-                {
-                    EnterSearch(hearingTarget);
-                }
-                else
-                {
-                    EnterSearch(vision.LastSeenPosition);
+                    Vector3 bloodTarget = bloodTracker.GetBloodTargetPosition();
+                    movement.Chase(bloodTarget);
+
+                    float dist = Vector2.Distance(transform.position, bloodTarget);
+
+                    if (dist < 0.5f)
+                        bloodTracker.MoveToNextBloodTarget();
                 }
 
                 break;
 
 
-            //----------------------------------
-            // FOLLOW BLOOD
-            //----------------------------------
-
-            case EnemyStateMachine.EnemyState.FollowBlood:
-                {
-                    if (canSeePlayer)
-                    {
-                        stateMachine.SetState(EnemyStateMachine.EnemyState.Alerted);
-                    }
-                    else if (hearingSearch)
-                    {
-                        EnterSearch(hearingTarget);
-                    }
-                    else if (hasBlood)
-                    {
-                        Vector3 bloodTarget = bloodTracker.GetBloodTargetPosition();
-
-                        movement.Chase(bloodTarget);
-
-                        float dist = Vector2.Distance(transform.position, bloodTarget);
-
-                        if (dist <= 0.5f)
-                            bloodTracker.MoveToNextBloodTarget();
-                    }
-                    else
-                    {
-                        EnterSearch(vision.LastSeenPosition);
-                    }
-
-                    break;
-                }
-
-
-            //----------------------------------
-            // SEARCH
-            //----------------------------------
-
             case EnemyStateMachine.EnemyState.Search:
+
+                // Player spotted again
+                if (canSeePlayer)
                 {
-                    searchTimer -= Time.deltaTime;
-
-                    if (searchTimer <= 0f)
-                    {
-                        stateMachine.SetState(EnemyStateMachine.EnemyState.Return);
-                        break;
-                    }
-
-                    float dist = Vector2.Distance(transform.position, currentSearchTarget);
-
-                    if (dist > searchReachDistance)
-                    {
-                        movement.Chase(currentSearchTarget);
-                    }
-                    else
-                    {
-                        searchBehavior.SearchRandomly(currentSearchTarget);
-                    }
-
+                    stateMachine.SetState(EnemyStateMachine.EnemyState.Alerted);
                     break;
                 }
 
+                // Blood found again
+                if (hasBlood)
+                {
+                    stateMachine.SetState(EnemyStateMachine.EnemyState.FollowBlood);
+                    break;
+                }
 
-            //----------------------------------
-            // ATTACK
-            //----------------------------------
+                searchTimer -= Time.deltaTime;
+
+                searchBehavior.SearchRandomly(currentSearchTarget);
+
+                if (searchTimer <= 0f)
+                {
+                    Debug.Log("AI: Search finished → RETURN");
+                    stateMachine.SetState(EnemyStateMachine.EnemyState.Return);
+                }
+
+                break;
+
 
             case EnemyStateMachine.EnemyState.Attack:
 
                 movement.Stop();
 
-                if (attack != null && !attack.IsAttacking)
+                if (!attack.IsAttacking)
                 {
+                    Debug.Log("AI: Performing attack");
                     attack.TryAttack();
-                }
-
-                if (!canSeePlayer)
-                {
-                    EnterSearch(vision.LastSeenPosition);
-                }
-                else if (!attack.CanAttack())
-                {
-                    stateMachine.SetState(EnemyStateMachine.EnemyState.Alerted);
                 }
 
                 break;
 
 
-            //----------------------------------
-            // RETURN
-            //----------------------------------
-
             case EnemyStateMachine.EnemyState.Return:
 
-                if (canSeePlayer)
-                {
-                    stateMachine.SetState(EnemyStateMachine.EnemyState.Alerted);
-                }
-                else if (hasBlood)
-                {
-                    stateMachine.SetState(EnemyStateMachine.EnemyState.FollowBlood);
-                }
-                else
-                {
-                    movement.Patrol();
-                }
+                movement.Patrol();
+
+                stateMachine.SetState(EnemyStateMachine.EnemyState.Patrol);
 
                 break;
         }
     }
 
-
     //----------------------------------
-    // ENTER SEARCH STATE
+    // ENTER SEARCH
     //----------------------------------
 
     void EnterSearch(Vector3 target)
     {
+        if (stateMachine.currentState == EnemyStateMachine.EnemyState.Search)
+            return;
+
+        Debug.Log("AI: Entering SEARCH");
+
         currentSearchTarget = target;
-        searchTimer = 10f;
+        searchTimer = searchDuration;
+
+        searchBehavior.ResetSearch();
 
         stateMachine.SetState(EnemyStateMachine.EnemyState.Search);
+    }
+
+    //----------------------------------
+    // GIZMOS
+    //----------------------------------
+
+    void OnDrawGizmos()
+    {
+        if (stateMachine == null) return;
+
+#if UNITY_EDITOR
+        UnityEditor.Handles.Label(
+            transform.position + Vector3.up * 1.5f,
+            "STATE: " + stateMachine.currentState.ToString()
+        );
+#endif
+
+        if (attack != null)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(attack.attackPoint.position, attack.attackRange);
+        }
+
+        if (player != null)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawLine(transform.position, player.position);
+        }
     }
 }

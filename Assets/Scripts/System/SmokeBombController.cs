@@ -25,9 +25,6 @@ public class SmokeBombController : MonoBehaviour
                 Quaternion.identity
             );
         }
-
-        Debug.Log("Smoke Bomb Triggered!");
-
         StartCoroutine(DisableSmokeBomb());
     }
 
@@ -51,6 +48,5 @@ public class SmokeBombController : MonoBehaviour
         }
 
         isSmokeBombActive = false;
-        Debug.Log("Smoke Bomb Ended");
     }
 }

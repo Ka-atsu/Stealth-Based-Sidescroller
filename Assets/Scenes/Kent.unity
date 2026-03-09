@@ -240,7 +240,7 @@ Transform:
   m_GameObject: {fileID: 184655049}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1, y: -0.02, z: 0}
+  m_LocalPosition: {x: 0.6, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -281,7 +281,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -409.7471, y: 159.34378}
+  m_AnchoredPosition: {x: -757, y: 438}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &226147785
@@ -523,20 +523,20 @@ CompositeCollider2D:
   m_ColliderPaths:
   - m_Collider: {fileID: 352514919}
     m_ColliderPaths:
-    - - X: 60000000
-        Y: 80000000
-      - X: 40000000
-        Y: 80000000
-      - X: 40000000
-        Y: 70000000
-      - X: 60000000
-        Y: 70000000
+    - - X: 80000000
+        Y: 110000000
+      - X: 50000000
+        Y: 110000000
+      - X: 50000000
+        Y: 90000000
+      - X: 80000000
+        Y: 90000000
   m_CompositePaths:
     m_Paths:
-    - - {x: 5.999971, y: 7}
-      - {x: 5.999971, y: 8}
-      - {x: 4, y: 7.9999704}
-      - {x: 4.000029, y: 7}
+    - - {x: 7.9999704, y: 9}
+      - {x: 7.9999704, y: 11}
+      - {x: 5, y: 10.99997}
+      - {x: 5.000029, y: 9}
   m_VertexDistance: 0.0005
   m_OffsetDistance: 0.00005
   m_UseDelaunayMesh: 0
@@ -671,7 +671,7 @@ Tilemap:
   m_GameObject: {fileID: 352514915}
   m_Enabled: 1
   m_Tiles:
-  - first: {x: 4, y: 7, z: 0}
+  - first: {x: 5, y: 9, z: 0}
     second:
       serializedVersion: 2
       m_TileIndex: 7
@@ -681,7 +681,47 @@ Tilemap:
       m_TileObjectToInstantiateIndex: 65535
       dummyAlignment: 0
       m_AllTileFlags: 1073741825
-  - first: {x: 5, y: 7, z: 0}
+  - first: {x: 6, y: 9, z: 0}
+    second:
+      serializedVersion: 2
+      m_TileIndex: 7
+      m_TileSpriteIndex: 10
+      m_TileMatrixIndex: 0
+      m_TileColorIndex: 7
+      m_TileObjectToInstantiateIndex: 65535
+      dummyAlignment: 0
+      m_AllTileFlags: 1073741825
+  - first: {x: 7, y: 9, z: 0}
+    second:
+      serializedVersion: 2
+      m_TileIndex: 7
+      m_TileSpriteIndex: 10
+      m_TileMatrixIndex: 0
+      m_TileColorIndex: 7
+      m_TileObjectToInstantiateIndex: 65535
+      dummyAlignment: 0
+      m_AllTileFlags: 1073741825
+  - first: {x: 5, y: 10, z: 0}
+    second:
+      serializedVersion: 2
+      m_TileIndex: 7
+      m_TileSpriteIndex: 10
+      m_TileMatrixIndex: 0
+      m_TileColorIndex: 7
+      m_TileObjectToInstantiateIndex: 65535
+      dummyAlignment: 0
+      m_AllTileFlags: 1073741825
+  - first: {x: 6, y: 10, z: 0}
+    second:
+      serializedVersion: 2
+      m_TileIndex: 7
+      m_TileSpriteIndex: 10
+      m_TileMatrixIndex: 0
+      m_TileColorIndex: 7
+      m_TileObjectToInstantiateIndex: 65535
+      dummyAlignment: 0
+      m_AllTileFlags: 1073741825
+  - first: {x: 7, y: 10, z: 0}
     second:
       serializedVersion: 2
       m_TileIndex: 7
@@ -707,8 +747,8 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
-  - m_RefCount: 2
-    m_Data: {fileID: 11400000, guid: 8d90206a7baf21b46b36816faf008f1f, type: 2}
+  - m_RefCount: 6
+    m_Data: {fileID: 11400000, guid: c9540f913a32d5e4b9d522821411163c, type: 2}
   m_TileSpriteArray:
   - m_RefCount: 0
     m_Data: {fileID: 0}
@@ -730,10 +770,10 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
-  - m_RefCount: 2
-    m_Data: {fileID: -1804283421, guid: 3cbefd106d07b8349b18fee66da6187c, type: 3}
+  - m_RefCount: 6
+    m_Data: {fileID: 748926595, guid: 3cbefd106d07b8349b18fee66da6187c, type: 3}
   m_TileMatrixArray:
-  - m_RefCount: 2
+  - m_RefCount: 6
     m_Data:
       e00: 1
       e01: 0
@@ -766,13 +806,13 @@ Tilemap:
     m_Data: {r: 7.0864e-41, g: 7.0864e-41, b: 7.0864e-41, a: 7.0864e-41}
   - m_RefCount: 0
     m_Data: {r: 7.0864e-41, g: 7.0864e-41, b: 7.0864e-41, a: 7.0864e-41}
-  - m_RefCount: 2
+  - m_RefCount: 6
     m_Data: {r: 1, g: 1, b: 1, a: 1}
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Origin: {x: -34, y: -9, z: 0}
-  m_Size: {x: 52, y: 17, z: 1}
+  m_Size: {x: 52, y: 20, z: 1}
   m_TileAnchor: {x: 0.5, y: 0.5, z: 0}
   m_TileOrientation: 0
   m_TileOrientationMatrix:
@@ -5816,7 +5856,6 @@ GameObject:
   - component: {fileID: 8744417677171919649}
   - component: {fileID: 8744417677171919651}
   - component: {fileID: 8744417677171919652}
-  - component: {fileID: 8744417677171919653}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -6392,6 +6431,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SmokeBombController
   smokeBombPrefab: {fileID: 3484378808957124179, guid: 8ced9a89356b97e458c781084ca5d6f4, type: 3}
   smokeBombSpawnPoint: {fileID: 1837121649}
+  smokeDuration: 5
 --- !u!114 &8744417677171919652
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6401,31 +6441,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 89356060533020096}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7ae8fa29d0d3f2d4f8bad64bd8e8a5f8, type: 3}
+  m_Script: {fileID: 11500000, guid: 397d494b712c3c54eb8e4a3a009b2cc1, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerHang2D
-  hangCheck: {fileID: 1165423174}
-  hangRadius: 0.6
-  hangLayer:
-    serializedVersion: 2
-    m_Bits: 1024
---- !u!114 &8744417677171919653
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 89356060533020096}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5d117ab9c674654c893ecee342763b5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerGrapple2D
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerGrappleHang2D
   grappleRange: 8
+  pullSpeed: 18
   hangLayer:
     serializedVersion: 2
     m_Bits: 1024
-  pullSpeed: 15
+  debugLogs: 1
 --- !u!212 &9194313088563764781
 SpriteRenderer:
   serializedVersion: 2
@@ -6511,9 +6535,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyVision
   detectionRange: 5
-  visionAngle: 30
-  detectionBuildSpeed: 0.6
-  detectionDecaySpeed: 0.4
+  visionAngle: 35
+  visionMask:
+    serializedVersion: 2
+    m_Bits: 72
+  detectionBuildSpeed: 0.5
+  detectionDecaySpeed: 0.6
   suspicionThreshold: 0.35
   detectionUI: {fileID: 641655198}
 --- !u!114 &9194313088563764784
@@ -6612,6 +6639,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 406267a296ff26f4ca06d02ac95a596c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySearchBehavior
+  searchRadius: 2
+  reachDistance: 0.5
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

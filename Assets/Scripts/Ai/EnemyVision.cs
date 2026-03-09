@@ -5,10 +5,11 @@ public class EnemyVision : MonoBehaviour
     public float detectionRange = 5f;
     public float visionAngle = 35f;
 
+    public LayerMask visionMask;
+
     public float detectionBuildSpeed = 0.5f;
     public float detectionDecaySpeed = 0.6f;
 
-    // Metal Gear style suspicion threshold
     public float suspicionThreshold = 0.35f;
 
     public DetectionMeterUI detectionUI;
@@ -18,11 +19,12 @@ public class EnemyVision : MonoBehaviour
 
     float detectionMeter;
 
-    EnemyStateMachine stateMachine;
     EnemyMovement movement;
 
     public bool CanSeePlayerNow { get; private set; }
     public Vector3 LastSeenPosition { get; private set; }
+
+    public float DetectionMeter => detectionMeter;
 
     void Start()
     {
@@ -35,13 +37,7 @@ public class EnemyVision : MonoBehaviour
             LastSeenPosition = player.position;
         }
 
-        stateMachine = GetComponent<EnemyStateMachine>();
         movement = GetComponent<EnemyMovement>();
-
-        if (movement == null)
-        {
-            Debug.LogError("EnemyMovement is not assigned or missing at runtime!");
-        }
     }
 
     public void Detect()
@@ -64,50 +60,38 @@ public class EnemyVision : MonoBehaviour
             DecreaseDetection();
         }
 
-        // FULL detection
-        if (detectionMeter >= 1f)
-        {
-            CanSeePlayerNow = true;
-        }
-        else
-        {
-            CanSeePlayerNow = false;
-
-            // Suspicion stage (Metal Gear style)
-            if (detectionMeter >= suspicionThreshold)
-            {
-                if (stateMachine.currentState == EnemyStateMachine.EnemyState.Patrol)
-                {
-                    stateMachine.SetState(EnemyStateMachine.EnemyState.Search);
-                }
-            }
-        }
+        // Only report visibility
+        CanSeePlayerNow = detectionMeter >= 1f;
     }
 
     bool CanSeePlayer()
     {
         if (playerNoise != null && playerNoise.isHidden)
-        {
             return false;
-        }
 
         Vector2 direction = (Vector2)(player.position - transform.position);
 
         if (direction.magnitude > detectionRange)
-        {
             return false;
-        }
 
         Vector2 forward = movement.MovingRight ? Vector2.right : Vector2.left;
 
         float angle = Vector2.Angle(forward, direction.normalized);
 
         if (angle > visionAngle)
-        {
             return false;
-        }
 
-        return true;
+        RaycastHit2D hit = Physics2D.Raycast(
+            transform.position,
+            direction.normalized,
+            detectionRange,
+            visionMask
+        );
+
+        if (hit.collider != null && hit.collider.CompareTag("Player"))
+            return true;
+
+        return false;
     }
 
     void IncreaseDetection()
@@ -117,10 +101,8 @@ public class EnemyVision : MonoBehaviour
 
         float angle = Vector2.Angle(forward, direction.normalized);
 
-        // Normalize how centered the player is (0 = center, 1 = edge)
         float edgeFactor = angle / visionAngle;
 
-        // Detection is faster near center
         float speedMultiplier = Mathf.Lerp(1f, 0.3f, edgeFactor);
 
         detectionMeter += detectionBuildSpeed * speedMultiplier * Time.deltaTime;
@@ -128,11 +110,6 @@ public class EnemyVision : MonoBehaviour
 
         if (detectionUI != null)
             detectionUI.SetValue(detectionMeter);
-
-        if (detectionMeter >= 1f)
-        {
-            stateMachine.SetState(EnemyStateMachine.EnemyState.Alerted);
-        }
     }
 
     void DecreaseDetection()
@@ -149,9 +126,7 @@ public class EnemyVision : MonoBehaviour
         Gizmos.color = Color.green;
 
         if (movement == null)
-        {
             return;
-        }
 
         Vector3 forward = movement.MovingRight ? transform.right : -transform.right;
 

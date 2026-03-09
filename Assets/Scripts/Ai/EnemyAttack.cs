@@ -28,12 +28,15 @@ public class EnemyAttack : MonoBehaviour
         if (isAttacking) return false;
         if (Time.time < lastAttackTime + attackCooldown) return false;
 
-        float dist = Vector2.Distance(transform.position, player.position);
+        float dist = Mathf.Abs(player.position.x - transform.position.x);
+
         return dist <= attackRange;
     }
 
     public void TryAttack()
     {
+        if (isAttacking) return;
+
         StartCoroutine(AttackRoutine());
     }
 
@@ -42,28 +45,38 @@ public class EnemyAttack : MonoBehaviour
         isAttacking = true;
         lastAttackTime = Time.time;
 
-        yield return new WaitForSeconds(0.1f);  // Wait before hitting
+        Debug.Log("Enemy started attack");
 
-        DoSlashHit();  // Perform the actual attack
+        yield return new WaitForSeconds(0.1f);
 
-        yield return new WaitForSeconds(0.2f);  // Wait for the attack animation to finish
+        DoSlashHit();
 
-        isAttacking = false;  // Allow the next attack
+        yield return new WaitForSeconds(attackCooldown);
+
+        isAttacking = false;
     }
 
-    private void DoSlashHit()
+    void DoSlashHit()
     {
-        Debug.Log("Enemy attempted attack");
+        if (player == null) return;
 
-        Collider2D hit = Physics2D.OverlapBox(attackPoint.position, attackBoxSize, 0f, playerLayer);
+        // Face the player
+        Vector2 dir = (player.position - transform.position).normalized;
+
+        // Position hitbox in front of enemy
+        Vector2 hitPosition = (Vector2)transform.position + dir * 1.2f;
+
+        Collider2D hit = Physics2D.OverlapBox(
+            hitPosition,
+            attackBoxSize,
+            0f,
+            playerLayer
+        );
 
         if (hit == null)
         {
-            Debug.Log("Attack missed");
             return;
         }
-
-        Debug.Log("Player detected in attack box");
 
         IDamageable d = hit.GetComponentInParent<IDamageable>();
 
@@ -75,9 +88,12 @@ public class EnemyAttack : MonoBehaviour
 
     void OnDrawGizmosSelected()
     {
-        if (attackPoint == null) return;
+        if (player == null) return;
+
+        Vector2 dir = (player.position - transform.position).normalized;
+        Vector2 hitPosition = (Vector2)transform.position + dir * 1.2f;
 
         Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(attackPoint.position, attackBoxSize);
+        Gizmos.DrawWireCube(hitPosition, attackBoxSize);
     }
 }
