@@ -5,10 +5,14 @@ using UnityEngine.InputSystem;
 public class PlayerInputHandler : MonoBehaviour
 {
     PlayerController2D controller;
+    PlayerGrapple2D grapple;
+
+    Vector2 mousePosition;
 
     void Awake()
     {
         controller = GetComponent<PlayerController2D>();
+        grapple = GetComponent<PlayerGrapple2D>();
     }
 
     public void OnMove(InputValue value)
@@ -45,5 +49,18 @@ public class PlayerInputHandler : MonoBehaviour
     {
         if (!value.isPressed) return;
         controller.TryDash();
+    }
+
+    public void OnLook(InputValue value)
+    {
+        mousePosition = value.Get<Vector2>();
+    }
+
+    public void OnGrapple(InputValue value)
+    {
+        if (!value.isPressed) return;
+
+        if (grapple != null)
+            grapple.TryGrapple(mousePosition);
     }
 }

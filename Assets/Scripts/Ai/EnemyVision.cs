@@ -3,10 +3,13 @@
 public class EnemyVision : MonoBehaviour
 {
     public float detectionRange = 5f;
-    public float visionAngle = 30f;
+    public float visionAngle = 35f;
 
-    public float detectionBuildSpeed = 0.6f;
-    public float detectionDecaySpeed = 0.4f;
+    public float detectionBuildSpeed = 0.5f;
+    public float detectionDecaySpeed = 0.6f;
+
+    // Metal Gear style suspicion threshold
+    public float suspicionThreshold = 0.35f;
 
     public DetectionMeterUI detectionUI;
 
@@ -51,8 +54,6 @@ public class EnemyVision : MonoBehaviour
 
         bool seesPlayer = CanSeePlayer();
 
-        CanSeePlayerNow = seesPlayer;
-
         if (seesPlayer)
         {
             LastSeenPosition = player.position;
@@ -61,6 +62,25 @@ public class EnemyVision : MonoBehaviour
         else
         {
             DecreaseDetection();
+        }
+
+        // FULL detection
+        if (detectionMeter >= 1f)
+        {
+            CanSeePlayerNow = true;
+        }
+        else
+        {
+            CanSeePlayerNow = false;
+
+            // Suspicion stage (Metal Gear style)
+            if (detectionMeter >= suspicionThreshold)
+            {
+                if (stateMachine.currentState == EnemyStateMachine.EnemyState.Patrol)
+                {
+                    stateMachine.SetState(EnemyStateMachine.EnemyState.Search);
+                }
+            }
         }
     }
 
@@ -92,14 +112,27 @@ public class EnemyVision : MonoBehaviour
 
     void IncreaseDetection()
     {
-        detectionMeter += detectionBuildSpeed * Time.deltaTime;
+        Vector2 direction = (Vector2)(player.position - transform.position);
+        Vector2 forward = movement.MovingRight ? Vector2.right : Vector2.left;
+
+        float angle = Vector2.Angle(forward, direction.normalized);
+
+        // Normalize how centered the player is (0 = center, 1 = edge)
+        float edgeFactor = angle / visionAngle;
+
+        // Detection is faster near center
+        float speedMultiplier = Mathf.Lerp(1f, 0.3f, edgeFactor);
+
+        detectionMeter += detectionBuildSpeed * speedMultiplier * Time.deltaTime;
         detectionMeter = Mathf.Clamp01(detectionMeter);
 
         if (detectionUI != null)
             detectionUI.SetValue(detectionMeter);
 
         if (detectionMeter >= 1f)
+        {
             stateMachine.SetState(EnemyStateMachine.EnemyState.Alerted);
+        }
     }
 
     void DecreaseDetection()
@@ -117,19 +150,16 @@ public class EnemyVision : MonoBehaviour
 
         if (movement == null)
         {
-            return;  // Exit early to avoid errors
+            return;
         }
 
-        // Get the forward direction based on movement direction (flipped or not)
         Vector3 forward = movement.MovingRight ? transform.right : -transform.right;
 
-        // Left and right points of the cone
         Vector3 left = Quaternion.Euler(0, 0, -visionAngle / 2) * forward * detectionRange;
         Vector3 right = Quaternion.Euler(0, 0, visionAngle / 2) * forward * detectionRange;
 
-        // Draw the vision cone as a triangle-like shape
-        Gizmos.DrawLine(transform.position, transform.position + left);  // Left side of the cone
-        Gizmos.DrawLine(transform.position, transform.position + right);  // Right side of the cone
-        Gizmos.DrawWireSphere(transform.position, detectionRange);  // Show the detection range
+        Gizmos.DrawLine(transform.position, transform.position + left);
+        Gizmos.DrawLine(transform.position, transform.position + right);
+        Gizmos.DrawWireSphere(transform.position, detectionRange);
     }
 }

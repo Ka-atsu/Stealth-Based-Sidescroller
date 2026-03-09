@@ -34,13 +34,6 @@ public class EnemyAttack : MonoBehaviour
 
     public void TryAttack()
     {
-        if (!CanAttack())  // Check if the enemy is allowed to attack
-        {
-            Debug.Log("Cannot attack yet!");
-            return;
-        }
-
-        Debug.Log("Attempting to attack");
         StartCoroutine(AttackRoutine());
     }
 
@@ -60,24 +53,31 @@ public class EnemyAttack : MonoBehaviour
 
     private void DoSlashHit()
     {
-        // Check for collision within the attack range
+        Debug.Log("Enemy attempted attack");
+
         Collider2D hit = Physics2D.OverlapBox(attackPoint.position, attackBoxSize, 0f, playerLayer);
 
         if (hit == null)
         {
+            Debug.Log("Attack missed");
             return;
         }
 
-        // Attempt to deal damage to the player
-        IDamageable d = hit.GetComponentInParent<IDamageable>();  // Look for IDamageable component in the player
+        Debug.Log("Player detected in attack box");
+
+        IDamageable d = hit.GetComponentInParent<IDamageable>();
+
         if (d != null)
         {
-            d.TakeDamage(damage);  // Apply damage to the player
-            Debug.Log("Player hit!");
+            d.TakeDamage(damage);
         }
-        else
-        {
-            Debug.Log("No IDamageable found");
-        }
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        if (attackPoint == null) return;
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(attackPoint.position, attackBoxSize);
     }
 }

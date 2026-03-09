@@ -73,6 +73,13 @@ public class EnemyMovement : MonoBehaviour
         rb.linearVelocity = new Vector2((movingRight ? 1 : -1) * speed, rb.linearVelocity.y);  // Only modify x for movement
     }
 
+    public void Stop()
+    {
+        if (rb == null) return;
+
+        rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+    }
+
     bool GroundAhead()
     {
         return Physics2D.Raycast(groundCheck.position, Vector2.down, groundCheckDistance, groundLayer);
