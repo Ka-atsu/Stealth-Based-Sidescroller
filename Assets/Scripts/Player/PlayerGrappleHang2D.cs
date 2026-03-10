@@ -7,6 +7,10 @@ public class PlayerGrappleHang2D : MonoBehaviour
     public float pullSpeed = 18f;
     public LayerMask hangLayer;
 
+    [Header("Hang")]
+    [SerializeField] private Transform hangCheck;
+    [SerializeField] private float hangSnapDistance = 0.2f;
+
     [Header("Debug")]
     public bool debugLogs = true;
 
@@ -49,9 +53,14 @@ public class PlayerGrappleHang2D : MonoBehaviour
         Vector2 dir = (grapplePoint - (Vector2)transform.position).normalized;
         rb.linearVelocity = dir * pullSpeed;
 
-        if (transform.position.y >= grapplePoint.y - 0.5f)
+        if (hangCheck != null)
         {
-            StartHang(grapplePoint);
+            float dist = Vector2.Distance(hangCheck.position, grapplePoint);
+
+            if (dist <= hangSnapDistance)
+            {
+                StartHang(grapplePoint);
+            }
         }
 
         WatchState();
@@ -60,10 +69,7 @@ public class PlayerGrappleHang2D : MonoBehaviour
     public void TryGrapple(Vector2 mousePos)
     {
         if (hanging || hangLockTimer > 0f)
-        {
-            //Log($"TryGrapple BLOCKED | hanging={hanging} lock={hangLockTimer:F2}");
             return;
-        }
 
         Vector2 worldMouse = Camera.main.ScreenToWorldPoint(mousePos);
         Vector2 dir = (worldMouse - (Vector2)transform.position).normalized;
@@ -76,22 +82,16 @@ public class PlayerGrappleHang2D : MonoBehaviour
         );
 
         if (hit.collider == null)
-        {
-            //Log($"TryGrapple MISS | mouse={worldMouse}");
             return;
-        }
 
+        // Only allow undersides / ceilings
         if (hit.normal.y > -0.5f)
-        {
-            //Log($"TryGrapple REJECTED WALL | normal={hit.normal} point={hit.point} object={hit.collider.name}");
             return;
-        }
 
         grapplePoint = hit.point;
         grappling = true;
         hanging = false;
 
-        //Log($"TryGrapple HIT | object={hit.collider.name} point={hit.point} normal={hit.normal}");
         WatchState();
     }
 
@@ -103,8 +103,6 @@ public class PlayerGrappleHang2D : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         transform.position = point + Vector2.down * 0.5f;
 
-        //Log($"StartHang | finalPos={transform.position} point={point}");
-
         controller.SetHanging(true);
         WatchState();
     }
@@ -112,10 +110,7 @@ public class PlayerGrappleHang2D : MonoBehaviour
     public void DropHang()
     {
         if (!hanging)
-        {
-            //Log("DropHang called but hanging was already false");
             return;
-        }
 
         grappling = false;
         hanging = false;
@@ -125,8 +120,6 @@ public class PlayerGrappleHang2D : MonoBehaviour
 
         hangLockTimer = 0.25f;
 
-        //Log($"DropHang | pos={transform.position} vel={rb.linearVelocity} lock={hangLockTimer:F2}");
-
         controller.SetHanging(false);
         WatchState();
     }
@@ -135,7 +128,7 @@ public class PlayerGrappleHang2D : MonoBehaviour
     {
         if (lastGrappling != grappling || lastHanging != hanging)
         {
-            //Log($"STATE CHANGE | grappling={grappling} hanging={hanging} controller.IsHanging={controller.IsHanging}");
+            Debug.Log($"STATE CHANGE | grappling={grappling} hanging={hanging} controller.IsHanging={controller.IsHanging}");
             lastGrappling = grappling;
             lastHanging = hanging;
         }
@@ -146,19 +139,22 @@ public class PlayerGrappleHang2D : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        // Draw grapple range
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, grappleRange);
 
-        // Draw grapple point if grappling
         if (grappling)
         {
             Gizmos.color = Color.red;
             Gizmos.DrawSphere(grapplePoint, 0.15f);
 
-            // Line from player to grapple point
             Gizmos.color = Color.green;
             Gizmos.DrawLine(transform.position, grapplePoint);
+        }
+
+        if (hangCheck != null)
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(hangCheck.position, hangSnapDistance);
         }
     }
 }
