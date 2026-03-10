@@ -1,28 +1,22 @@
 fileFormatVersion: 2
-guid: 5abd97091ba210f4289198499913e13c
+guid: 43186213afae4624e9957e72c8f00bfb
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3071373483274870428
-    second: JCL2_0
+      213: 8278887904051944400
+    second: PrototypeCharacterWalk_0
   - first:
-      213: 2219197553962141791
-    second: JCL2_1
+      213: 2593930700763489891
+    second: PrototypeCharacterWalk_1
   - first:
-      213: 6358300100631718429
-    second: JCL2_2
+      213: -2094067014887777625
+    second: PrototypeCharacterWalk_2
   - first:
-      213: -8977616764717323953
-    second: JCL2_3
+      213: 8031212434328025273
+    second: PrototypeCharacterWalk_3
   - first:
-      213: 1910973512257820456
-    second: JCL2_4
-  - first:
-      213: -2489317460368671835
-    second: JCL2_5
-  - first:
-      213: -6683318419587395228
-    second: JCL2_6
+      213: 7387734271904901643
+    second: PrototypeCharacterWalk_4
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -64,12 +58,12 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 32
+  spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -93,7 +87,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -131,155 +125,111 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: JCL2_0
+      name: PrototypeCharacterWalk_0
       rect:
         serializedVersion: 2
-        x: 1320
-        y: 589
-        width: 336
-        height: 130
+        x: 0
+        y: 0
+        width: 64
+        height: 64
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c9e172309e5bf9a20800000000000000
-      internalID: 3071373483274870428
+      spriteID: 0db5b407fa484e270800000000000000
+      internalID: 8278887904051944400
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: JCL2_1
+      name: PrototypeCharacterWalk_1
       rect:
         serializedVersion: 2
-        x: 36
-        y: 217
-        width: 318
-        height: 247
+        x: 64
+        y: 0
+        width: 64
+        height: 64
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f584452ea6c2cce10800000000000000
-      internalID: 2219197553962141791
+      spriteID: 366ecf6aa3e7ff320800000000000000
+      internalID: 2593930700763489891
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: JCL2_2
+      name: PrototypeCharacterWalk_2
       rect:
         serializedVersion: 2
-        x: 1237
-        y: 323
-        width: 82
-        height: 87
+        x: 128
+        y: 0
+        width: 64
+        height: 64
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d1aeb79f0483d3850800000000000000
-      internalID: 6358300100631718429
+      spriteID: 7aa50c1152160f2e0800000000000000
+      internalID: -2094067014887777625
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: JCL2_3
+      name: PrototypeCharacterWalk_3
       rect:
         serializedVersion: 2
-        x: 1321
-        y: 285
-        width: 99
-        height: 125
+        x: 192
+        y: 0
+        width: 64
+        height: 64
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f49ae613e19196380800000000000000
-      internalID: -8977616764717323953
+      spriteID: 9b872d76829947f60800000000000000
+      internalID: 8031212434328025273
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: JCL2_4
+      name: PrototypeCharacterWalk_4
       rect:
         serializedVersion: 2
-        x: 1237
-        y: 219
-        width: 82
-        height: 102
+        x: 256
+        y: 0
+        width: 64
+        height: 64
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 827de4dd844258a10800000000000000
-      internalID: 1910973512257820456
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: JCL2_5
-      rect:
-        serializedVersion: 2
-        x: 1215
-        y: 56
-        width: 118
-        height: 104
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 5ab3c8175fa247dd0800000000000000
-      internalID: -2489317460368671835
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: JCL2_6
-      rect:
-        serializedVersion: 2
-        x: 1345
-        y: 3
-        width: 182
-        height: 114
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 4611baf9e451043a0800000000000000
-      internalID: -6683318419587395228
+      spriteID: b0aeedbad21868660800000000000000
+      internalID: 7387734271904901643
       vertices: []
       indices: 
       edges: []
@@ -288,7 +238,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 9a326d6a14b1c414b90bb588635ec4a4
     internalID: 0
     vertices: []
     indices: 
@@ -296,15 +246,15 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      JCL2_0: 3071373483274870428
-      JCL2_1: 2219197553962141791
-      JCL2_2: 6358300100631718429
-      JCL2_3: -8977616764717323953
-      JCL2_4: 1910973512257820456
-      JCL2_5: -2489317460368671835
-      JCL2_6: -6683318419587395228
+      PrototypeCharacterWalk_0: 8278887904051944400
+      PrototypeCharacterWalk_1: 2593930700763489891
+      PrototypeCharacterWalk_2: -2094067014887777625
+      PrototypeCharacterWalk_3: 8031212434328025273
+      PrototypeCharacterWalk_4: 7387734271904901643
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
