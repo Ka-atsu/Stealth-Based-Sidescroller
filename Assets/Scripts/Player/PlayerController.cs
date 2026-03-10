@@ -11,6 +11,7 @@ public class PlayerController2D : MonoBehaviour
     public bool RunHeld { get; private set; }
 
     public bool IsHanging { get; private set; }
+    public float FacingSign { get; private set; } = 1f;
 
     public float DefaultGravity => defaultGravity;
 
@@ -25,8 +26,8 @@ public class PlayerController2D : MonoBehaviour
     PlayerMotor2D motor;
     PlayerJump2D jump;
     PlayerDash2D dash;
-
     PlayerGrappleHang2D grapple;
+    PlayerStealthStrike2D stealthStrike;
 
     void Awake()
     {
@@ -41,6 +42,7 @@ public class PlayerController2D : MonoBehaviour
         jump = GetComponent<PlayerJump2D>();
         dash = GetComponent<PlayerDash2D>();
         grapple = GetComponent<PlayerGrappleHang2D>();
+        stealthStrike = GetComponent<PlayerStealthStrike2D>();
 
         playerControls = new PlayerControls();
 
@@ -50,11 +52,12 @@ public class PlayerController2D : MonoBehaviour
     void OnEnable()
     {
         playerControls.Enable();
-        playerControls.Player.SmokeBomb.performed += context => TriggerSmokeBomb();
+        playerControls.Player.SmokeBomb.performed += OnSmokeBombPerformed;
     }
 
     void OnDisable()
     {
+        playerControls.Player.SmokeBomb.performed -= OnSmokeBombPerformed;
         playerControls.Disable();
     }
 
@@ -101,6 +104,9 @@ public class PlayerController2D : MonoBehaviour
         }
 
         MoveInput = v;
+
+        if (Mathf.Abs(v.x) > 0.01f)
+            FacingSign = Mathf.Sign(v.x);
     }
 
     public void SetJumpHeld(bool held)
@@ -122,11 +128,16 @@ public class PlayerController2D : MonoBehaviour
 
     public void SetRunHeld(bool held)
     {
-        if (crouch != null && crouch.IsCrouching) return;
+        if (crouch != null && crouch.IsCrouching)
+            return;
+
         RunHeld = held;
     }
 
-    public void CancelSprint() => RunHeld = false;
+    public void CancelSprint()
+    {
+        RunHeld = false;
+    }
 
     public void SetCrouch(bool crouching)
     {
@@ -147,12 +158,26 @@ public class PlayerController2D : MonoBehaviour
         dash.TryStartDash(
             moveInput: MoveInput,
             isGrounded: sensors.IsGrounded,
-            facingSign: transform.localScale.x >= 0 ? 1f : -1f
+            facingSign: FacingSign
         );
     }
 
+    public void TryStealthStrike()
+    {
+        if (IsHanging)
+            return;
+
+        if (dash != null && dash.IsDashing)
+            return;
+
+        if (stealthStrike == null)
+            return;
+
+        stealthStrike.TryStealthStrike(FacingSign);
+    }
+
     // -----------------------
-    // Hang state (called by grapple system)
+    // Hang state
     // -----------------------
 
     public void SetHanging(bool state)
@@ -173,6 +198,11 @@ public class PlayerController2D : MonoBehaviour
     // -------------------------
     // Smoke bomb
     // -------------------------
+
+    private void OnSmokeBombPerformed(InputAction.CallbackContext context)
+    {
+        TriggerSmokeBomb();
+    }
 
     private void TriggerSmokeBomb()
     {

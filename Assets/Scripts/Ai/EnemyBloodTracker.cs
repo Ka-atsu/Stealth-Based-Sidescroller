@@ -27,41 +27,74 @@ public class EnemyBloodTracker : MonoBehaviour
     {
         if (bloodTrailManager == null) return;
 
+        // Already following a trail, do not rebuild it every frame
+        if (queuedBloodIds.Count > 0)
+            return;
+
+        BloodTrailPoint startPoint = FindNearestNearbyBloodPoint();
+
+        if (startPoint == null)
+            return;
+
+        BuildTrailFrom(startPoint.id);
+    }
+
+    private BloodTrailPoint FindNearestNearbyBloodPoint()
+    {
+        BloodTrailPoint bestPoint = null;
+        float bestDistance = Mathf.Infinity;
+
         foreach (BloodTrailPoint point in bloodTrailManager.bloodTrailPoints)
         {
-            if (Vector2.Distance(transform.position, point.position) > bloodDetectRadius)
+            if (visitedBloodSet.Contains(point.id))
                 continue;
 
-            if (queuedBloodSet.Contains(point.id) || visitedBloodSet.Contains(point.id))
+            float dist = Vector2.Distance(transform.position, point.position);
+
+            if (dist > bloodDetectRadius)
                 continue;
 
-            if (HasQueuedBloodCloseTo(point.position))
-                continue;
-
-            RegisterBloodPoint(point.id);
+            if (dist < bestDistance)
+            {
+                bestDistance = dist;
+                bestPoint = point;
+            }
         }
+
+        return bestPoint;
     }
 
-    private bool HasQueuedBloodCloseTo(Vector3 position)
+    private void BuildTrailFrom(int startBloodId)
     {
-        foreach (int id in queuedBloodIds)
+        queuedBloodIds.Clear();
+        queuedBloodSet.Clear();
+
+        List<BloodTrailPoint> orderedPoints = new List<BloodTrailPoint>(bloodTrailManager.bloodTrailPoints);
+
+        // Assumes lower id = older blood, higher id = newer blood
+        orderedPoints.Sort((a, b) => a.id.CompareTo(b.id));
+
+        Vector3 lastQueuedPosition = Vector3.zero;
+        bool hasLastQueued = false;
+
+        foreach (BloodTrailPoint point in orderedPoints)
         {
-            BloodTrailPoint point = bloodTrailManager.GetBloodPointById(id);
-            if (point == null) continue;
+            if (point.id < startBloodId)
+                continue;
 
-            if (Vector3.Distance(point.position, position) < minDistanceBetweenBloodPoints)
-                return true;
+            if (visitedBloodSet.Contains(point.id))
+                continue;
+
+            if (hasLastQueued &&
+                Vector3.Distance(lastQueuedPosition, point.position) < minDistanceBetweenBloodPoints)
+                continue;
+
+            queuedBloodIds.Enqueue(point.id);
+            queuedBloodSet.Add(point.id);
+
+            lastQueuedPosition = point.position;
+            hasLastQueued = true;
         }
-
-        return false;
-    }
-
-    private void RegisterBloodPoint(int bloodId)
-    {
-        queuedBloodIds.Enqueue(bloodId);
-        queuedBloodSet.Add(bloodId);
-
-        BloodTrailPoint point = bloodTrailManager.GetBloodPointById(bloodId);
     }
 
     private void CleanupTrackedBlood()
@@ -116,14 +149,10 @@ public class EnemyBloodTracker : MonoBehaviour
         CleanupTrackedBlood();
 
         if (queuedBloodIds.Count == 0)
-        { 
             return;
-        }
 
         int reachedId = queuedBloodIds.Dequeue();
         queuedBloodSet.Remove(reachedId);
         visitedBloodSet.Add(reachedId);
-
-        BloodTrailPoint point = bloodTrailManager.GetBloodPointById(reachedId);
     }
 }

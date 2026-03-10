@@ -141,12 +141,6 @@ public class PlayerGrappleHang2D : MonoBehaviour
         }
     }
 
-    void Log(string msg)
-    {
-        if (!debugLogs) return;
-        //Debug.Log($"[GrappleHang][frame {Time.frameCount}] {msg}", this);
-    }
-
     public bool IsGrappling => grappling;
     public bool IsHanging => hanging;
 

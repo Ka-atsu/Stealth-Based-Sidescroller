@@ -54,6 +54,13 @@ public class PlayerInputHandler : MonoBehaviour
         controller.TryDash();
     }
 
+    public void OnAttack(InputValue value)
+    {
+        if (!value.isPressed) return;
+
+        controller.TryStealthStrike();
+    }
+
     public void OnLook(InputValue value)
     {
         mousePosition = value.Get<Vector2>();

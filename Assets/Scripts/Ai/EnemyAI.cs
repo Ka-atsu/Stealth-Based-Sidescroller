@@ -93,7 +93,7 @@ public class EnemyAI : MonoBehaviour
 
         if (stateMachine.currentState != lastState)
         {
-            Debug.Log("CURRENT AI STATE → " + stateMachine.currentState);
+            //Debug.Log("CURRENT AI STATE → " + stateMachine.currentState);
             lastState = stateMachine.currentState;
         }
 
@@ -117,15 +117,35 @@ public class EnemyAI : MonoBehaviour
 
             case EnemyStateMachine.EnemyState.FollowBlood:
 
+                if (canSeePlayer)
+                {
+                    stateMachine.SetState(EnemyStateMachine.EnemyState.Alerted);
+                    break;
+                }
+
                 if (hasBlood)
                 {
                     Vector3 bloodTarget = bloodTracker.GetBloodTargetPosition();
                     movement.Chase(bloodTarget);
 
-                    float dist = Vector2.Distance(transform.position, bloodTarget);
+                    float horizontalDist = Mathf.Abs(transform.position.x - bloodTarget.x);
+                    float verticalDist = Mathf.Abs(transform.position.y - bloodTarget.y);
 
-                    if (dist < 0.5f)
+                    // Ground enemy: if we're under the blood point, count it as reached
+                    if (horizontalDist < 0.4f)
+                    {
                         bloodTracker.MoveToNextBloodTarget();
+                    }
+
+                    // Optional: skip blood that is too high to realistically reach
+                    else if (verticalDist > 2.5f && horizontalDist < 0.75f)
+                    {
+                        bloodTracker.MoveToNextBloodTarget();
+                    }
+                }
+                else
+                {
+                    EnterSearch(transform.position);
                 }
 
                 break;
@@ -153,7 +173,6 @@ public class EnemyAI : MonoBehaviour
 
                 if (searchTimer <= 0f)
                 {
-                    Debug.Log("AI: Search finished → RETURN");
                     stateMachine.SetState(EnemyStateMachine.EnemyState.Return);
                 }
 
@@ -166,7 +185,6 @@ public class EnemyAI : MonoBehaviour
 
                 if (!attack.IsAttacking)
                 {
-                    Debug.Log("AI: Performing attack");
                     attack.TryAttack();
                 }
 
@@ -192,14 +210,35 @@ public class EnemyAI : MonoBehaviour
         if (stateMachine.currentState == EnemyStateMachine.EnemyState.Search)
             return;
 
-        Debug.Log("AI: Entering SEARCH");
-
         currentSearchTarget = target;
         searchTimer = searchDuration;
 
         searchBehavior.ResetSearch();
 
         stateMachine.SetState(EnemyStateMachine.EnemyState.Search);
+    }
+
+    public bool CanBeStealthKilledFrom(Vector2 attackerPosition)
+    {
+        if (movement == null)
+            movement = GetComponent<EnemyMovement>();
+
+        float enemyFacing = movement.MovingRight ? 1f : -1f;
+        float attackerOffsetX = attackerPosition.x - transform.position.x;
+
+        // If attacker is too centered, reject
+        if (Mathf.Abs(attackerOffsetX) < 0.05f)
+            return false;
+
+        bool attackerIsInFront = Mathf.Sign(attackerOffsetX) == enemyFacing;
+
+        // Can only kill if attacker is NOT in front
+        return !attackerIsInFront;
+    }
+
+    public void DieFromStealthStrike()
+    {
+        Destroy(gameObject);
     }
 
     //----------------------------------

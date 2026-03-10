@@ -3,43 +3,93 @@ using UnityEngine;
 public class EnemySearchBehavior : MonoBehaviour
 {
     private EnemyMovement movement;
-    private Vector3 currentSearchPoint;
-    private bool hasSearchPoint = false;
 
-    [SerializeField] private float searchRadius = 2f;
-    [SerializeField] private float reachDistance = 0.5f;
+    private Vector3[] searchPoints;
+    private int currentPointIndex;
+    private bool searchInitialized;
+    private bool isWaiting;
+    private float waitTimer;
+    private Vector3 lastSearchTarget;
+
+    [SerializeField] private float nearSearchOffset = 1.5f;
+    [SerializeField] private float farSearchOffset = 3f;
+    [SerializeField] private float reachDistance = 0.4f;
+    [SerializeField] private float waitAtPointTime = 0.5f;
+    [SerializeField] private float targetRefreshDistance = 0.25f;
 
     void Start()
     {
         movement = GetComponent<EnemyMovement>();
     }
 
+    // Keep the same function name so your EnemyAI does not need to change
     public void SearchRandomly(Vector3 searchTarget)
     {
-        if (!hasSearchPoint || Vector2.Distance(transform.position, currentSearchPoint) < reachDistance)
+        if (!searchInitialized || Vector2.Distance(lastSearchTarget, searchTarget) > targetRefreshDistance)
         {
-            PickNewSearchPoint(searchTarget);
+            BuildSearchPattern(searchTarget);
         }
 
-        movement.MoveTo(currentSearchPoint);
+        if (searchPoints == null || searchPoints.Length == 0)
+            return;
+
+        if (isWaiting)
+        {
+            movement.Stop();
+
+            waitTimer -= Time.deltaTime;
+
+            if (waitTimer <= 0f)
+            {
+                isWaiting = false;
+                currentPointIndex++;
+
+                if (currentPointIndex >= searchPoints.Length)
+                    currentPointIndex = 0;
+            }
+
+            return;
+        }
+
+        Vector3 currentTarget = searchPoints[currentPointIndex];
+        movement.MoveTo(currentTarget);
+
+        float dist = Vector2.Distance(transform.position, currentTarget);
+
+        if (dist <= reachDistance)
+        {
+            movement.Stop();
+            isWaiting = true;
+            waitTimer = waitAtPointTime;
+        }
     }
 
-    private void PickNewSearchPoint(Vector3 searchTarget)
+    private void BuildSearchPattern(Vector3 searchTarget)
     {
-        float randomX = Random.Range(-searchRadius, searchRadius);
+        lastSearchTarget = searchTarget;
 
-        // Side-scroller: keep same Y as target
-        currentSearchPoint = new Vector3(
-            searchTarget.x + randomX,
-            searchTarget.y,
-            searchTarget.z
-        );
+        // Side-scroller search pattern:
+        // center -> left near -> right near -> left far -> right far
+        searchPoints = new Vector3[]
+        {
+            new Vector3(searchTarget.x, searchTarget.y, searchTarget.z),
+            new Vector3(searchTarget.x - nearSearchOffset, searchTarget.y, searchTarget.z),
+            new Vector3(searchTarget.x + nearSearchOffset, searchTarget.y, searchTarget.z),
+            new Vector3(searchTarget.x - farSearchOffset, searchTarget.y, searchTarget.z),
+            new Vector3(searchTarget.x + farSearchOffset, searchTarget.y, searchTarget.z)
+        };
 
-        hasSearchPoint = true;
+        currentPointIndex = 0;
+        isWaiting = false;
+        waitTimer = 0f;
+        searchInitialized = true;
     }
 
     public void ResetSearch()
     {
-        hasSearchPoint = false;
+        searchInitialized = false;
+        isWaiting = false;
+        waitTimer = 0f;
+        currentPointIndex = 0;
     }
 }

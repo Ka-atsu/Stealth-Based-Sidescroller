@@ -45,8 +45,6 @@ public class EnemyAttack : MonoBehaviour
         isAttacking = true;
         lastAttackTime = Time.time;
 
-        Debug.Log("Enemy started attack");
-
         yield return new WaitForSeconds(0.1f);
 
         DoSlashHit();
