@@ -17,6 +17,12 @@ TextureImporter:
   - first:
       213: 7387734271904901643
     second: PrototypeCharacterWalk_4
+  - first:
+      213: -3974835181987177676
+    second: PrototypeCharacterWalk_5
+  - first:
+      213: 4688347343092732638
+    second: PrototypeCharacterWalk_6
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -87,7 +93,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -234,11 +240,77 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: PrototypeCharacterWalk_5
+      rect:
+        serializedVersion: 2
+        x: 320
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 43bdde8267c86d8c0800000000000000
+      internalID: -3974835181987177676
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PrototypeCharacterWalk_6
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ed250b0911b501140800000000000000
+      internalID: 4688347343092732638
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PrototypeCharacterWalk_7
+      rect:
+        serializedVersion: 2
+        x: 448
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 351700adda84101479e474989d5ef829
+      internalID: 915863896
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 9a326d6a14b1c414b90bb588635ec4a4
+    spriteID: 2fac3012d1610614580982441d9e6bd6
     internalID: 0
     vertices: []
     indices: 
@@ -255,6 +327,9 @@ TextureImporter:
       PrototypeCharacterWalk_2: -2094067014887777625
       PrototypeCharacterWalk_3: 8031212434328025273
       PrototypeCharacterWalk_4: 7387734271904901643
+      PrototypeCharacterWalk_5: -3974835181987177676
+      PrototypeCharacterWalk_6: 4688347343092732638
+      PrototypeCharacterWalk_7: 915863896
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
