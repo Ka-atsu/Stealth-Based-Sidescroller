@@ -14,6 +14,9 @@ public class PlayerDash2D : MonoBehaviour
     public float stretchX = 1.6f;
     public float stretchY = 0.6f;
 
+    [Header("Dash Layer")]
+    [SerializeField] private string dashLayerName = "PlayerDash";
+
     public bool IsDashing { get; private set; }
 
     Rigidbody2D rb;
@@ -28,6 +31,9 @@ public class PlayerDash2D : MonoBehaviour
     Vector2 dashDirection;
     bool hasDashedInAir;
 
+    int dashLayer;
+    int originalLayerBeforeDash;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -36,6 +42,11 @@ public class PlayerDash2D : MonoBehaviour
 
         jump = GetComponent<PlayerJump2D>();
         noise = GetComponent<PlayerNoiseEmitter2D>();
+
+        dashLayer = LayerMask.NameToLayer(dashLayerName);
+
+        if (dashLayer == -1)
+            Debug.LogWarning($"Layer '{dashLayerName}' does not exist.");
     }
 
     public void TryStartDash(Vector2 moveInput, bool isGrounded, float facingSign)
@@ -71,6 +82,11 @@ public class PlayerDash2D : MonoBehaviour
 
         if (sr != null)
             sr.color = Color.white * 2f;
+
+        // switch to dash layer
+        originalLayerBeforeDash = gameObject.layer;
+        if (dashLayer != -1)
+            gameObject.layer = dashLayer;
     }
 
     public void TickFixed(float dt, bool isGrounded)
@@ -87,17 +103,17 @@ public class PlayerDash2D : MonoBehaviour
 
         IsDashing = false;
 
-        // restore gravity via jump’s base gravity (so it stays in one place)
         rb.gravityScale = (jump != null) ? jump.baseGravityScale : 3.5f;
-
-        rb.linearVelocity = Vector2.zero; // hard stop (your original)
+        rb.linearVelocity = Vector2.zero;
         transform.localScale = originalScale;
 
         if (sr != null)
             sr.color = Color.white;
+
+        // restore original layer
+        gameObject.layer = originalLayerBeforeDash;
     }
 
-    // cooldown ticks only when NOT dashing (to match your original return)
     public void TickCooldown(float dt, bool isGrounded)
     {
         if (isGrounded)
