@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: b00ed98ad59a5804e84c5f1e7a652189
+guid: 976809d7e15c4e0478d0cb0b325629e8
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4608419663221972721
-    second: JC2Background 1_0
+      213: -497064058380546726
+    second: JC3_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: JC2Background 1_0
+      name: JC3_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1fe554a644564ff30800000000000000
-      internalID: 4608419663221972721
+      spriteID: a5d0d995fd21a19f0800000000000000
+      internalID: -497064058380546726
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      JC2Background 1_0: 4608419663221972721
+      JC3_0: -497064058380546726
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
