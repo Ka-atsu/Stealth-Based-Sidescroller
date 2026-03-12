@@ -6,57 +6,78 @@ using UnityEngine.UI;
 
 public class DialogueManager : MonoBehaviour
 {
-    public TextMeshProUGUI nameText;
-    public TextMeshProUGUI dialogueText;
+    public static DialogueManager Instance;
+
+    public Image characterIcon;
+    public TextMeshProUGUI characterName;
+    public TextMeshProUGUI dialogueArea;
+    public TextMeshProUGUI buttonName;
+
+    private Queue<DialogueLine> lines;
+
+    public bool isDialogueActive = false;
     public float textSpeed;
+    public Animator animator;
 
-
-    private Queue<string> sentences;
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Awake()
     {
-        sentences = new Queue<string>();
+        if(Instance == null)
+            Instance = this;
+
+        lines = new Queue<DialogueLine>();
     }
 
     public void StartDialogue(Dialogue dialogue)
     {
-        Debug.Log("Starting conversation with: " + dialogue.name);
-        nameText.text = dialogue.name;
-        sentences.Clear();
+        isDialogueActive = true;
+        animator.SetBool("IsOpen", isDialogueActive);
+        lines.Clear();
 
-        foreach(string sentence in dialogue.sentences)
+        foreach(DialogueLine dialogueLine in dialogue.dialogueLines)
         {
-            sentences.Enqueue(sentence);
+            lines.Enqueue(dialogueLine);
         }
 
-        DisplayNextSentence();
+        DisplayNextDialogueLine();
     }
 
-    public void DisplayNextSentence()
+    public void DisplayNextDialogueLine()
     {
-        if(sentences.Count == 0)
+        if(lines.Count == 0)
         {
             EndDialogue();
             return;
         }
 
-        string sentence = sentences.Dequeue();
+        //Changing the name of the "continue" button to "exit"
+        if(lines.Count == 1)
+        {
+            buttonName.text = "Exit";
+        }
+
+        DialogueLine currentLine = lines.Dequeue();
+
+        characterIcon.sprite = currentLine.character.icon;
+        characterName.text = currentLine.character.name;
+
         StopAllCoroutines();
-        StartCoroutine(TypeSentence(sentence));
+
+        StartCoroutine(TypeSentence(currentLine));
+
     }
 
     public void EndDialogue()
     {
-        Debug.Log("End Conversation");
+        isDialogueActive = false;
+        animator.SetBool("IsOpen", isDialogueActive);
     }
 
-    IEnumerator TypeSentence(string sentence)
+    IEnumerator TypeSentence(DialogueLine dialogueLine)
     {
-        dialogueText.text = "";
-        foreach(char letter in sentence.ToCharArray())
+        dialogueArea.text = "";
+        foreach(char letter in dialogueLine.line.ToCharArray())
         {
-            dialogueText.text += letter;
+            dialogueArea.text += letter;
             yield return new WaitForSeconds(textSpeed);
         }
     }
