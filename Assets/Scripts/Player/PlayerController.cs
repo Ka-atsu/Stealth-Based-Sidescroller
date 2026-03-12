@@ -11,6 +11,7 @@ public class PlayerController2D : MonoBehaviour
     public bool RunHeld { get; private set; }
 
     public bool IsHanging { get; private set; }
+    public bool IsGrounded => sensors != null && sensors.IsGrounded;
     public float FacingSign { get; private set; } = 1f;
 
     public float DefaultGravity => defaultGravity;
