@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: c1cd0cbd363dd60408982d2a0c771485
+guid: 894993fe7f2099340ae01b745a45d45b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8796872171555336249
-    second: JCWalkable_0
+      213: -5122853346336440408
+    second: PrototypeCharacterJumpFall_0
+  - first:
+      213: -7735749446982665543
+    second: PrototypeCharacterJumpFall_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,12 +49,12 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 64
+  spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -113,23 +116,45 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: JCWalkable_0
+      name: PrototypeCharacterJumpFall_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1920
-        height: 96
+        width: 64
+        height: 64
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9303318d1a4c41a70800000000000000
-      internalID: 8796872171555336249
+      spriteID: 8aff1370608f7e8b0800000000000000
+      internalID: -5122853346336440408
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PrototypeCharacterJumpFall_1
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 0
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9ba7c2d1dd815a490800000000000000
+      internalID: -7735749446982665543
       vertices: []
       indices: 
       edges: []
@@ -138,7 +163,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 8673d20d699a5344a97a74597b3c7678
     internalID: 0
     vertices: []
     indices: 
@@ -146,9 +171,12 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      JCWalkable_0: 8796872171555336249
+      PrototypeCharacterJumpFall_0: -5122853346336440408
+      PrototypeCharacterJumpFall_1: -7735749446982665543
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
