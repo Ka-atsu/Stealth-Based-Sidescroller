@@ -1,15 +1,13 @@
 fileFormatVersion: 2
-guid: 170392485892c0943991129b9cbb3ef5
-AssetOrigin:
-  serializedVersion: 1
-  productId: 255208
-  packageName: Animated Pixel-Art Backgrounds | Free
-  packageVersion: 2.0
-  assetPath: Assets/FeonY/Animated Pixel-Art Backgrounds/Art/Animations/Pixel-Art
-    Background 1/frame0000.png
-  uploadId: 619015
+guid: c043f4cc4691da04a9e26b39bd53bfa3
 TextureImporter:
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      213: 5953916265683357753
+    second: JC2Foreground_0
+  - first:
+      213: -7686338091876476972
+    second: JC2Foreground_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -56,7 +54,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 160
+  spritePixelsToUnits: 80
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -79,8 +77,8 @@ TextureImporter:
     buildTarget: DefaultTexturePlatform
     maxTextureSize: 2048
     resizeAlgorithm: 0
-    textureFormat: 4
-    textureCompression: 1
+    textureFormat: -1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -92,7 +90,7 @@ TextureImporter:
     buildTarget: Standalone
     maxTextureSize: 2048
     resizeAlgorithm: 0
-    textureFormat: 4
+    textureFormat: -1
     textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
@@ -105,7 +103,7 @@ TextureImporter:
     buildTarget: Android
     maxTextureSize: 2048
     resizeAlgorithm: 0
-    textureFormat: 4
+    textureFormat: -1
     textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
@@ -116,7 +114,51 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: JC2Foreground_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 33
+        width: 133
+        height: 1023
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9301a766c4f80a250800000000000000
+      internalID: 5953916265683357753
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: JC2Foreground_1
+      rect:
+        serializedVersion: 2
+        x: 1872
+        y: 153
+        width: 48
+        height: 809
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d7162aba34a45590800000000000000
+      internalID: -7686338091876476972
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -130,7 +172,9 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      JC2Foreground_0: 5953916265683357753
+      JC2Foreground_1: -7686338091876476972
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
