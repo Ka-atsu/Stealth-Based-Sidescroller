@@ -840,7 +840,7 @@ MonoBehaviour:
     dialogueLines:
     - character:
         name: Russel Ken
-        icon: {fileID: 21300000, guid: d07dc86b71f6f4c4ea83e26bfb5a16ce, type: 3}
+        icon: {fileID: -1945616916616541762, guid: 01ec877a76434fd44b6135a03264dfbc, type: 3}
       line: Hello!
     - character:
         name: Kent
