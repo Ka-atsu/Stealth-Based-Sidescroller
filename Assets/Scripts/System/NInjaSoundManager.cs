@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class NinjaAudioManager : MonoBehaviour
 {
     public static NinjaAudioManager Instance;
@@ -21,26 +22,40 @@ public class NinjaAudioManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
+            return;
+        }
+
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
         }
     }
 
     public void PlayFootstep()
     {
-        audioSource.PlayOneShot(footstepSound);
+        PlayClip(footstepSound);
     }
 
     public void PlayJump()
     {
-        audioSource.PlayOneShot(jumpSound);
+        PlayClip(jumpSound);
     }
 
     public void PlayDash()
     {
-        audioSource.PlayOneShot(dashSound);
+        PlayClip(dashSound);
     }
 
     public void PlayLanding()
     {
-        audioSource.PlayOneShot(landingSound);
+        PlayClip(landingSound);
+    }
+
+    void PlayClip(AudioClip clip)
+    {
+        if (audioSource == null || clip == null)
+            return;
+
+        audioSource.PlayOneShot(clip);
     }
 }
