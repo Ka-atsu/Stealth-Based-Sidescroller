@@ -30,6 +30,11 @@ public class PlayerController2D : MonoBehaviour
     PlayerGrappleHang2D grapple;
     PlayerStealthStrike2D stealthStrike;
 
+    // -------- AUDIO VARIABLES --------
+    bool wasGrounded;
+    float stepTimer;
+    public float stepInterval = 0.4f;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -66,6 +71,13 @@ public class PlayerController2D : MonoBehaviour
     {
         sensors.Tick();
 
+        // Landing sound detection
+        if (!wasGrounded && sensors.IsGrounded)
+        {
+            NinjaAudioManager.Instance.PlayLanding();
+        }
+        wasGrounded = sensors.IsGrounded;
+
         if (IsHanging)
         {
             rb.linearVelocity = Vector2.zero;
@@ -90,6 +102,31 @@ public class PlayerController2D : MonoBehaviour
         );
 
         dash.TickCooldown(Time.fixedDeltaTime, sensors.IsGrounded);
+
+        // Footstep audio
+        HandleFootsteps();
+    }
+
+    // -----------------------
+    // Footstep System
+    // -----------------------
+
+    void HandleFootsteps()
+    {
+        if (sensors.IsGrounded && Mathf.Abs(MoveInput.x) > 0.1f)
+        {
+            stepTimer -= Time.fixedDeltaTime;
+
+            if (stepTimer <= 0f)
+            {
+                NinjaAudioManager.Instance.PlayFootstep();
+                stepTimer = RunHeld ? 0.25f : stepInterval;
+            }
+        }
+        else
+        {
+            stepTimer = 0f;
+        }
     }
 
     // -----------------------
@@ -118,11 +155,16 @@ public class PlayerController2D : MonoBehaviour
         {
             grapple.DropHang();
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, 8f);
+
+            NinjaAudioManager.Instance.PlayJump();
             return;
         }
 
         if (held)
+        {
             jump.BufferJump();
+            NinjaAudioManager.Instance.PlayJump();
+        }
         else
             jump.CutJump();
     }
@@ -161,6 +203,9 @@ public class PlayerController2D : MonoBehaviour
             isGrounded: sensors.IsGrounded,
             facingSign: FacingSign
         );
+
+        if (dash.IsDashing)
+            NinjaAudioManager.Instance.PlayDash();
     }
 
     public void TryStealthStrike()
