@@ -5333,8 +5333,8 @@ MonoBehaviour:
   m_ShadowVolumeIntensityEnabled: 0
   m_ShadowVolumeIntensity: 0.75
   m_LocalBounds:
-    m_Center: {x: 10.2809, y: -3.7136502, z: 0}
-    m_Extent: {x: 14.5004, y: 7.00085, z: 0}
+    m_Center: {x: 10.2809, y: -5.21365, z: 0}
+    m_Extent: {x: 14.5004, y: 8.500851, z: 0}
   m_PointLightInnerAngle: 360
   m_PointLightOuterAngle: 360
   m_PointLightInnerRadius: 0
@@ -5345,8 +5345,8 @@ MonoBehaviour:
   m_ShapeLightFalloffSize: 0.5
   m_ShapeLightFalloffOffset: {x: 0, y: 0}
   m_ShapePath:
-  - {x: -3.718854, y: -10.213562, z: 0}
-  - {x: 24.281147, y: -10.213562, z: 0}
+  - {x: -3.7188568, y: -13.213562, z: 0}
+  - {x: 24.281143, y: -13.213562, z: 0}
   - {x: 24.281147, y: 2.786438, z: 0}
   - {x: -3.718854, y: 2.786438, z: 0}
 --- !u!1001 &2145022216
@@ -19552,6 +19552,10 @@ PrefabInstance:
     - target: {fileID: 5421662848188430952, guid: 31fd8793c58fd3e45863ef095c77f511, type: 3}
       propertyPath: m_Tiles.Array.data[749].second.m_TileObjectToInstantiateIndex
       value: 65535
+      objectReference: {fileID: 0}
+    - target: {fileID: 6597384239338488960, guid: 31fd8793c58fd3e45863ef095c77f511, type: 3}
+      propertyPath: m_SortingOrder
+      value: -10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
