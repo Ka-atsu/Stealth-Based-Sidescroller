@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: 70d99286c09f53941a16e0e5d6a2a875
+guid: 19066a7d79dcfe141a417e7a82511cd7
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7411974349392773033
-    second: House_0
+      213: 4296193443984631328
+    second: Bush_0
+  - first:
+      213: -2770932246066905560
+    second: Bush_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,12 +49,12 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 32
+  spritePixelsToUnits: 24
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -113,13 +116,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: House_0
+      name: Bush_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1920
-        height: 469
+        width: 510
+        height: 130
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +131,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 750032c7990632990800000000000000
-      internalID: -7411974349392773033
+      spriteID: 026e013dc252f9b30800000000000000
+      internalID: 4296193443984631328
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bush_1
+      rect:
+        serializedVersion: 2
+        x: 676
+        y: 0
+        width: 1244
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 82eb180adcbab89d0800000000000000
+      internalID: -2770932246066905560
       vertices: []
       indices: 
       edges: []
@@ -138,7 +163,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +173,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      House_0: -7411974349392773033
+      Bush_0: 4296193443984631328
+      Bush_1: -2770932246066905560
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
