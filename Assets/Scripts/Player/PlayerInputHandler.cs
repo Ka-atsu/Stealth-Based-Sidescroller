@@ -2,22 +2,48 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(PlayerController2D))]
+[RequireComponent(typeof(PlayerInput))]
 public class PlayerInputHandler : MonoBehaviour
 {
     PlayerController2D controller;
     PlayerGrappleHang2D grapple;
+    PlayerInput playerInput;
 
     Vector2 mousePosition;
+    Vector2 moveInput;
+
+    bool sprintHeld;
 
     void Awake()
     {
         controller = GetComponent<PlayerController2D>();
         grapple = GetComponent<PlayerGrappleHang2D>();
+        playerInput = GetComponent<PlayerInput>();
+    }
+
+    public void EnableControls()
+    {
+        playerInput.enabled = true;
+    }
+
+    public void DisableControls()
+    {
+        playerInput.enabled = false;
+
+        controller.SetMove(Vector2.zero);
+        controller.SetRunHeld(false);
+        controller.SetJumpHeld(false);
+
+        moveInput = Vector2.zero;
+        sprintHeld = false;
     }
 
     public void OnMove(InputValue value)
     {
-        controller.SetMove(value.Get<Vector2>());
+        moveInput = value.Get<Vector2>();
+        controller.SetMove(moveInput);
+
+        UpdateRunState();
     }
 
     public void OnJump(InputValue value)
@@ -27,13 +53,14 @@ public class PlayerInputHandler : MonoBehaviour
 
     public void OnSprint(InputValue value)
     {
-        if (value.isPressed)
-            controller.SetRunHeld(true);
+        sprintHeld = value.isPressed;
+        UpdateRunState();
     }
 
     public void OnSprintRelease(InputValue value)
     {
-        controller.SetRunHeld(false);
+        sprintHeld = false;
+        UpdateRunState();
     }
 
     public void OnCrouch(InputValue value)
@@ -72,5 +99,11 @@ public class PlayerInputHandler : MonoBehaviour
 
         if (grapple != null)
             grapple.TryGrapple(mousePosition);
+    }
+
+    void UpdateRunState()
+    {
+        bool isMoving = Mathf.Abs(moveInput.x) > 0.01f || Mathf.Abs(moveInput.y) > 0.01f;
+        controller.SetRunHeld(sprintHeld && isMoving);
     }
 }

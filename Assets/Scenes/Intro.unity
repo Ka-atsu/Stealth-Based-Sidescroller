@@ -4985,7 +4985,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5712030320090791057, guid: d3d1265194ccb1741b8578995c19d13e, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6275337610598056743, guid: d3d1265194ccb1741b8578995c19d13e, type: 3}
       propertyPath: m_Size.x
@@ -5546,6 +5546,22 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7000475257494936939, guid: d3d1265194ccb1741b8578995c19d13e, type: 3}
   m_PrefabInstance: {fileID: 380656101}
   m_PrefabAsset: {fileID: 0}
+--- !u!95 &1429684658 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 4748527302608448103, guid: d3d1265194ccb1741b8578995c19d13e, type: 3}
+  m_PrefabInstance: {fileID: 380656101}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1429684671 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8213424205259308187, guid: d3d1265194ccb1741b8578995c19d13e, type: 3}
+  m_PrefabInstance: {fileID: 380656101}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce629e9852cb87e41b048a7cfd0ce856, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInputHandler
 --- !u!1 &1449105774
 GameObject:
   m_ObjectHideFlags: 0
@@ -5556,6 +5572,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1449105776}
   - component: {fileID: 1449105775}
+  - component: {fileID: 1449105777}
   m_Layer: 0
   m_Name: Timelines
   m_TagString: Untagged
@@ -5579,9 +5596,9 @@ PlayableDirector:
   m_InitialTime: 0
   m_SceneBindings:
   - key: {fileID: -5532027820415401151, guid: 86144a564cb6aac4b9dfa7e8d7e0b23a, type: 2}
-    value: {fileID: 3649990682387312265}
+    value: {fileID: 1429684658}
   - key: {fileID: 7708794305392604906, guid: 86144a564cb6aac4b9dfa7e8d7e0b23a, type: 2}
-    value: {fileID: 3649990682387312265}
+    value: {fileID: 1429684658}
   m_ExposedReferences:
     m_References: []
 --- !u!4 &1449105776
@@ -5599,6 +5616,51 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1449105777
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1449105774}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Timeline::UnityEngine.Timeline.SignalReceiver
+  m_Events:
+    m_Signals:
+    - {fileID: 11400000, guid: 1e2a63b1771f72442adcfc645480fdb9, type: 2}
+    - {fileID: 11400000, guid: ae0036559c31c184db6d3699d2844e3e, type: 2}
+    m_Events:
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1429684671}
+          m_TargetAssemblyTypeName: PlayerInputHandler, Assembly-CSharp
+          m_MethodName: DisableControls
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1429684671}
+          m_TargetAssemblyTypeName: PlayerInputHandler, Assembly-CSharp
+          m_MethodName: EnableControls
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &1611400025
 GameObject:
   m_ObjectHideFlags: 0
@@ -26986,7 +27048,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!95 &3649990682387312265
 Animator:
   serializedVersion: 7
