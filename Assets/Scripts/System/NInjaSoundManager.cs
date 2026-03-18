@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 [RequireComponent(typeof(AudioSource))]
 public class NinjaAudioManager : MonoBehaviour
@@ -11,6 +12,12 @@ public class NinjaAudioManager : MonoBehaviour
     public AudioClip jumpSound;
     public AudioClip dashSound;
     public AudioClip landingSound;
+
+    // Sound delay adjustments (in seconds)
+    public float footstepDelay = 0f;
+    public float jumpDelay = 0f;
+    public float dashDelay = 0f;
+    public float landingDelay = 0f;
 
     void Awake()
     {
@@ -33,22 +40,22 @@ public class NinjaAudioManager : MonoBehaviour
 
     public void PlayFootstep()
     {
-        PlayClip(footstepSound);
+        PlayClipWithDelay(footstepSound, footstepDelay);
     }
 
     public void PlayJump()
     {
-        PlayClip(jumpSound);
+        PlayClipWithDelay(jumpSound, jumpDelay);
     }
 
     public void PlayDash()
     {
-        PlayClip(dashSound);
+        PlayClipWithDelay(dashSound, dashDelay);
     }
 
     public void PlayLanding()
     {
-        PlayClip(landingSound);
+        PlayClipWithDelay(landingSound, landingDelay);
     }
 
     void PlayClip(AudioClip clip)
@@ -56,6 +63,27 @@ public class NinjaAudioManager : MonoBehaviour
         if (audioSource == null || clip == null)
             return;
 
+        audioSource.PlayOneShot(clip);
+    }
+
+    void PlayClipWithDelay(AudioClip clip, float delay)
+    {
+        if (audioSource == null || clip == null)
+            return;
+
+        if (delay > 0)
+        {
+            StartCoroutine(PlayClipDelayed(clip, delay));
+        }
+        else
+        {
+            audioSource.PlayOneShot(clip);
+        }
+    }
+
+    IEnumerator PlayClipDelayed(AudioClip clip, float delay)
+    {
+        yield return new WaitForSeconds(delay);
         audioSource.PlayOneShot(clip);
     }
 }
