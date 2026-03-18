@@ -7,6 +7,10 @@ public class Parallax : MonoBehaviour
     public class ParallaxLayer
     {
         public GameObject layerObject;
+
+        [Range(0f, 1.5f)]
+        public float parallaxSpeed = 0.5f;
+
         [HideInInspector] public List<Transform> tiles = new List<Transform>();
         [HideInInspector] public float tileWidth;
     }
@@ -15,6 +19,7 @@ public class Parallax : MonoBehaviour
 
     private Camera mainCamera;
     private float screenHalfWidth;
+    private float lastCameraX;
 
     private void Start()
     {
@@ -35,6 +40,8 @@ public class Parallax : MonoBehaviour
         float screenWidth = screenHeight * mainCamera.aspect;
         screenHalfWidth = screenWidth * 0.5f;
 
+        lastCameraX = transform.position.x;
+
         foreach (ParallaxLayer layer in layers)
         {
             InitializeLayer(layer);
@@ -43,10 +50,16 @@ public class Parallax : MonoBehaviour
 
     private void LateUpdate()
     {
+        float cameraX = transform.position.x;
+        float deltaX = cameraX - lastCameraX;
+
         foreach (ParallaxLayer layer in layers)
         {
+            MoveLayer(layer, deltaX);
             RecycleLayer(layer);
         }
+
+        lastCameraX = cameraX;
     }
 
     private void InitializeLayer(ParallaxLayer layer)
@@ -71,8 +84,8 @@ public class Parallax : MonoBehaviour
 
         int tilesNeeded = Mathf.CeilToInt((screenHalfWidth * 2f) / layer.tileWidth) + 2;
 
-        Vector3 startPos = layer.layerObject.transform.position;
         Quaternion startRot = layer.layerObject.transform.rotation;
+        Vector3 rootPos = layer.layerObject.transform.position;
 
         Sprite sprite = sourceRenderer.sprite;
         int sortingLayerID = sourceRenderer.sortingLayerID;
@@ -86,14 +99,10 @@ public class Parallax : MonoBehaviour
         for (int i = 0; i < tilesNeeded; i++)
         {
             GameObject tile = new GameObject($"{originalName}_{i}");
-
             tile.transform.SetParent(layer.layerObject.transform, false);
-            tile.transform.position = new Vector3(
-                startPos.x + (i * layer.tileWidth),
-                startPos.y,
-                startPos.z
-            );
-            tile.transform.rotation = startRot;
+
+            tile.transform.localPosition = new Vector3(i * layer.tileWidth, 0f, 0f);
+            tile.transform.localRotation = Quaternion.identity;
             tile.transform.localScale = Vector3.one;
 
             SpriteRenderer tileRenderer = tile.AddComponent<SpriteRenderer>();
@@ -106,7 +115,25 @@ public class Parallax : MonoBehaviour
             layer.tiles.Add(tile.transform);
         }
 
+        layer.layerObject.transform.position = rootPos;
+        layer.layerObject.transform.rotation = startRot;
+
         Destroy(sourceRenderer);
+    }
+
+    private void MoveLayer(ParallaxLayer layer, float cameraDeltaX)
+    {
+        if (layer.layerObject == null)
+            return;
+
+        Vector3 pos = layer.layerObject.transform.position;
+
+        pos.x -= cameraDeltaX * layer.parallaxSpeed;
+
+        float pixelsPerUnit = 64f;
+        pos.x = Mathf.Round(pos.x * pixelsPerUnit) / pixelsPerUnit;
+
+        layer.layerObject.transform.position = pos;
     }
 
     private void RecycleLayer(ParallaxLayer layer)
@@ -122,10 +149,10 @@ public class Parallax : MonoBehaviour
 
         if (cameraX + screenHalfWidth > lastTile.position.x + halfWidth)
         {
-            firstTile.position = new Vector3(
-                lastTile.position.x + layer.tileWidth,
-                lastTile.position.y,
-                lastTile.position.z
+            firstTile.localPosition = new Vector3(
+                lastTile.localPosition.x + layer.tileWidth,
+                firstTile.localPosition.y,
+                firstTile.localPosition.z
             );
 
             layer.tiles.RemoveAt(0);
@@ -133,10 +160,10 @@ public class Parallax : MonoBehaviour
         }
         else if (cameraX - screenHalfWidth < firstTile.position.x - halfWidth)
         {
-            lastTile.position = new Vector3(
-                firstTile.position.x - layer.tileWidth,
-                lastTile.position.y,
-                lastTile.position.z
+            lastTile.localPosition = new Vector3(
+                firstTile.localPosition.x - layer.tileWidth,
+                lastTile.localPosition.y,
+                lastTile.localPosition.z
             );
 
             layer.tiles.RemoveAt(layer.tiles.Count - 1);
