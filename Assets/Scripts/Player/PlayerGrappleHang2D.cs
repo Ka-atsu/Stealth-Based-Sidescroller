@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody2D))]
 public class PlayerGrappleHang2D : MonoBehaviour
 {
     [Header("Grapple")]
@@ -10,6 +11,7 @@ public class PlayerGrappleHang2D : MonoBehaviour
     [Header("Hang")]
     [SerializeField] private Transform hangCheck;
     [SerializeField] private float hangSnapDistance = 0.2f;
+    [SerializeField] private Vector2 hangOffset = new Vector2(0f, -0.5f);
 
     [Header("Debug")]
     public bool debugLogs = true;
@@ -18,6 +20,7 @@ public class PlayerGrappleHang2D : MonoBehaviour
 
     Rigidbody2D rb;
     PlayerController2D controller;
+    Camera cam;
 
     Vector2 grapplePoint;
 
@@ -31,6 +34,10 @@ public class PlayerGrappleHang2D : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         controller = GetComponent<PlayerController2D>();
+        cam = Camera.main;
+
+        if (rb == null) Debug.LogError("Missing Rigidbody2D", this);
+        if (controller == null) Debug.LogError("Missing PlayerController2D", this);
     }
 
     void FixedUpdate()
@@ -41,14 +48,21 @@ public class PlayerGrappleHang2D : MonoBehaviour
         if (hanging)
         {
             rb.linearVelocity = Vector2.zero;
+            WatchState();
             return;
         }
 
         if (hangLockTimer > 0f)
+        {
+            WatchState();
             return;
+        }
 
         if (!grappling)
+        {
+            WatchState();
             return;
+        }
 
         Vector2 dir = (grapplePoint - (Vector2)transform.position).normalized;
         rb.linearVelocity = dir * pullSpeed;
@@ -58,9 +72,7 @@ public class PlayerGrappleHang2D : MonoBehaviour
             float dist = Vector2.Distance(hangCheck.position, grapplePoint);
 
             if (dist <= hangSnapDistance)
-            {
                 StartHang(grapplePoint);
-            }
         }
 
         WatchState();
@@ -68,10 +80,10 @@ public class PlayerGrappleHang2D : MonoBehaviour
 
     public void TryGrapple(Vector2 mousePos)
     {
-        if (hanging || hangLockTimer > 0f)
+        if (hanging || hangLockTimer > 0f || cam == null)
             return;
 
-        Vector2 worldMouse = Camera.main.ScreenToWorldPoint(mousePos);
+        Vector2 worldMouse = cam.ScreenToWorldPoint(mousePos);
         Vector2 dir = (worldMouse - (Vector2)transform.position).normalized;
 
         RaycastHit2D hit = Physics2D.Raycast(
@@ -84,7 +96,7 @@ public class PlayerGrappleHang2D : MonoBehaviour
         if (hit.collider == null)
             return;
 
-        // Only allow undersides / ceilings
+        // Only allow underside / ceiling surfaces
         if (hit.normal.y > -0.5f)
             return;
 
@@ -101,9 +113,11 @@ public class PlayerGrappleHang2D : MonoBehaviour
         hanging = true;
 
         rb.linearVelocity = Vector2.zero;
-        transform.position = point + Vector2.down * 0.5f;
+        transform.position = point + hangOffset;
 
-        controller.SetHanging(true);
+        if (controller != null)
+            controller.SetHanging(true);
+
         WatchState();
     }
 
@@ -120,15 +134,22 @@ public class PlayerGrappleHang2D : MonoBehaviour
 
         hangLockTimer = 0.25f;
 
-        controller.SetHanging(false);
+        if (controller != null)
+            controller.SetHanging(false);
+
         WatchState();
     }
 
     void WatchState()
     {
+        if (!debugLogs)
+            return;
+
+        bool controllerHanging = controller != null && controller.IsHanging;
+
         if (lastGrappling != grappling || lastHanging != hanging)
         {
-            Debug.Log($"STATE CHANGE | grappling={grappling} hanging={hanging} controller.IsHanging={controller.IsHanging}");
+            Debug.Log($"STATE CHANGE | grappling={grappling} hanging={hanging} controller.IsHanging={controllerHanging}");
             lastGrappling = grappling;
             lastHanging = hanging;
         }

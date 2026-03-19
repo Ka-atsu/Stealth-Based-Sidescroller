@@ -7,6 +7,7 @@ public class PlayerInputHandler : MonoBehaviour
 {
     PlayerController2D controller;
     PlayerGrappleHang2D grapple;
+    PlayerSwing2D swing;
     PlayerInput playerInput;
 
     Vector2 mousePosition;
@@ -18,6 +19,7 @@ public class PlayerInputHandler : MonoBehaviour
     {
         controller = GetComponent<PlayerController2D>();
         grapple = GetComponent<PlayerGrappleHang2D>();
+        swing = GetComponent<PlayerSwing2D>();
         playerInput = GetComponent<PlayerInput>();
     }
 
@@ -36,6 +38,9 @@ public class PlayerInputHandler : MonoBehaviour
 
         moveInput = Vector2.zero;
         sprintHeld = false;
+
+        if (swing != null)
+            swing.SetMoveInput(Vector2.zero);
     }
 
     public void OnMove(InputValue value)
@@ -43,12 +48,21 @@ public class PlayerInputHandler : MonoBehaviour
         moveInput = value.Get<Vector2>();
         controller.SetMove(moveInput);
 
+        if (swing != null)
+            swing.SetMoveInput(moveInput);
+
         UpdateRunState();
     }
 
     public void OnJump(InputValue value)
     {
         controller.SetJumpHeld(value.isPressed);
+
+        // If swinging and jump is pressed Then release rope
+        if (value.isPressed && swing != null && swing.IsSwinging)
+        {
+            swing.ReleaseSwing();
+        }
     }
 
     public void OnSprint(InputValue value)
@@ -77,14 +91,12 @@ public class PlayerInputHandler : MonoBehaviour
     public void OnDash(InputValue value)
     {
         if (!value.isPressed) return;
-
         controller.TryDash();
     }
 
     public void OnAttack(InputValue value)
     {
         if (!value.isPressed) return;
-
         controller.TryStealthStrike();
     }
 
@@ -95,9 +107,17 @@ public class PlayerInputHandler : MonoBehaviour
 
     public void OnGrapple(InputValue value)
     {
-        if (!value.isPressed) return;
+        if (swing != null)
+        {
+            if (value.isPressed)
+                swing.TryGrapple(mousePosition);
+            else
+                swing.ReleaseSwing();
 
-        if (grapple != null)
+            return;
+        }
+
+        if (grapple != null && value.isPressed)
             grapple.TryGrapple(mousePosition);
     }
 
