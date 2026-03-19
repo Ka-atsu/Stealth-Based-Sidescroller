@@ -2,6 +2,11 @@
 
 public class EnemyAI : MonoBehaviour
 {
+    [Header("Debug")]
+    public bool debugLogs = true;
+    public bool debugPerception = false;
+    public bool debugActions = false;
+
     EnemyMovement movement;
     EnemyVision vision;
     EnemyStateMachine stateMachine;
@@ -19,6 +24,12 @@ public class EnemyAI : MonoBehaviour
     float searchTimer = 0f;
     float searchDuration = 5f;
 
+    bool lastCanSeePlayer;
+    bool lastHasBlood;
+    bool lastHearingSearch;
+
+    string lastAction = "";
+
     void Start()
     {
         movement = GetComponent<EnemyMovement>();
@@ -32,11 +43,20 @@ public class EnemyAI : MonoBehaviour
         GameObject p = GameObject.FindGameObjectWithTag("Player");
         if (p != null)
             player = p.transform;
+
+        if (stateMachine != null)
+            lastState = stateMachine.currentState;
+
+        Log("EnemyAI started");
     }
 
     void FixedUpdate()
     {
-        if (player == null) return;
+        if (player == null)
+        {
+            Log("No player found");
+            return;
+        }
 
         //----------------------------------
         // PERCEPTION
@@ -47,11 +67,13 @@ public class EnemyAI : MonoBehaviour
         if (bloodTracker != null)
             bloodTracker.DetectNearbyBlood();
 
-        bool canSeePlayer = vision.CanSeePlayerNow;
+        bool canSeePlayer = vision != null && vision.CanSeePlayerNow;
         bool hasBlood = bloodTracker != null && bloodTracker.HasBloodTarget();
         bool hearingSearch = hearing != null && hearing.IsInvestigating();
 
         Vector3 hearingTarget = hearingSearch ? hearing.lastHeardPosition : Vector3.zero;
+
+        LogPerceptionChanges(canSeePlayer, hasBlood, hearingSearch, hearingTarget);
 
         //----------------------------------
         // STATE DECISION (PRIORITY)
@@ -59,20 +81,26 @@ public class EnemyAI : MonoBehaviour
 
         if (attack != null && attack.CanAttack() && canSeePlayer)
         {
+            LogAction("Decision -> Attack");
             stateMachine.SetState(EnemyStateMachine.EnemyState.Attack);
         }
         else if (canSeePlayer)
         {
+            LogAction("Decision -> Alerted");
             stateMachine.SetState(EnemyStateMachine.EnemyState.Alerted);
         }
         else if (hasBlood)
         {
+            LogAction("Decision -> FollowBlood");
             stateMachine.SetState(EnemyStateMachine.EnemyState.FollowBlood);
         }
         else if (hearingSearch && stateMachine.currentState != EnemyStateMachine.EnemyState.Search)
         {
+            LogAction($"Decision -> Search from hearing at {hearingTarget}");
             EnterSearch(hearingTarget);
-            hearing.StopInvestigating();
+
+            if (hearing != null)
+                hearing.StopInvestigating();
         }
         else if (stateMachine.currentState == EnemyStateMachine.EnemyState.Search)
         {
@@ -80,10 +108,12 @@ public class EnemyAI : MonoBehaviour
         }
         else if (stateMachine.currentState == EnemyStateMachine.EnemyState.FollowBlood && !hasBlood)
         {
+            LogAction("Lost blood target -> Search");
             EnterSearch(transform.position);
         }
         else if (stateMachine.currentState != EnemyStateMachine.EnemyState.Patrol)
         {
+            LogAction("Decision -> Patrol");
             stateMachine.SetState(EnemyStateMachine.EnemyState.Patrol);
         }
 
@@ -93,7 +123,7 @@ public class EnemyAI : MonoBehaviour
 
         if (stateMachine.currentState != lastState)
         {
-            //Debug.Log("CURRENT AI STATE → " + stateMachine.currentState);
+            Log($"STATE -> {stateMachine.currentState}");
             lastState = stateMachine.currentState;
         }
 
@@ -104,21 +134,19 @@ public class EnemyAI : MonoBehaviour
         switch (stateMachine.currentState)
         {
             case EnemyStateMachine.EnemyState.Patrol:
-
+                LogAction("Patrolling");
                 movement.Patrol();
                 break;
 
-
             case EnemyStateMachine.EnemyState.Alerted:
-
+                LogAction($"Chasing player at {player.position}");
                 movement.Chase(player.position);
                 break;
 
-
             case EnemyStateMachine.EnemyState.FollowBlood:
-
                 if (canSeePlayer)
                 {
+                    LogAction("Saw player while following blood -> Alerted");
                     stateMachine.SetState(EnemyStateMachine.EnemyState.Alerted);
                     break;
                 }
@@ -126,77 +154,76 @@ public class EnemyAI : MonoBehaviour
                 if (hasBlood)
                 {
                     Vector3 bloodTarget = bloodTracker.GetBloodTargetPosition();
+                    LogAction($"Following blood target at {bloodTarget}");
+
                     movement.Chase(bloodTarget);
 
                     float horizontalDist = Mathf.Abs(transform.position.x - bloodTarget.x);
                     float verticalDist = Mathf.Abs(transform.position.y - bloodTarget.y);
 
-                    // Ground enemy: if we're under the blood point, count it as reached
                     if (horizontalDist < 0.4f)
                     {
+                        LogAction("Reached blood target horizontally -> Next blood point");
                         bloodTracker.MoveToNextBloodTarget();
                     }
-
-                    // Optional: skip blood that is too high to realistically reach
                     else if (verticalDist > 2.5f && horizontalDist < 0.75f)
                     {
+                        LogAction("Blood too high but close horizontally -> Skipping to next blood point");
                         bloodTracker.MoveToNextBloodTarget();
                     }
                 }
                 else
                 {
+                    LogAction("No more blood -> Search");
                     EnterSearch(transform.position);
                 }
 
                 break;
 
-
             case EnemyStateMachine.EnemyState.Search:
-
-                // Player spotted again
                 if (canSeePlayer)
                 {
+                    LogAction("Saw player during search -> Alerted");
                     stateMachine.SetState(EnemyStateMachine.EnemyState.Alerted);
                     break;
                 }
 
-                // Blood found again
                 if (hasBlood)
                 {
+                    LogAction("Found blood during search -> FollowBlood");
                     stateMachine.SetState(EnemyStateMachine.EnemyState.FollowBlood);
                     break;
                 }
 
                 searchTimer -= Time.deltaTime;
 
+                LogAction($"Searching around {currentSearchTarget} | time left: {searchTimer:F2}");
                 searchBehavior.SearchRandomly(currentSearchTarget);
 
                 if (searchTimer <= 0f)
                 {
+                    LogAction("Search expired -> Return");
                     stateMachine.SetState(EnemyStateMachine.EnemyState.Return);
                 }
 
                 break;
 
-
             case EnemyStateMachine.EnemyState.Attack:
-
+                LogAction("Stopping to attack");
                 movement.Stop();
 
                 if (!attack.IsAttacking)
                 {
+                    LogAction("TryAttack()");
                     attack.TryAttack();
                 }
 
                 break;
 
-
             case EnemyStateMachine.EnemyState.Return:
-
+                LogAction("Returning to patrol");
                 movement.Patrol();
-
                 stateMachine.SetState(EnemyStateMachine.EnemyState.Patrol);
-
                 break;
         }
     }
@@ -213,7 +240,10 @@ public class EnemyAI : MonoBehaviour
         currentSearchTarget = target;
         searchTimer = searchDuration;
 
-        searchBehavior.ResetSearch();
+        if (searchBehavior != null)
+            searchBehavior.ResetSearch();
+
+        Log($"ENTER SEARCH -> target: {target}, duration: {searchDuration:F2}");
 
         stateMachine.SetState(EnemyStateMachine.EnemyState.Search);
     }
@@ -226,19 +256,68 @@ public class EnemyAI : MonoBehaviour
         float enemyFacing = movement.MovingRight ? 1f : -1f;
         float attackerOffsetX = attackerPosition.x - transform.position.x;
 
-        // If attacker is too centered, reject
         if (Mathf.Abs(attackerOffsetX) < 0.05f)
+        {
+            LogAction("Stealth kill check failed: attacker too centered");
             return false;
+        }
 
         bool attackerIsInFront = Mathf.Sign(attackerOffsetX) == enemyFacing;
+        bool canKill = !attackerIsInFront;
 
-        // Can only kill if attacker is NOT in front
-        return !attackerIsInFront;
+        LogAction($"Stealth kill check -> attackerOffsetX={attackerOffsetX:F2}, enemyFacing={enemyFacing}, canKill={canKill}");
+
+        return canKill;
     }
 
     public void DieFromStealthStrike()
     {
+        Log("Died from stealth strike");
         Destroy(gameObject);
+    }
+
+    //----------------------------------
+    // DEBUG HELPERS
+    //----------------------------------
+
+    void Log(string msg)
+    {
+        if (!debugLogs) return;
+        Debug.Log($"<color=cyan>[EnemyAI]</color> {name}: {msg}", this);
+    }
+
+    void LogAction(string msg)
+    {
+        if (!debugActions) return;
+
+        if (msg == lastAction) return;
+
+        lastAction = msg;
+
+        Debug.Log($"<color=yellow>[EnemyAI Action]</color> {name}: {msg}", this);
+    }
+
+    void LogPerceptionChanges(bool canSeePlayer, bool hasBlood, bool hearingSearch, Vector3 hearingTarget)
+    {
+        if (!debugPerception) return;
+
+        if (canSeePlayer != lastCanSeePlayer)
+        {
+            Debug.Log($"<color=lime>[EnemyAI Perception]</color> {name}: CanSeePlayer -> {canSeePlayer}", this);
+            lastCanSeePlayer = canSeePlayer;
+        }
+
+        if (hasBlood != lastHasBlood)
+        {
+            Debug.Log($"<color=red>[EnemyAI Perception]</color> {name}: HasBlood -> {hasBlood}", this);
+            lastHasBlood = hasBlood;
+        }
+
+        if (hearingSearch != lastHearingSearch)
+        {
+            Debug.Log($"<color=orange>[EnemyAI Perception]</color> {name}: HearingSearch -> {hearingSearch} at {hearingTarget}", this);
+            lastHearingSearch = hearingSearch;
+        }
     }
 
     //----------------------------------
@@ -266,6 +345,19 @@ public class EnemyAI : MonoBehaviour
         {
             Gizmos.color = Color.yellow;
             Gizmos.DrawLine(transform.position, player.position);
+        }
+
+        if (stateMachine.currentState == EnemyStateMachine.EnemyState.Search)
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(currentSearchTarget, 0.35f);
+            Gizmos.DrawLine(transform.position, currentSearchTarget);
+        }
+
+        if (bloodTracker != null && bloodTracker.HasBloodTarget())
+        {
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawWireSphere(bloodTracker.GetBloodTargetPosition(), 0.25f);
         }
     }
 }
