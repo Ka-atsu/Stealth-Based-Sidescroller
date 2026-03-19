@@ -36,6 +36,12 @@ public class MainMenuManager : MonoBehaviour
         LoadSceneFromMenu("Level1");
     }
 
+    public void Back()
+    {
+        LoadSceneFromMenu("MainMenu");
+        debug.Log("asdsad");
+    }
+
     public void HowToPlay()
     {
         LoadSceneFromMenu("HowToPlay");
