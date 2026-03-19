@@ -523,8 +523,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: How To Play
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e8b472a71bc2c6c47a7d414194daac22, type: 2}
-  m_sharedMaterial: {fileID: -9035613264268934974, guid: e8b472a71bc2c6c47a7d414194daac22, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -817,15 +817,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuSoundManager
   audioSource: {fileID: 0}
   musicSource: {fileID: 0}
-  buttonClickSound: {fileID: 8300000, guid: 92b9247f2f1543349853e2734f133cf9, type: 3}
-  buttonHoverSound: {fileID: 8300000, guid: 674574cb986033548aec9505d51cd226, type: 3}
+  buttonClickSound: {fileID: 8300000, guid: ea8427d91fa4a4a49bca3b492e832b19, type: 3}
+  buttonHoverSound: {fileID: 8300000, guid: d8f984620eaec064bb6ba1b3797db4f6, type: 3}
   backSound: {fileID: 8300000, guid: 8e83e55b71e806a46af931af2aedf843, type: 3}
   buttonClickVolume: 1
   buttonHoverVolume: 1
   backVolume: 1
-  mainMenuLoopClip: {fileID: 8300000, guid: f2b34f50ed360ae48bc2ff3bddd462d3, type: 3}
+  mainMenuLoopClip: {fileID: 8300000, guid: ac9edd7ff7804364d9e15057ade39985, type: 3}
   playLoopOnStart: 1
-  musicVolume: 0.041
+  musicVolume: 0.095
   buttonClickDelay: 0
   buttonHoverDelay: 0
   backDelay: 0
@@ -1135,8 +1135,8 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e8b472a71bc2c6c47a7d414194daac22, type: 2}
-  m_sharedMaterial: {fileID: -9035613264268934974, guid: e8b472a71bc2c6c47a7d414194daac22, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1458,8 +1458,8 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e8b472a71bc2c6c47a7d414194daac22, type: 2}
-  m_sharedMaterial: {fileID: -9035613264268934974, guid: e8b472a71bc2c6c47a7d414194daac22, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1595,8 +1595,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Start Game
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: e8b472a71bc2c6c47a7d414194daac22, type: 2}
-  m_sharedMaterial: {fileID: -9035613264268934974, guid: e8b472a71bc2c6c47a7d414194daac22, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
