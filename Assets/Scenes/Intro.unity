@@ -5783,10 +5783,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NinjaAudioManager
   audioSource: {fileID: 1281890713}
-  footstepSound: {fileID: 0}
-  jumpSound: {fileID: 0}
+  footstepSound: {fileID: 8300000, guid: 0885f589f7ac0fd429361d4b6e10208a, type: 3}
+  jumpSound: {fileID: 8300000, guid: 4d473ec6beac13541a7f7a0f1dffd8f6, type: 3}
   dashSound: {fileID: 0}
-  landingSound: {fileID: 0}
+  landingSound: {fileID: 8300000, guid: 6a8477577f3c40644932f38252e44de5, type: 3}
+  footstepDelay: 0.3
+  jumpDelay: 0
+  dashDelay: 0
+  landingDelay: 0
 --- !u!82 &1638554614
 AudioSource:
   m_ObjectHideFlags: 0
@@ -27204,23 +27208,23 @@ MonoBehaviour:
     tiles: []
     tileWidth: 0
   - layerObject: {fileID: 608937120}
-    parallaxSpeed: 0.19
+    parallaxSpeed: 0.417
     tiles: []
     tileWidth: 0
   - layerObject: {fileID: 1672733652}
-    parallaxSpeed: 0.28
+    parallaxSpeed: 0.639
     tiles: []
     tileWidth: 0
   - layerObject: {fileID: 761593104}
-    parallaxSpeed: 0.01
+    parallaxSpeed: 0.213
     tiles: []
     tileWidth: 0
   - layerObject: {fileID: 1770369216}
-    parallaxSpeed: 0.8
+    parallaxSpeed: 1.028
     tiles: []
     tileWidth: 0
   - layerObject: {fileID: 555533430}
-    parallaxSpeed: 0.9
+    parallaxSpeed: 1.269
     tiles: []
     tileWidth: 0
 --- !u!114 &5767438598032088164
