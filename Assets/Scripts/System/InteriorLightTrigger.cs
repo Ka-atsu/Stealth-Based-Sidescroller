@@ -8,11 +8,11 @@ public class InteriorLightTrigger : MonoBehaviour
     public Light2D outsideLight;
 
     [Header("Light Values")]
-    public float interiorBright = 0.4f;
-    public float interiorDark = 0f;
+    public float interiorBright = 0.15f;
+    public float interiorDark = 0.05f;
 
-    public float outsideBright = 0.4f;
-    public float outsideDark = 0f;
+    public float outsideBright = 0.15f;
+    public float outsideDark = 0.05f;
 
     [Header("Transition")]
     public float transitionTime = 0.4f;
