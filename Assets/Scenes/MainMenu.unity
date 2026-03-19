@@ -823,7 +823,7 @@ MonoBehaviour:
   buttonClickVolume: 1
   buttonHoverVolume: 1
   backVolume: 1
-  mainMenuLoopClip: {fileID: 8300000, guid: 2c8c3fe3fdd92d34aa47d153a296637f, type: 3}
+  mainMenuLoopClip: {fileID: 8300000, guid: f2b34f50ed360ae48bc2ff3bddd462d3, type: 3}
   playLoopOnStart: 1
   musicVolume: 0.041
   buttonClickDelay: 0
