@@ -9,39 +9,44 @@ public class PlayerDash2D : MonoBehaviour
     public float dashDuration = 0.2f;
     public float dashCooldown = 0.6f;
 
-    [Header("Celeste Dash FX")]
+    [Header("Dash FX")]
     public float freezeDuration = 0.05f;
-    public float stretchX = 1.6f;
-    public float stretchY = 0.6f;
 
     [Header("Dash Layer")]
     [SerializeField] private string dashLayerName = "PlayerDash";
+
+    [Header("After Image")]
+    [SerializeField] private GameObject afterImagePrefab;
+    [SerializeField] private float afterImageSpacing = 0.03f;
+    [SerializeField] private Color afterImageColor = new Color(1f, 1f, 1f, 0.35f);
 
     public bool IsDashing { get; private set; }
 
     Rigidbody2D rb;
     SpriteRenderer sr;
-    Vector3 originalScale;
 
     PlayerJump2D jump;
     PlayerNoiseEmitter2D noise;
 
     float dashTimer;
     float dashCooldownTimer;
+    float afterImageTimer;
     Vector2 dashDirection;
     bool hasDashedInAir;
 
     int dashLayer;
     int originalLayerBeforeDash;
+    float originalGravityScale;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
-        originalScale = transform.localScale;
 
         jump = GetComponent<PlayerJump2D>();
         noise = GetComponent<PlayerNoiseEmitter2D>();
+
+        originalGravityScale = rb.gravityScale;
 
         dashLayer = LayerMask.NameToLayer(dashLayerName);
 
@@ -58,6 +63,7 @@ public class PlayerDash2D : MonoBehaviour
         IsDashing = true;
         dashTimer = dashDuration;
         dashCooldownTimer = dashCooldown;
+        afterImageTimer = 0f;
 
         if (!isGrounded)
             hasDashedInAir = true;
@@ -71,19 +77,8 @@ public class PlayerDash2D : MonoBehaviour
             noise.Emit(6f, NoiseType.Roll);
 
         rb.gravityScale = 0f;
-
         StartCoroutine(FreezeFrame(freezeDuration));
 
-        transform.localScale = new Vector3(
-            originalScale.x * stretchX,
-            originalScale.y * stretchY,
-            originalScale.z
-        );
-
-        if (sr != null)
-            sr.color = Color.white * 2f;
-
-        // switch to dash layer
         originalLayerBeforeDash = gameObject.layer;
         if (dashLayer != -1)
             gameObject.layer = dashLayer;
@@ -97,21 +92,18 @@ public class PlayerDash2D : MonoBehaviour
         if (!IsDashing) return;
 
         rb.linearVelocity = dashDirection * dashSpeed;
-        dashTimer -= dt;
 
+        afterImageTimer -= dt;
+        if (afterImagePrefab != null && afterImageTimer <= 0f)
+        {
+            SpawnAfterImage();
+            afterImageTimer = afterImageSpacing;
+        }
+
+        dashTimer -= dt;
         if (dashTimer > 0f) return;
 
-        IsDashing = false;
-
-        rb.gravityScale = (jump != null) ? jump.baseGravityScale : 3.5f;
-        rb.linearVelocity = Vector2.zero;
-        transform.localScale = originalScale;
-
-        if (sr != null)
-            sr.color = Color.white;
-
-        // restore original layer
-        gameObject.layer = originalLayerBeforeDash;
+        EndDash();
     }
 
     public void TickCooldown(float dt, bool isGrounded)
@@ -120,7 +112,46 @@ public class PlayerDash2D : MonoBehaviour
             hasDashedInAir = false;
 
         if (IsDashing) return;
+
         dashCooldownTimer -= dt;
+        if (dashCooldownTimer < 0f)
+            dashCooldownTimer = 0f;
+    }
+
+    void EndDash()
+    {
+        IsDashing = false;
+
+        rb.gravityScale = (jump != null) ? jump.baseGravityScale : originalGravityScale;
+        rb.linearVelocity *= 0.35f;
+
+        gameObject.layer = originalLayerBeforeDash;
+    }
+
+    void SpawnAfterImage()
+    {
+        if (sr == null || afterImagePrefab == null || sr.sprite == null)
+            return;
+
+        GameObject obj = Instantiate(afterImagePrefab, transform.position, transform.rotation);
+        SpriteRenderer ghostSR = obj.GetComponent<SpriteRenderer>();
+        PlayerDashAfterImage2D ghost = obj.GetComponent<PlayerDashAfterImage2D>();
+
+        if (ghostSR != null)
+        {
+            ghostSR.sortingLayerID = sr.sortingLayerID;
+            ghostSR.sortingOrder = sr.sortingOrder - 1;
+        }
+
+        if (ghost != null)
+        {
+            ghost.Setup(
+                sr.sprite,
+                transform.localScale,
+                sr.flipX,
+                afterImageColor
+            );
+        }
     }
 
     IEnumerator FreezeFrame(float duration)
