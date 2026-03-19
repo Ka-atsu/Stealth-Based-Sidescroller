@@ -9,19 +9,9 @@ public class MainMenuManager : MonoBehaviour
         SceneManager.LoadScene("Intro");
     }
 
-    public void ContinueGame()
-    {
-        SceneManager.LoadScene("Level1");
-    }
-
     public void HowToPlay()
     {
         SceneManager.LoadScene("HowToPlay");
-    }
-
-    public void Settings()
-    {
-        SceneManager.LoadScene("Settings");
     }
 
     public void ExitGame()
