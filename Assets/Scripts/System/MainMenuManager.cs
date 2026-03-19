@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class MainMenuManager : MonoBehaviour
 {
@@ -21,6 +22,7 @@ public class MainMenuManager : MonoBehaviour
         if (autoWireButtonClickSound)
         {
             WireAllButtonClickSounds();
+            WireAllButtonHoverSounds();
         }
     }
 
@@ -130,6 +132,30 @@ public class MainMenuManager : MonoBehaviour
                 continue;
 
             button.onClick.AddListener(PlayClickSoundOnly);
+        }
+    }
+
+    void WireAllButtonHoverSounds()
+    {
+        Button[] buttons = FindObjectsByType<Button>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        for (int i = 0; i < buttons.Length; i++)
+        {
+            Button button = buttons[i];
+
+            if (button == null)
+                continue;
+
+            EventTrigger eventTrigger = button.GetComponent<EventTrigger>();
+            if (eventTrigger == null)
+            {
+                eventTrigger = button.gameObject.AddComponent<EventTrigger>();
+            }
+
+            EventTrigger.Entry pointerEnterEntry = new EventTrigger.Entry();
+            pointerEnterEntry.eventID = EventTriggerType.PointerEnter;
+            pointerEnterEntry.callback.AddListener((data) => PlayHoverSound());
+            eventTrigger.triggers.Add(pointerEnterEntry);
         }
     }
 

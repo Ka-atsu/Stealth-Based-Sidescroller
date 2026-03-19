@@ -13,6 +13,16 @@ public class NinjaAudioManager : MonoBehaviour
     public AudioClip dashSound;
     public AudioClip landingSound;
 
+    [Header("Sound Volume Levels (0-1)")]
+    [Range(0f, 1f)]
+    public float footstepVolume = 1f;
+    [Range(0f, 1f)]
+    public float jumpVolume = 1f;
+    [Range(0f, 1f)]
+    public float dashVolume = 1f;
+    [Range(0f, 1f)]
+    public float landingVolume = 1f;
+
     // Sound delay adjustments (in seconds)
     public float footstepDelay = 0f;
     public float jumpDelay = 0f;
@@ -40,22 +50,22 @@ public class NinjaAudioManager : MonoBehaviour
 
     public void PlayFootstep()
     {
-        PlayClipWithDelay(footstepSound, footstepDelay);
+        PlayClipWithDelay(footstepSound, footstepDelay, footstepVolume);
     }
 
     public void PlayJump()
     {
-        PlayClipWithDelay(jumpSound, jumpDelay);
+        PlayClipWithDelay(jumpSound, jumpDelay, jumpVolume);
     }
 
     public void PlayDash()
     {
-        PlayClipWithDelay(dashSound, dashDelay);
+        PlayClipWithDelay(dashSound, dashDelay, dashVolume);
     }
 
     public void PlayLanding()
     {
-        PlayClipWithDelay(landingSound, landingDelay);
+        PlayClipWithDelay(landingSound, landingDelay, landingVolume);
     }
 
     void PlayClip(AudioClip clip)
@@ -66,24 +76,24 @@ public class NinjaAudioManager : MonoBehaviour
         audioSource.PlayOneShot(clip);
     }
 
-    void PlayClipWithDelay(AudioClip clip, float delay)
+    void PlayClipWithDelay(AudioClip clip, float delay, float volume = 1f)
     {
         if (audioSource == null || clip == null)
             return;
 
         if (delay > 0)
         {
-            StartCoroutine(PlayClipDelayed(clip, delay));
+            StartCoroutine(PlayClipDelayed(clip, delay, volume));
         }
         else
         {
-            audioSource.PlayOneShot(clip);
+            audioSource.PlayOneShot(clip, volume);
         }
     }
 
-    IEnumerator PlayClipDelayed(AudioClip clip, float delay)
+    IEnumerator PlayClipDelayed(AudioClip clip, float delay, float volume = 1f)
     {
         yield return new WaitForSeconds(delay);
-        audioSource.PlayOneShot(clip);
+        audioSource.PlayOneShot(clip, volume);
     }
 }
