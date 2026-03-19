@@ -138,6 +138,7 @@ public class PlayerController2D : MonoBehaviour
         if (IsHanging)
         {
             MoveInput = Vector2.zero;
+            RunHeld = false;
             return;
         }
 
@@ -145,6 +146,8 @@ public class PlayerController2D : MonoBehaviour
 
         if (Mathf.Abs(v.x) > 0.01f)
             FacingSign = Mathf.Sign(v.x);
+        else
+            RunHeld = false;
     }
 
     public void SetJumpHeld(bool held)

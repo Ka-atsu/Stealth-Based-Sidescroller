@@ -123,7 +123,7 @@ public class PlayerInputHandler : MonoBehaviour
 
     void UpdateRunState()
     {
-        bool isMoving = Mathf.Abs(moveInput.x) > 0.01f || Mathf.Abs(moveInput.y) > 0.01f;
-        controller.SetRunHeld(sprintHeld && isMoving);
+        bool isMovingHorizontally = Mathf.Abs(moveInput.x) > 0.01f;
+        controller.SetRunHeld(sprintHeld && isMovingHorizontally);
     }
 }
