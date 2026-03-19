@@ -39,7 +39,6 @@ public class MainMenuManager : MonoBehaviour
     public void Back()
     {
         LoadSceneFromMenu("MainMenu");
-        debug.Log("asdsad");
     }
 
     public void HowToPlay()
