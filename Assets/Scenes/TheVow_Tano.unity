@@ -526,6 +526,85 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 966368421}
   m_SourcePrefab: {fileID: 100100000, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
+--- !u!1 &959136177
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 959136180}
+  - component: {fileID: 959136179}
+  - component: {fileID: 959136178}
+  m_Layer: 0
+  m_Name: EventSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &959136178
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 959136177}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01614664b831546d2ae94a42149d80ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.UI.InputSystemUIInputModule
+  m_SendPointerHoverToParent: 1
+  m_MoveRepeatDelay: 0.5
+  m_MoveRepeatRate: 0.1
+  m_XRTrackingOrigin: {fileID: 0}
+  m_ActionsAsset: {fileID: -944628639613478452, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_PointAction: {fileID: -1654692200621890270, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_MoveAction: {fileID: -8784545083839296357, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_SubmitAction: {fileID: 392368643174621059, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_CancelAction: {fileID: 7727032971491509709, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_LeftClickAction: {fileID: 3001919216989983466, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_MiddleClickAction: {fileID: -2185481485913320682, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_RightClickAction: {fileID: -4090225696740746782, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_ScrollWheelAction: {fileID: 6240969308177333660, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_TrackedDevicePositionAction: {fileID: 6564999863303420839, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_TrackedDeviceOrientationAction: {fileID: 7970375526676320489, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_DeselectOnBackgroundClick: 1
+  m_PointerBehavior: 0
+  m_CursorLockBehavior: 0
+  m_ScrollDeltaPerTick: 6
+--- !u!114 &959136179
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 959136177}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.EventSystems.EventSystem
+  m_FirstSelected: {fileID: 0}
+  m_sendNavigationEvents: 1
+  m_DragThreshold: 10
+--- !u!4 &959136180
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 959136177}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &966368416 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4359012409412052069, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
@@ -553,11 +632,11 @@ MonoBehaviour:
     dialogueLines:
     - character:
         name: MC
-        icon: {fileID: 0}
+        icon: {fileID: -1945616916616541762, guid: 01ec877a76434fd44b6135a03264dfbc, type: 3}
       line: Master what happened
     - character:
-        name: dsadsa
-        icon: {fileID: 0}
+        name: MC
+        icon: {fileID: -1945616916616541762, guid: 01ec877a76434fd44b6135a03264dfbc, type: 3}
       line: NOOOOOOOOOOOOOOOO
 --- !u!1 &1281890712
 GameObject:
@@ -733,6 +812,10 @@ MonoBehaviour:
   jumpSound: {fileID: 0}
   dashSound: {fileID: 0}
   landingSound: {fileID: 0}
+  footstepVolume: 1
+  jumpVolume: 1
+  dashVolume: 1
+  landingVolume: 1
   footstepDelay: 0
   jumpDelay: 0
   dashDelay: 0
@@ -968,7 +1051,7 @@ GameObject:
   - component: {fileID: 1758640515}
   - component: {fileID: 1758640514}
   m_Layer: 0
-  m_Name: Dummy_0
+  m_Name: Dummy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1021,7 +1104,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 5
+  m_SortingOrder: 4
   m_MaskInteraction: 0
   m_Sprite: {fileID: 234189154208601328, guid: eb417e63e0bcf594ea81e9fe50016467, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -1438,7 +1521,7 @@ GameObject:
   - component: {fileID: 2045542174}
   - component: {fileID: 2045542173}
   m_Layer: 0
-  m_Name: House_0 (1)
+  m_Name: House
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -27025,3 +27108,4 @@ SceneRoots:
   - {fileID: 872332698}
   - {fileID: 1803236945}
   - {fileID: 1758640515}
+  - {fileID: 959136180}

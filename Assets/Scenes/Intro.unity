@@ -5787,6 +5787,10 @@ MonoBehaviour:
   jumpSound: {fileID: 8300000, guid: 4d473ec6beac13541a7f7a0f1dffd8f6, type: 3}
   dashSound: {fileID: 0}
   landingSound: {fileID: 8300000, guid: 6a8477577f3c40644932f38252e44de5, type: 3}
+  footstepVolume: 1
+  jumpVolume: 1
+  dashVolume: 1
+  landingVolume: 1
   footstepDelay: 0.3
   jumpDelay: 0
   dashDelay: 0
