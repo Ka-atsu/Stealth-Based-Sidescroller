@@ -6,148 +6,137 @@ public class Parallax : MonoBehaviour
     [System.Serializable]
     public class ParallaxLayer
     {
-        public GameObject layerObject;
+        [Header("Root")]
+        public Transform layerRoot;
 
         [Range(0f, 1.5f)]
         public float parallaxSpeed = 0.5f;
 
-        [HideInInspector] public List<Transform> tiles = new List<Transform>();
+        [Header("Tiles (left to right)")]
+        public List<Transform> tiles = new List<Transform>();
+
         [HideInInspector] public float tileWidth;
     }
 
+    [Header("References")]
+    [SerializeField] private Camera mainCamera;
+    [SerializeField] private Transform trackingTarget;
+
+    [Header("Layers")]
     [SerializeField] private ParallaxLayer[] layers;
 
-    private Camera mainCamera;
-    private float screenHalfWidth;
-    private float lastCameraX;
+    [Header("Pixel Snap")]
+    [SerializeField] private bool usePixelSnap = true;
+    [SerializeField] private float pixelsPerUnit = 64f;
 
-    private void Start()
+    private float screenHalfWidth;
+    private float lastTrackingX;
+
+    private void Awake()
     {
-        mainCamera = GetComponent<Camera>();
+        if (mainCamera == null)
+            mainCamera = Camera.main;
 
         if (mainCamera == null)
         {
-            Debug.LogError("Parallax must be attached to the Camera.");
+            Debug.LogError("Parallax requires a Camera reference.");
+            enabled = false;
             return;
         }
 
+        if (trackingTarget == null)
+            trackingTarget = mainCamera.transform;
+
         if (!mainCamera.orthographic)
-        {
-            Debug.LogWarning("This parallax tiler is intended for an orthographic camera.");
-        }
+            Debug.LogWarning("This parallax setup is intended for an orthographic camera.");
 
         float screenHeight = mainCamera.orthographicSize * 2f;
         float screenWidth = screenHeight * mainCamera.aspect;
         screenHalfWidth = screenWidth * 0.5f;
 
-        lastCameraX = transform.position.x;
+        lastTrackingX = trackingTarget.position.x;
 
         foreach (ParallaxLayer layer in layers)
-        {
             InitializeLayer(layer);
-        }
     }
 
     private void LateUpdate()
     {
-        float cameraX = transform.position.x;
-        float deltaX = cameraX - lastCameraX;
+        if (trackingTarget == null)
+            return;
+
+        float trackingX = trackingTarget.position.x;
+        float deltaX = trackingX - lastTrackingX;
 
         foreach (ParallaxLayer layer in layers)
         {
             MoveLayer(layer, deltaX);
-            RecycleLayer(layer);
+            RecycleLayer(layer, trackingX);
         }
 
-        lastCameraX = cameraX;
+        lastTrackingX = trackingX;
     }
 
     private void InitializeLayer(ParallaxLayer layer)
     {
-        if (layer.layerObject == null)
-            return;
-
-        SpriteRenderer sourceRenderer = layer.layerObject.GetComponent<SpriteRenderer>();
-        if (sourceRenderer == null)
+        if (layer.layerRoot == null)
         {
-            Debug.LogWarning($"'{layer.layerObject.name}' has no SpriteRenderer.");
+            Debug.LogWarning("Parallax layer is missing a root transform.");
             return;
         }
 
-        layer.tileWidth = sourceRenderer.bounds.size.x;
+        if (layer.tiles == null || layer.tiles.Count < 2)
+        {
+            Debug.LogWarning($"Layer '{layer.layerRoot.name}' needs at least 2 tiles.");
+            return;
+        }
+
+        SpriteRenderer sr = layer.tiles[0] != null ? layer.tiles[0].GetComponent<SpriteRenderer>() : null;
+        if (sr == null)
+        {
+            Debug.LogWarning($"First tile on '{layer.layerRoot.name}' has no SpriteRenderer.");
+            return;
+        }
+
+        layer.tileWidth = sr.bounds.size.x;
 
         if (layer.tileWidth <= 0f)
         {
-            Debug.LogWarning($"'{layer.layerObject.name}' has invalid tile width.");
+            Debug.LogWarning($"Layer '{layer.layerRoot.name}' has invalid tile width.");
             return;
         }
 
-        int tilesNeeded = Mathf.CeilToInt((screenHalfWidth * 2f) / layer.tileWidth) + 2;
-
-        Quaternion startRot = layer.layerObject.transform.rotation;
-        Vector3 rootPos = layer.layerObject.transform.position;
-
-        Sprite sprite = sourceRenderer.sprite;
-        int sortingLayerID = sourceRenderer.sortingLayerID;
-        int sortingOrder = sourceRenderer.sortingOrder;
-        Material sharedMaterial = sourceRenderer.sharedMaterial;
-        Color color = sourceRenderer.color;
-        string originalName = layer.layerObject.name;
-
-        layer.tiles.Clear();
-
-        for (int i = 0; i < tilesNeeded; i++)
-        {
-            GameObject tile = new GameObject($"{originalName}_{i}");
-            tile.transform.SetParent(layer.layerObject.transform, false);
-
-            tile.transform.localPosition = new Vector3(i * layer.tileWidth, 0f, 0f);
-            tile.transform.localRotation = Quaternion.identity;
-            tile.transform.localScale = Vector3.one;
-
-            SpriteRenderer tileRenderer = tile.AddComponent<SpriteRenderer>();
-            tileRenderer.sprite = sprite;
-            tileRenderer.sortingLayerID = sortingLayerID;
-            tileRenderer.sortingOrder = sortingOrder;
-            tileRenderer.sharedMaterial = sharedMaterial;
-            tileRenderer.color = color;
-
-            layer.tiles.Add(tile.transform);
-        }
-
-        layer.layerObject.transform.position = rootPos;
-        layer.layerObject.transform.rotation = startRot;
-
-        Destroy(sourceRenderer);
+        SortTilesLeftToRight(layer.tiles);
     }
 
-    private void MoveLayer(ParallaxLayer layer, float cameraDeltaX)
+    private void MoveLayer(ParallaxLayer layer, float trackingDeltaX)
     {
-        if (layer.layerObject == null)
+        if (layer.layerRoot == null)
             return;
 
-        Vector3 pos = layer.layerObject.transform.position;
+        Vector3 pos = layer.layerRoot.position;
+        pos.x -= trackingDeltaX * layer.parallaxSpeed;
 
-        pos.x -= cameraDeltaX * layer.parallaxSpeed;
+        if (usePixelSnap && pixelsPerUnit > 0f)
+            pos.x = Mathf.Round(pos.x * pixelsPerUnit) / pixelsPerUnit;
 
-        float pixelsPerUnit = 64f;
-        pos.x = Mathf.Round(pos.x * pixelsPerUnit) / pixelsPerUnit;
-
-        layer.layerObject.transform.position = pos;
+        layer.layerRoot.position = pos;
     }
 
-    private void RecycleLayer(ParallaxLayer layer)
+    private void RecycleLayer(ParallaxLayer layer, float trackingX)
     {
         if (layer.tiles == null || layer.tiles.Count < 2)
             return;
 
-        float cameraX = transform.position.x;
-
         Transform firstTile = layer.tiles[0];
         Transform lastTile = layer.tiles[layer.tiles.Count - 1];
+
+        if (firstTile == null || lastTile == null)
+            return;
+
         float halfWidth = layer.tileWidth * 0.5f;
 
-        if (cameraX + screenHalfWidth > lastTile.position.x + halfWidth)
+        if (trackingX + screenHalfWidth > lastTile.position.x + halfWidth)
         {
             firstTile.localPosition = new Vector3(
                 lastTile.localPosition.x + layer.tileWidth,
@@ -158,7 +147,7 @@ public class Parallax : MonoBehaviour
             layer.tiles.RemoveAt(0);
             layer.tiles.Add(firstTile);
         }
-        else if (cameraX - screenHalfWidth < firstTile.position.x - halfWidth)
+        else if (trackingX - screenHalfWidth < firstTile.position.x - halfWidth)
         {
             lastTile.localPosition = new Vector3(
                 firstTile.localPosition.x - layer.tileWidth,
@@ -169,5 +158,16 @@ public class Parallax : MonoBehaviour
             layer.tiles.RemoveAt(layer.tiles.Count - 1);
             layer.tiles.Insert(0, lastTile);
         }
+    }
+
+    private void SortTilesLeftToRight(List<Transform> tiles)
+    {
+        tiles.Sort((a, b) =>
+        {
+            if (a == null && b == null) return 0;
+            if (a == null) return 1;
+            if (b == null) return -1;
+            return a.position.x.CompareTo(b.position.x);
+        });
     }
 }

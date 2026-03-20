@@ -6,7 +6,7 @@ using UnityEngine;
 public class PlayerAnimation2D : MonoBehaviour
 {
     [SerializeField] private float moveSpeedThreshold = 0.1f;
-    [SerializeField] private float runSpeedThreshold = 14f;
+    [SerializeField] private float runSpeedThreshold = 11f;
     [SerializeField] private float verticalThreshold = 0.05f;
 
     private Animator animator;

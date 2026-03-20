@@ -14,6 +14,7 @@ public class PlayerInputHandler : MonoBehaviour
     Vector2 moveInput;
 
     bool sprintHeld;
+    IInteractable currentInteractable;
 
     void Awake()
     {
@@ -43,6 +44,25 @@ public class PlayerInputHandler : MonoBehaviour
             swing.SetMoveInput(Vector2.zero);
     }
 
+    public void SetCurrentInteractable(IInteractable interactable)
+    {
+        currentInteractable = interactable;
+    }
+
+    public void ClearCurrentInteractable(IInteractable interactable)
+    {
+        if (currentInteractable == interactable)
+            currentInteractable = null;
+    }
+
+    public void OnInteract(InputValue value)
+    {
+        Debug.Log("Interact pressed");
+
+        if (!value.isPressed) return;
+        currentInteractable?.Interact();
+    }
+
     public void OnMove(InputValue value)
     {
         moveInput = value.Get<Vector2>();
@@ -58,11 +78,8 @@ public class PlayerInputHandler : MonoBehaviour
     {
         controller.SetJumpHeld(value.isPressed);
 
-        // If swinging and jump is pressed Then release rope
         if (value.isPressed && swing != null && swing.IsSwinging)
-        {
             swing.ReleaseSwing();
-        }
     }
 
     public void OnSprint(InputValue value)
