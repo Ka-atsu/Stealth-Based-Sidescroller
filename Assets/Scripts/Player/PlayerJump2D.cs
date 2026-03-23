@@ -1,10 +1,15 @@
+using System;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerJump2D : MonoBehaviour
 {
+    #region Inspector
+
     [Header("Jump")]
     public float jumpForce = 14f;
+    [Range(0f, 1f)] public float jumpCutMultiplier = 0.5f;
+    public bool resetVerticalVelocityBeforeJump = true;
 
     [Header("Coyote Time")]
     public float coyoteTime = 0.1f;
@@ -14,14 +19,21 @@ public class PlayerJump2D : MonoBehaviour
     public float jumpBufferTime = 0.1f;
     float jumpBufferCounter;
 
+    [Header("Wall Grace")]
+    public float wallCoyoteTime = 0.1f;
+    float wallCoyoteCounter;
+    int lastWallDirection;
+
     [Header("Wall Slide / Wall Jump")]
     public float wallSlideSpeed = 3f;
+    public float wallSlideEnterMinFallSpeed = 0.5f;
     public float wallJumpForce = 14f;
     public float wallJumpHorizontalForce = 16f;
     public float wallJumpLockTime = 0.15f;
 
     float wallJumpLockCounter;
     bool isWallSliding;
+    bool wasWallSliding;
 
     [Header("Gravity")]
     public float baseGravityScale = 3.5f;
@@ -32,27 +44,54 @@ public class PlayerJump2D : MonoBehaviour
     [Header("Apex Hang")]
     public float apexThreshold = 0.5f;
     public float apexGravityMultiplier = 0.7f;
+    bool apexTriggered;
+
+    #endregion
+
+    #region Public Hooks
+
+    public Action<float> OnJump;
+    public Action<float> OnJumpCut;
+    public Action<float> OnApex;
+    public Action OnWallSlideStart;
+    public Action OnWallSlideEnd;
+    public Action<int> OnWallJump;
+
+    public bool IsMovementLocked => wallJumpLockCounter > 0f;
+    public bool IsWallSliding => isWallSliding;
+
+    #endregion
+
+    #region Refs
 
     Rigidbody2D rb;
     PlayerNoiseEmitter2D noise;
 
-    public bool IsMovementLocked => wallJumpLockCounter > 0f;
+    #endregion
+
+    #region Unity
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         noise = GetComponent<PlayerNoiseEmitter2D>();
-        
+
         ApplyBaseGravity();
 
-        // Optional: landing noise via sensors event if present
         var sensors = GetComponent<PlayerSensors2D>();
         if (sensors != null)
+        {
             sensors.OnLanded += () =>
             {
-                if (noise != null) noise.Emit(4f, NoiseType.JumpLanding);
+                if (noise != null)
+                    noise.Emit(4f, NoiseType.JumpLanding);
             };
+        }
     }
+
+    #endregion
+
+    #region Public API
 
     public void ApplyBaseGravity()
     {
@@ -66,27 +105,58 @@ public class PlayerJump2D : MonoBehaviour
 
     public void CutJump()
     {
-        if (rb.linearVelocity.y > 0f)
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * 0.5f);
+        if (rb.linearVelocity.y <= 0f) return;
+
+        float before = rb.linearVelocity.y;
+        float after = before * jumpCutMultiplier;
+
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, after);
+
+        float cutStrength = Mathf.InverseLerp(0f, jumpForce, before);
+        OnJumpCut?.Invoke(cutStrength);
     }
 
     public void TickFixed(float dt, PlayerSensors2D sensors, bool jumpHeld)
     {
+        if (sensors == null)
+        {
+            HandleGravity(false, jumpHeld);
+            return;
+        }
+
         UpdateCoyote(dt, sensors.IsGrounded);
+        UpdateWallCoyote(dt, sensors);
         UpdateJumpBuffer(dt);
+        UpdateWallJumpLock(dt);
 
         HandleWallSlide(sensors);
-
-        wallJumpLockCounter -= dt;
-
         HandleGravity(sensors.IsGrounded, jumpHeld);
-
         TryBufferedJump(sensors);
+        UpdateApexEvent(sensors.IsGrounded);
+
+        wasWallSliding = isWallSliding;
     }
+
+    #endregion
+
+    #region Timers
 
     void UpdateCoyote(float dt, bool isGrounded)
     {
         coyoteCounter = isGrounded ? coyoteTime : coyoteCounter - dt;
+    }
+
+    void UpdateWallCoyote(float dt, PlayerSensors2D sensors)
+    {
+        if (sensors.IsTouchingWall && !sensors.IsGrounded)
+        {
+            wallCoyoteCounter = wallCoyoteTime;
+            lastWallDirection = sensors.WallDirection;
+        }
+        else
+        {
+            wallCoyoteCounter -= dt;
+        }
     }
 
     void UpdateJumpBuffer(float dt)
@@ -94,19 +164,44 @@ public class PlayerJump2D : MonoBehaviour
         jumpBufferCounter -= dt;
     }
 
+    void UpdateWallJumpLock(float dt)
+    {
+        wallJumpLockCounter -= dt;
+    }
+
+    #endregion
+
+    #region Wall Slide
+
     void HandleWallSlide(PlayerSensors2D sensors)
     {
-        if (sensors.IsTouchingWall && !sensors.IsGrounded && rb.linearVelocity.y < 0f)
+        bool canWallSlide =
+            wallJumpLockCounter <= 0f &&
+            sensors.IsTouchingWall &&
+            !sensors.IsGrounded &&
+            rb.linearVelocity.y < -wallSlideEnterMinFallSpeed;
+
+        if (canWallSlide)
         {
             isWallSliding = true;
             rb.gravityScale = 0f;
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, -wallSlideSpeed);
+
+            if (!wasWallSliding)
+                OnWallSlideStart?.Invoke();
         }
         else
         {
             isWallSliding = false;
+
+            if (wasWallSliding)
+                OnWallSlideEnd?.Invoke();
         }
     }
+
+    #endregion
+
+    #region Gravity
 
     void HandleGravity(bool isGrounded, bool jumpHeld)
     {
@@ -118,7 +213,7 @@ public class PlayerJump2D : MonoBehaviour
 
             if (Mathf.Abs(vy) < apexThreshold)
                 rb.gravityScale = baseGravityScale * apexGravityMultiplier;
-            else if (vy < 0)
+            else if (vy < 0f)
                 rb.gravityScale = baseGravityScale * fallGravityMultiplier;
             else if (!jumpHeld)
                 rb.gravityScale = baseGravityScale * lowJumpGravityMultiplier;
@@ -131,43 +226,80 @@ public class PlayerJump2D : MonoBehaviour
         else
         {
             rb.gravityScale = baseGravityScale;
+            apexTriggered = false;
         }
     }
+
+    #endregion
+
+    #region Jump Execution
 
     void TryBufferedJump(PlayerSensors2D sensors)
     {
         if (jumpBufferCounter <= 0f) return;
 
-        if (sensors.IsTouchingWall && !sensors.IsGrounded)
+        if (wallCoyoteCounter > 0f && !sensors.IsGrounded)
         {
-            PerformWallJump(sensors.WallDirection);
-            jumpBufferCounter = 0f;
+            PerformWallJump(lastWallDirection);
+            return;
         }
-        else if (coyoteCounter > 0f)
+
+        if (coyoteCounter > 0f)
         {
             PerformJump();
-            jumpBufferCounter = 0f;
         }
     }
 
     void PerformJump()
     {
-        rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
+        if (resetVerticalVelocityBeforeJump)
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
+
         rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+
         coyoteCounter = 0f;
+        jumpBufferCounter = 0f;
+        apexTriggered = false;
+        isWallSliding = false;
+
+        OnJump?.Invoke(1f);
     }
 
     void PerformWallJump(int wallDirection)
     {
         wallJumpLockCounter = wallJumpLockTime;
+        wallCoyoteCounter = 0f;
+        coyoteCounter = 0f;
+        jumpBufferCounter = 0f;
+        apexTriggered = false;
+        isWallSliding = false;
 
-        Vector2 jumpDir = new Vector2(-wallDirection * 0.7f, 1f).normalized;
+        rb.gravityScale = baseGravityScale;
 
         rb.linearVelocity = new Vector2(
-            jumpDir.x * wallJumpHorizontalForce,
+            -wallDirection * wallJumpHorizontalForce,
             wallJumpForce
         );
 
-        isWallSliding = false;
+        OnWallJump?.Invoke(-wallDirection);
     }
+
+    #endregion
+
+    #region Apex
+
+    void UpdateApexEvent(bool isGrounded)
+    {
+        if (isGrounded || apexTriggered) return;
+
+        float absY = Mathf.Abs(rb.linearVelocity.y);
+        if (absY > apexThreshold) return;
+
+        apexTriggered = true;
+
+        float apexStrength = 1f - Mathf.InverseLerp(0f, apexThreshold, absY);
+        OnApex?.Invoke(apexStrength);
+    }
+
+    #endregion
 }

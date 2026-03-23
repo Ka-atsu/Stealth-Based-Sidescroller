@@ -1,31 +1,36 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(Rigidbody2D))]
-[RequireComponent(typeof(SpriteRenderer))]
 public class PlayerAnimation2D : MonoBehaviour
 {
+    [Header("Thresholds")]
     [SerializeField] private float moveSpeedThreshold = 0.1f;
     [SerializeField] private float runSpeedThreshold = 11f;
     [SerializeField] private float verticalThreshold = 0.05f;
 
-    private Animator animator;
+    [Header("Visual References")]
+    [SerializeField] private Transform visuals;
+    [SerializeField] private Animator animator;
+    [SerializeField] private SpriteRenderer spriteRenderer;
+
     private Rigidbody2D rb;
-    private SpriteRenderer spriteRenderer;
     private PlayerController2D controller;
 
     private bool wasGrounded;
 
     void Awake()
     {
-        animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
         controller = GetComponent<PlayerController2D>();
+
+        ResolveVisualReferences();
     }
 
     void Update()
     {
+        if (animator == null || rb == null)
+            return;
+
         bool isGrounded = controller != null && controller.IsGrounded;
 
         float xVelocity = Mathf.Abs(rb.linearVelocity.x);
@@ -37,10 +42,7 @@ public class PlayerAnimation2D : MonoBehaviour
 
         bool justLeftGround = wasGrounded && !isGrounded;
 
-        // Rising = jump
         bool isJumping = !isGrounded && yVelocity > verticalThreshold && !justLeftGround;
-
-        // Neutral or downward after leaving ground = fall
         bool isFalling = !isGrounded && !isJumping;
 
         animator.SetBool("isGrounded", isGrounded);
@@ -51,9 +53,37 @@ public class PlayerAnimation2D : MonoBehaviour
         animator.SetFloat("yVelocity", yVelocity);
         animator.SetFloat("xVelocity", xVelocity);
 
-        if (controller != null)
+        if (controller != null && spriteRenderer != null)
             spriteRenderer.flipX = controller.FacingSign < 0f;
 
         wasGrounded = isGrounded;
+    }
+
+    void ResolveVisualReferences()
+    {
+        if (visuals == null)
+        {
+            Transform found = transform.Find("Visuals");
+            if (found != null)
+                visuals = found;
+        }
+
+        if (animator == null)
+        {
+            if (visuals != null)
+                animator = visuals.GetComponent<Animator>();
+
+            if (animator == null)
+                animator = GetComponent<Animator>();
+        }
+
+        if (spriteRenderer == null)
+        {
+            if (visuals != null)
+                spriteRenderer = visuals.GetComponent<SpriteRenderer>();
+
+            if (spriteRenderer == null)
+                spriteRenderer = GetComponent<SpriteRenderer>();
+        }
     }
 }

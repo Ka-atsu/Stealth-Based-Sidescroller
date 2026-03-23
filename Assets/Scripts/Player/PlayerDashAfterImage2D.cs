@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class PlayerDashAfterImage2D : MonoBehaviour
 {
-    public float life = 0.12f;
+    private SpriteRenderer sr;
+    private float lifeTime = 0.2f;
+    private float timer;
 
-    SpriteRenderer sr;
-    Color startColor;
-    float timer;
+    private Color startColor;
 
     void Awake()
     {
@@ -18,20 +18,21 @@ public class PlayerDashAfterImage2D : MonoBehaviour
         sr.sprite = sprite;
         transform.localScale = scale;
         sr.flipX = flipX;
-        sr.color = color;
 
         startColor = color;
-        timer = life;
+        sr.color = color;
+
+        timer = lifeTime;
     }
 
     void Update()
     {
         timer -= Time.deltaTime;
 
-        float t = Mathf.Clamp01(timer / life);
-        Color c = startColor;
-        c.a = startColor.a * t;
-        sr.color = c;
+        float t = timer / lifeTime;
+
+        // Fade out
+        sr.color = new Color(startColor.r, startColor.g, startColor.b, t * startColor.a);
 
         if (timer <= 0f)
             Destroy(gameObject);

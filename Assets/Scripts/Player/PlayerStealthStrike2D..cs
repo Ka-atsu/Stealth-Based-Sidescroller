@@ -10,20 +10,13 @@ public class PlayerStealthStrike2D : MonoBehaviour
 
     [Header("Prompt")]
     [SerializeField] private GameObject stealthPromptVisual;
-    [SerializeField] private Vector3 promptOffset = new Vector3(0f, 1.2f, 0f);
+    [SerializeField] private Vector3 promptOffset = new Vector3(0f, 0.35f, 0f);
+    [SerializeField] private float promptFollowSpeed = 20f;
+    [SerializeField] private bool keepPromptZ = true;
 
     private float nextStrikeTime;
     private PlayerController2D controller;
     private EnemyAI currentTarget;
-
-    void Start()
-    {
-        if (stealthPromptVisual != null)
-        {
-            stealthPromptVisual.SetActive(true);
-            stealthPromptVisual.SetActive(false);
-        }
-    }
 
     void Awake()
     {
@@ -46,14 +39,12 @@ public class PlayerStealthStrike2D : MonoBehaviour
         if (Time.time < nextStrikeTime)
             return;
 
-        nextStrikeTime = Time.time + strikeCooldown;
-
         EnemyAI target = FindBestTarget(facingSign);
+        if (target == null)
+            return;
 
-        if (target != null)
-        {
-            target.DieFromStealthStrike();
-        }
+        nextStrikeTime = Time.time + strikeCooldown;
+        target.DieFromStealthStrike();
     }
 
     private EnemyAI FindBestTarget(float facingSign)
@@ -66,6 +57,8 @@ public class PlayerStealthStrike2D : MonoBehaviour
 
         foreach (Collider2D hit in hits)
         {
+            if (hit == null) continue;
+
             EnemyAI enemy = hit.GetComponentInParent<EnemyAI>();
             if (enemy == null)
                 continue;
@@ -101,7 +94,45 @@ public class PlayerStealthStrike2D : MonoBehaviour
         if (!stealthPromptVisual.activeSelf)
             stealthPromptVisual.SetActive(true);
 
-        stealthPromptVisual.transform.position = currentTarget.transform.position + promptOffset;
+        Vector3 targetPos = GetPromptPosition(currentTarget);
+
+        if (keepPromptZ)
+            targetPos.z = stealthPromptVisual.transform.position.z;
+
+        stealthPromptVisual.transform.position = Vector3.Lerp(
+            stealthPromptVisual.transform.position,
+            targetPos,
+            promptFollowSpeed * Time.deltaTime
+        );
+    }
+
+    private Vector3 GetPromptPosition(EnemyAI enemy)
+    {
+        Renderer render = enemy.GetComponentInChildren<Renderer>();
+        if (render != null)
+        {
+            Vector3 topCenter = new Vector3(
+                render.bounds.center.x,
+                render.bounds.max.y,
+                enemy.transform.position.z
+            );
+
+            return topCenter + promptOffset;
+        }
+
+        Collider2D col = enemy.GetComponentInChildren<Collider2D>();
+        if (col != null)
+        {
+            Vector3 topCenter = new Vector3(
+                col.bounds.center.x,
+                col.bounds.max.y,
+                enemy.transform.position.z
+            );
+
+            return topCenter + promptOffset;
+        }
+
+        return enemy.transform.position + promptOffset;
     }
 
     private Vector2 GetStrikeCenter(float facingSign)

@@ -84,11 +84,16 @@ public class PlayerController2D : MonoBehaviour
             return;
         }
 
+        dash.TickCooldown(Time.fixedDeltaTime, sensors.IsGrounded);
+
         if (dash.IsDashing)
         {
             dash.TickFixed(Time.fixedDeltaTime, sensors.IsGrounded);
             return;
         }
+
+        if (dash.IsDashRecovering)
+            return;
 
         jump.TickFixed(Time.fixedDeltaTime, sensors, JumpHeld);
 
@@ -100,8 +105,6 @@ public class PlayerController2D : MonoBehaviour
             crouch.IsCrouching,
             jump.IsMovementLocked
         );
-
-        dash.TickCooldown(Time.fixedDeltaTime, sensors.IsGrounded);
 
         // Footstep audio
         HandleFootsteps();

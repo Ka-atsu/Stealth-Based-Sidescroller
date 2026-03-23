@@ -9,8 +9,19 @@ public class PlayerDash2D : MonoBehaviour
     public float dashDuration = 0.2f;
     public float dashCooldown = 0.6f;
 
+    [Header("Dash Recovery")]
+    [SerializeField] private float dashRecoverDuration = 0.08f;
+    [SerializeField] private float endMomentumMultiplier = 0.15f;
+
     [Header("Dash FX")]
     public float freezeDuration = 0.05f;
+
+    [Header("Camera Shake")]
+    [SerializeField] private PlayerCameraShake2D cameraShake;
+    [SerializeField] private float dashStartShakeIntensity = 0.18f;
+    [SerializeField] private float dashStartShakeTime = 0.08f;
+    [SerializeField] private float dashEndShakeIntensity = 0.08f;
+    [SerializeField] private float dashEndShakeTime = 0.05f;
 
     [Header("Dash Layer")]
     [SerializeField] private string dashLayerName = "PlayerDash";
@@ -20,7 +31,12 @@ public class PlayerDash2D : MonoBehaviour
     [SerializeField] private float afterImageSpacing = 0.03f;
     [SerializeField] private Color afterImageColor = new Color(1f, 1f, 1f, 0.35f);
 
+    [Header("Optional Dash FX")]
+    [SerializeField] private GameObject dashStartFxPrefab;
+    [SerializeField] private GameObject dashEndFxPrefab;
+
     public bool IsDashing { get; private set; }
+    public bool IsDashRecovering => dashRecoverTimer > 0f;
 
     Rigidbody2D rb;
     SpriteRenderer sr;
@@ -30,6 +46,7 @@ public class PlayerDash2D : MonoBehaviour
 
     float dashTimer;
     float dashCooldownTimer;
+    float dashRecoverTimer;
     float afterImageTimer;
     Vector2 dashDirection;
     bool hasDashedInAir;
@@ -41,17 +58,19 @@ public class PlayerDash2D : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        sr = GetComponent<SpriteRenderer>();
+        sr = GetComponentInChildren<SpriteRenderer>();
 
         jump = GetComponent<PlayerJump2D>();
         noise = GetComponent<PlayerNoiseEmitter2D>();
 
         originalGravityScale = rb.gravityScale;
-
         dashLayer = LayerMask.NameToLayer(dashLayerName);
 
         if (dashLayer == -1)
             Debug.LogWarning($"Layer '{dashLayerName}' does not exist.");
+
+        if (cameraShake == null && Camera.main != null)
+            cameraShake = Camera.main.GetComponent<PlayerCameraShake2D>();
     }
 
     public void TryStartDash(Vector2 moveInput, bool isGrounded, float facingSign)
@@ -59,10 +78,12 @@ public class PlayerDash2D : MonoBehaviour
         if (!isGrounded && hasDashedInAir) return;
         if (dashCooldownTimer > 0f) return;
         if (IsDashing) return;
+        if (IsDashRecovering) return;
 
         IsDashing = true;
         dashTimer = dashDuration;
         dashCooldownTimer = dashCooldown;
+        dashRecoverTimer = 0f;
         afterImageTimer = 0f;
 
         if (!isGrounded)
@@ -77,11 +98,19 @@ public class PlayerDash2D : MonoBehaviour
             noise.Emit(6f, NoiseType.Roll);
 
         rb.gravityScale = 0f;
+        rb.linearVelocity = Vector2.zero;
+
         StartCoroutine(FreezeFrame(freezeDuration));
 
         originalLayerBeforeDash = gameObject.layer;
         if (dashLayer != -1)
             gameObject.layer = dashLayer;
+
+        if (cameraShake != null)
+            cameraShake.Shake(dashStartShakeIntensity, dashStartShakeTime);
+
+        if (dashStartFxPrefab != null)
+            Instantiate(dashStartFxPrefab, transform.position, Quaternion.identity);
     }
 
     public void TickFixed(float dt, bool isGrounded)
@@ -101,15 +130,21 @@ public class PlayerDash2D : MonoBehaviour
         }
 
         dashTimer -= dt;
-        if (dashTimer > 0f) return;
-
-        EndDash();
+        if (dashTimer <= 0f)
+            EndDash();
     }
 
     public void TickCooldown(float dt, bool isGrounded)
     {
         if (isGrounded)
             hasDashedInAir = false;
+
+        if (dashRecoverTimer > 0f)
+        {
+            dashRecoverTimer -= dt;
+            if (dashRecoverTimer < 0f)
+                dashRecoverTimer = 0f;
+        }
 
         if (IsDashing) return;
 
@@ -121,11 +156,20 @@ public class PlayerDash2D : MonoBehaviour
     void EndDash()
     {
         IsDashing = false;
+        dashRecoverTimer = dashRecoverDuration;
 
         rb.gravityScale = (jump != null) ? jump.baseGravityScale : originalGravityScale;
-        rb.linearVelocity *= 0.35f;
+
+        float xMomentum = dashDirection.x * dashSpeed * endMomentumMultiplier;
+        rb.linearVelocity = new Vector2(xMomentum, rb.linearVelocity.y);
 
         gameObject.layer = originalLayerBeforeDash;
+
+        if (cameraShake != null)
+            cameraShake.Shake(dashEndShakeIntensity, dashEndShakeTime);
+
+        if (dashEndFxPrefab != null)
+            Instantiate(dashEndFxPrefab, transform.position, Quaternion.identity);
     }
 
     void SpawnAfterImage()
@@ -139,8 +183,9 @@ public class PlayerDash2D : MonoBehaviour
 
         if (ghostSR != null)
         {
+            ghostSR.sprite = sr.sprite;
             ghostSR.sortingLayerID = sr.sortingLayerID;
-            ghostSR.sortingOrder = sr.sortingOrder - 1;
+            ghostSR.sortingOrder = sr.sortingOrder;
         }
 
         if (ghost != null)

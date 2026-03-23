@@ -14,7 +14,7 @@ public class PlayerSensors2D : MonoBehaviour
     public bool IsGrounded { get; private set; }
     public bool WasGrounded { get; private set; }
     public bool IsTouchingWall { get; private set; }
-    public int WallDirection { get; private set; } // -1 left, +1 right
+    public int WallDirection { get; private set; } 
 
     public event Action OnLanded;
 
