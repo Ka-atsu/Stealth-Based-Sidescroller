@@ -2,8 +2,10 @@
 
 public class EnemyVision : MonoBehaviour
 {
-    public float detectionRange = 5f;
-    public float visionAngle = 35f;
+    public float detectionRange = 10f;
+
+    // This is treated as a HALF-ANGLE
+    public float visionAngle = 20f;
 
     public LayerMask visionMask;
 
@@ -11,6 +13,10 @@ public class EnemyVision : MonoBehaviour
     public float detectionDecaySpeed = 0.6f;
 
     public float suspicionThreshold = 0.35f;
+
+    // If player is within this distance, detection builds at full speed
+    // even if they're near the edge of the cone.
+    public float closeVisionFullSpeedRange = 1.5f;
 
     public DetectionMeterUI detectionUI;
 
@@ -60,7 +66,7 @@ public class EnemyVision : MonoBehaviour
             DecreaseDetection();
         }
 
-        // Only report visibility
+        // Fully detected only when the meter reaches 1
         CanSeePlayerNow = detectionMeter >= 1f;
     }
 
@@ -74,17 +80,18 @@ public class EnemyVision : MonoBehaviour
         if (direction.magnitude > detectionRange)
             return false;
 
-        Vector2 forward = movement.MovingRight ? Vector2.right : Vector2.left;
+        Vector2 forward = movement != null && movement.MovingRight ? Vector2.right : Vector2.left;
 
         float angle = Vector2.Angle(forward, direction.normalized);
 
+        // visionAngle is used as HALF of the cone
         if (angle > visionAngle)
             return false;
 
         RaycastHit2D hit = Physics2D.Raycast(
             transform.position,
             direction.normalized,
-            detectionRange,
+            direction.magnitude,
             visionMask
         );
 
@@ -96,14 +103,26 @@ public class EnemyVision : MonoBehaviour
 
     void IncreaseDetection()
     {
-        Vector2 direction = (Vector2)(player.position - transform.position);
-        Vector2 forward = movement.MovingRight ? Vector2.right : Vector2.left;
+        if (player == null)
+            return;
 
+        Vector2 direction = (Vector2)(player.position - transform.position);
+        Vector2 forward = movement != null && movement.MovingRight ? Vector2.right : Vector2.left;
+
+        float distance = direction.magnitude;
         float angle = Vector2.Angle(forward, direction.normalized);
 
-        float edgeFactor = angle / visionAngle;
+        float speedMultiplier = 1f;
 
-        float speedMultiplier = Mathf.Lerp(1f, 0.3f, edgeFactor);
+        // Only apply edge slowdown if player is outside the close-range zone
+        if (distance > closeVisionFullSpeedRange)
+        {
+            // 0 = center of cone, 1 = edge of cone
+            float edgeFactor = Mathf.Clamp01(angle / visionAngle);
+
+            // At center = full speed, at edge = 30% speed
+            speedMultiplier = Mathf.Lerp(1f, 0.3f, edgeFactor);
+        }
 
         detectionMeter += detectionBuildSpeed * speedMultiplier * Time.deltaTime;
         detectionMeter = Mathf.Clamp01(detectionMeter);
@@ -125,16 +144,23 @@ public class EnemyVision : MonoBehaviour
     {
         Gizmos.color = Color.green;
 
-        if (movement == null)
-            return;
+        Vector3 forward;
 
-        Vector3 forward = movement.MovingRight ? transform.right : -transform.right;
+        if (Application.isPlaying && movement != null)
+            forward = movement.MovingRight ? transform.right : -transform.right;
+        else
+            forward = transform.right;
 
-        Vector3 left = Quaternion.Euler(0, 0, -visionAngle / 2) * forward * detectionRange;
-        Vector3 right = Quaternion.Euler(0, 0, visionAngle / 2) * forward * detectionRange;
+        // Match actual detection logic: visionAngle is HALF-ANGLE
+        Vector3 left = Quaternion.Euler(0, 0, -visionAngle) * forward * detectionRange;
+        Vector3 right = Quaternion.Euler(0, 0, visionAngle) * forward * detectionRange;
 
         Gizmos.DrawLine(transform.position, transform.position + left);
         Gizmos.DrawLine(transform.position, transform.position + right);
         Gizmos.DrawWireSphere(transform.position, detectionRange);
+
+        // Optional: show close full-speed zone
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, closeVisionFullSpeedRange);
     }
 }
