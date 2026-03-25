@@ -72379,6 +72379,7 @@ MonoBehaviour:
   jumpForce: 14
   jumpCutMultiplier: 0.5
   resetVerticalVelocityBeforeJump: 1
+  useAnimationTimedGroundJump: 1
   coyoteTime: 0.1
   jumpBufferTime: 0.1
   wallCoyoteTime: 0.1
@@ -72567,17 +72568,17 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.001367569, y: 0}
+  m_Offset: {x: -0.08863258, y: 0.018488646}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 2, y: 2}
+    oldSize: {x: 2.6666667, y: 2.6666667}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1.2057076, y: 2.0571156}
+  m_Size: {x: 1.2957954, y: 2.781551}
   m_EdgeRadius: 0
 --- !u!23 &1494309363588155018
 MeshRenderer:
@@ -72640,12 +72641,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f8cb5377e784c3488c9923bb51a2496, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStealthStrike2D
+  debugStealthStrike: 1
   strikeRange: 1.5
-  strikeOffset: {x: 0.65, y: 0}
+  strikeOffset: {x: 0.7, y: 0.7}
   enemyMask:
     serializedVersion: 2
     m_Bits: 256
   strikeCooldown: 0.2
+  strikeAnimationLockDuration: 0.18
   stealthPromptVisual: {fileID: 1665214310628774606}
   promptOffset: {x: 0, y: 0.35, z: 0}
   promptFollowSpeed: 20
@@ -72844,7 +72847,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.023588538, y: 0.71849823}
+  m_Offset: {x: 0.023588598, y: 0.71849823}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -72854,7 +72857,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.66081405, y: 3.0576897}
+  m_Size: {x: 0.8664478, y: 3.0576897}
   m_EdgeRadius: 0
 --- !u!114 &2103683543793544361
 MonoBehaviour:
@@ -73019,6 +73022,9 @@ MonoBehaviour:
   moveSpeedThreshold: 0.1
   runSpeedThreshold: 11
   verticalThreshold: 0.05
+  stealthStrikeTriggerName: stealthStrike
+  stealthStrikeAnimLockDuration: 0.18
+  jumpStartTriggerName: jumpStart
   visuals: {fileID: 934261720213494750}
   animator: {fileID: 8841577467671227734}
   spriteRenderer: {fileID: 6195193224108236746}
@@ -73225,7 +73231,7 @@ Transform:
   m_GameObject: {fileID: 539853066577278732}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.8, y: 0, z: 0}
+  m_LocalPosition: {x: 0.65, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -73400,7 +73406,7 @@ Transform:
   m_GameObject: {fileID: 1172421086091756167}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.4, y: -0.98, z: 0}
+  m_LocalPosition: {x: 0.4, y: -1.37, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -74546,6 +74552,7 @@ GameObject:
   - component: {fileID: 934261720213494750}
   - component: {fileID: 6195193224108236746}
   - component: {fileID: 8841577467671227734}
+  - component: {fileID: 8841577467671227735}
   m_Layer: 6
   m_Name: Visual
   m_TagString: Untagged
@@ -74575,6 +74582,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &8841577467671227735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8778874863131002411}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58b001908d7765143ad13a85d3ed94c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimationEventRelay
 --- !u!1 &8974451676572634983
 GameObject:
   m_ObjectHideFlags: 0

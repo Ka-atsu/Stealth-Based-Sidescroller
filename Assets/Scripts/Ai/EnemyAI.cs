@@ -14,6 +14,7 @@ public class EnemyAI : MonoBehaviour
     EnemyBloodTracker bloodTracker;
     EnemyHearing hearing;
     EnemySearchBehavior searchBehavior;
+    Rigidbody2D rb;
 
     Transform player;
 
@@ -30,6 +31,9 @@ public class EnemyAI : MonoBehaviour
 
     string lastAction = "";
 
+    bool isStealthStrikeVictim;
+    Transform stealthStrikeAttacker;
+
     void Start()
     {
         movement = GetComponent<EnemyMovement>();
@@ -39,6 +43,7 @@ public class EnemyAI : MonoBehaviour
         bloodTracker = GetComponent<EnemyBloodTracker>();
         hearing = GetComponent<EnemyHearing>();
         searchBehavior = GetComponent<EnemySearchBehavior>();
+        rb = GetComponent<Rigidbody2D>();
 
         GameObject p = GameObject.FindGameObjectWithTag("Player");
         if (p != null)
@@ -52,6 +57,18 @@ public class EnemyAI : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (isStealthStrikeVictim)
+        {
+            if (movement != null)
+                movement.Stop();
+
+            if (rb != null)
+                rb.linearVelocity = Vector2.zero;
+
+            LogAction("Locked as stealth strike victim");
+            return;
+        }
+
         if (player == null)
         {
             Log("No player found");
@@ -229,6 +246,41 @@ public class EnemyAI : MonoBehaviour
     }
 
     //----------------------------------
+    // STEALTH STRIKE LOCK
+    //----------------------------------
+
+    public void EnterStealthStrikeVictimState(Transform attacker)
+    {
+        isStealthStrikeVictim = true;
+        stealthStrikeAttacker = attacker;
+
+        if (movement != null)
+            movement.Stop();
+
+        if (rb != null)
+            rb.linearVelocity = Vector2.zero;
+
+        if (hearing != null)
+            hearing.StopInvestigating();
+
+        if (searchBehavior != null)
+            searchBehavior.ResetSearch();
+
+        Log("Entered stealth strike victim state");
+    }
+
+    public void ExitStealthStrikeVictimState()
+    {
+        isStealthStrikeVictim = false;
+        stealthStrikeAttacker = null;
+
+        if (rb != null)
+            rb.linearVelocity = Vector2.zero;
+
+        Log("Exited stealth strike victim state");
+    }
+
+    //----------------------------------
     // ENTER SEARCH
     //----------------------------------
 
@@ -272,6 +324,9 @@ public class EnemyAI : MonoBehaviour
 
     public void DieFromStealthStrike()
     {
+        isStealthStrikeVictim = false;
+        stealthStrikeAttacker = null;
+
         Log("Died from stealth strike");
         Destroy(gameObject);
     }

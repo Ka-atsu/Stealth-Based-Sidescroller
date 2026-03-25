@@ -2,11 +2,15 @@ using UnityEngine;
 
 public class PlayerStealthStrike2D : MonoBehaviour
 {
+    [Header("Debug")]
+    [SerializeField] private bool debugStealthStrike = true;
+
     [Header("Stealth Strike")]
     [SerializeField] private float strikeRange = 1.5f;
-    [SerializeField] private Vector2 strikeOffset = new Vector2(0.65f, 0f);
+    [SerializeField] private Vector2 strikeOffset = new Vector2(0.7f, 0.7f);
     [SerializeField] private LayerMask enemyMask;
     [SerializeField] private float strikeCooldown = 0.2f;
+    [SerializeField] private float strikeAnimationLockDuration = 0.25f;
 
     [Header("Prompt")]
     [SerializeField] private GameObject stealthPromptVisual;
@@ -16,11 +20,15 @@ public class PlayerStealthStrike2D : MonoBehaviour
 
     private float nextStrikeTime;
     private PlayerController2D controller;
+    private PlayerAnimation2D playerAnimation;
     private EnemyAI currentTarget;
+    private EnemyAI pendingStrikeTarget;
+    private bool strikeInProgress;
 
     void Awake()
     {
         controller = GetComponent<PlayerController2D>();
+        playerAnimation = GetComponent<PlayerAnimation2D>();
 
         if (stealthPromptVisual != null)
             stealthPromptVisual.SetActive(false);
@@ -28,6 +36,13 @@ public class PlayerStealthStrike2D : MonoBehaviour
 
     void Update()
     {
+        if (strikeInProgress)
+        {
+            if (stealthPromptVisual != null && stealthPromptVisual.activeSelf)
+                stealthPromptVisual.SetActive(false);
+            return;
+        }
+
         float facingSign = controller != null ? controller.FacingSign : 1f;
 
         currentTarget = FindBestTarget(facingSign);
@@ -37,14 +52,67 @@ public class PlayerStealthStrike2D : MonoBehaviour
     public void TryStealthStrike(float facingSign)
     {
         if (Time.time < nextStrikeTime)
+        {
+            Log("Blocked: cooldown");
             return;
+        }
+
+        if (strikeInProgress)
+        {
+            Log("Blocked: strike already in progress");
+            return;
+        }
 
         EnemyAI target = FindBestTarget(facingSign);
         if (target == null)
+        {
+            Log("No stealth target found");
             return;
+        }
 
         nextStrikeTime = Time.time + strikeCooldown;
-        target.DieFromStealthStrike();
+        strikeInProgress = true;
+        pendingStrikeTarget = target;
+
+        Log($"Stealth strike started on: {target.name}");
+
+        pendingStrikeTarget.EnterStealthStrikeVictimState(transform);
+
+        playerAnimation?.PlayStealthStrikeAnimation();
+
+        if (controller != null)
+            controller.Stun(strikeAnimationLockDuration);
+    }
+
+    // Animation Event on the hit frame
+    public void OnStealthStrikeHit()
+    {
+        Log("STEALTH HIT EVENT CALLED");
+
+        if (pendingStrikeTarget == null)
+        {
+            Log("Hit event fired but pendingStrikeTarget is null");
+            return;
+        }
+
+        Log($"Destroying target: {pendingStrikeTarget.name}");
+        pendingStrikeTarget.DieFromStealthStrike();
+        pendingStrikeTarget = null;
+    }
+
+    // Animation Event on the last frame
+    public void OnStealthStrikeFinished()
+    {
+        Log("STEALTH FINISHED EVENT CALLED");
+
+        if (pendingStrikeTarget != null)
+        {
+            Log($"Strike finished without hit, releasing target: {pendingStrikeTarget.name}");
+            pendingStrikeTarget.ExitStealthStrikeVictimState();
+            pendingStrikeTarget = null;
+        }
+
+        strikeInProgress = false;
     }
 
     private EnemyAI FindBestTarget(float facingSign)
@@ -57,7 +125,8 @@ public class PlayerStealthStrike2D : MonoBehaviour
 
         foreach (Collider2D hit in hits)
         {
-            if (hit == null) continue;
+            if (hit == null)
+                continue;
 
             EnemyAI enemy = hit.GetComponentInParent<EnemyAI>();
             if (enemy == null)
@@ -141,7 +210,15 @@ public class PlayerStealthStrike2D : MonoBehaviour
                new Vector2(Mathf.Abs(strikeOffset.x) * facingSign, strikeOffset.y);
     }
 
-    private void OnDrawGizmosSelected()
+    private void Log(string msg)
+    {
+        if (!debugStealthStrike)
+            return;
+
+        //Debug.Log($"[PlayerStealthStrike2D] {msg}", this);
+    }
+
+    private void OnDrawGizmos()
     {
         float facingSign = 1f;
 
@@ -157,5 +234,11 @@ public class PlayerStealthStrike2D : MonoBehaviour
 
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(strikeCenter, strikeRange);
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawSphere(strikeCenter, 0.05f);
+
+        Gizmos.color = Color.white;
+        Gizmos.DrawLine(transform.position, strikeCenter);
     }
 }

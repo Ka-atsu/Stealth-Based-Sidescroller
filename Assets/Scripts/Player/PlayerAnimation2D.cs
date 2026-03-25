@@ -8,6 +8,13 @@ public class PlayerAnimation2D : MonoBehaviour
     [SerializeField] private float runSpeedThreshold = 11f;
     [SerializeField] private float verticalThreshold = 0.05f;
 
+    [Header("Attack Animation")]
+    [SerializeField] private string stealthStrikeTriggerName = "stealthStrike";
+    [SerializeField] private float stealthStrikeAnimLockDuration = 0.18f;
+
+    [Header("Jump Animation")]
+    [SerializeField] private string jumpStartTriggerName = "jumpStart";
+
     [Header("Visual References")]
     [SerializeField] private Transform visuals;
     [SerializeField] private Animator animator;
@@ -17,17 +24,39 @@ public class PlayerAnimation2D : MonoBehaviour
     private PlayerController2D controller;
     private PlayerDash2D dash;
     private PlayerHealth health;
+    private PlayerJump2D jump;
 
-    private bool wasGrounded;
+    private bool isStealthStriking;
+    private float stealthStrikeTimer;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        controller = GetComponent<PlayerController2D>();
-        dash = GetComponent<PlayerDash2D>();
-        health = GetComponent<PlayerHealth>();
+        controller = GetComponentInParent<PlayerController2D>();
+        dash = GetComponentInParent<PlayerDash2D>();
+        health = GetComponentInParent<PlayerHealth>();
+        jump = GetComponentInParent<PlayerJump2D>();
 
         ResolveVisualReferences();
+
+        if (jump != null)
+        {
+            jump.OnGroundJumpQueued += HandleGroundJumpQueued;
+            jump.OnJump += HandleJump;
+        }
+        else
+        {
+            Debug.LogError("PlayerJump2D NOT FOUND!");
+        }
+    }
+
+    void OnDestroy()
+    {
+        if (jump != null)
+        {
+            jump.OnGroundJumpQueued -= HandleGroundJumpQueued;
+            jump.OnJump -= HandleJump;
+        }
     }
 
     void Update()
@@ -51,23 +80,53 @@ public class PlayerAnimation2D : MonoBehaviour
             return;
         }
 
-        bool isGrounded = controller != null && controller.IsGrounded;
+        if (isStealthStriking)
+        {
+            stealthStrikeTimer -= Time.deltaTime;
+
+            animator.SetBool("isDead", false);
+            animator.SetBool("isGrounded", true);
+            animator.SetBool("isWalking", false);
+            animator.SetBool("isRunning", false);
+            animator.SetBool("isJumping", false);
+            animator.SetBool("isFalling", false);
+            animator.SetBool("isDashing", false);
+            animator.SetFloat("xVelocity", 0f);
+            animator.SetFloat("yVelocity", 0f);
+
+            if (stealthStrikeTimer <= 0f)
+                isStealthStriking = false;
+
+            return;
+        }
+
+        bool realGrounded = controller != null && controller.IsGrounded;
+        bool isGroundJumpQueued = jump != null && jump.IsGroundJumpQueued;
         bool isDashing = dash != null && dash.IsDashing;
 
         float xVelocity = Mathf.Abs(rb.linearVelocity.x);
         float yVelocity = rb.linearVelocity.y;
 
-        bool isMoving = isGrounded && xVelocity > moveSpeedThreshold;
+        // Only protect JumpStart while the jump is queued and still on ground.
+        bool blockGroundedForJumpStart = isGroundJumpQueued && realGrounded;
+        bool animGrounded = !blockGroundedForJumpStart && realGrounded;
+
+        bool isMoving = animGrounded && xVelocity > moveSpeedThreshold;
         bool isRunning = !isDashing && isMoving && xVelocity >= runSpeedThreshold;
         bool isWalking = !isDashing && isMoving && !isRunning;
 
-        bool justLeftGround = wasGrounded && !isGrounded;
+        bool isJumping =
+            !isDashing &&
+            !animGrounded &&
+            yVelocity > 0.01f;
 
-        bool isJumping = !isDashing && !isGrounded && yVelocity > verticalThreshold && !justLeftGround;
-        bool isFalling = !isDashing && !isGrounded && !isJumping;
+        bool isFalling =
+            !isDashing &&
+            !animGrounded &&
+            yVelocity <= 0.01f;
 
         animator.SetBool("isDead", false);
-        animator.SetBool("isGrounded", isGrounded);
+        animator.SetBool("isGrounded", realGrounded);
         animator.SetBool("isWalking", isWalking);
         animator.SetBool("isRunning", isRunning);
         animator.SetBool("isJumping", isJumping);
@@ -79,8 +138,6 @@ public class PlayerAnimation2D : MonoBehaviour
 
         if (controller != null && spriteRenderer != null)
             spriteRenderer.flipX = controller.FacingSign < 0f;
-
-        wasGrounded = isGrounded;
     }
 
     public void PlayDeathAnimation()
@@ -89,6 +146,39 @@ public class PlayerAnimation2D : MonoBehaviour
             return;
 
         animator.SetBool("isDead", true);
+    }
+
+    public void PlayStealthStrikeAnimation()
+    {
+        if (animator == null)
+            return;
+
+        isStealthStriking = true;
+        stealthStrikeTimer = stealthStrikeAnimLockDuration;
+
+        animator.ResetTrigger(stealthStrikeTriggerName);
+        animator.SetTrigger(stealthStrikeTriggerName);
+    }
+
+    public void PlayJumpStartAnimation()
+    {
+        if (animator == null)
+            return;
+
+        Debug.Log("PLAY JUMP START ANIMATION");
+        animator.ResetTrigger(jumpStartTriggerName);
+        animator.SetTrigger(jumpStartTriggerName);
+    }
+
+    void HandleGroundJumpQueued()
+    {
+        Debug.Log("JUMP QUEUED -> PLAY ANIMATION");
+        PlayJumpStartAnimation();
+    }
+
+    void HandleJump(float strength)
+    {
+        Debug.Log("JUMP ACTUALLY RELEASED");
     }
 
     void ResolveVisualReferences()

@@ -11,6 +11,9 @@ public class PlayerJump2D : MonoBehaviour
     [Range(0f, 1f)] public float jumpCutMultiplier = 0.5f;
     public bool resetVerticalVelocityBeforeJump = true;
 
+    [Header("Animation Timed Jump")]
+    [SerializeField] private bool useAnimationTimedGroundJump = true;
+
     [Header("Coyote Time")]
     public float coyoteTime = 0.1f;
     float coyoteCounter;
@@ -56,9 +59,11 @@ public class PlayerJump2D : MonoBehaviour
     public Action OnWallSlideStart;
     public Action OnWallSlideEnd;
     public Action<int> OnWallJump;
+    public Action OnGroundJumpQueued;
 
     public bool IsMovementLocked => wallJumpLockCounter > 0f;
     public bool IsWallSliding => isWallSliding;
+    public bool IsGroundJumpQueued => groundJumpQueued;
 
     #endregion
 
@@ -66,6 +71,12 @@ public class PlayerJump2D : MonoBehaviour
 
     Rigidbody2D rb;
     PlayerNoiseEmitter2D noise;
+
+    #endregion
+
+    #region Internal State
+
+    bool groundJumpQueued;
 
     #endregion
 
@@ -85,6 +96,8 @@ public class PlayerJump2D : MonoBehaviour
             {
                 if (noise != null)
                     noise.Emit(4f, NoiseType.JumpLanding);
+
+                groundJumpQueued = false;
             };
         }
     }
@@ -103,9 +116,36 @@ public class PlayerJump2D : MonoBehaviour
         jumpBufferCounter = jumpBufferTime;
     }
 
+    public void QueueGroundJumpFromAnimation()
+    {
+        if (groundJumpQueued)
+            return;
+
+        groundJumpQueued = true;
+        OnGroundJumpQueued?.Invoke();
+        Debug.Log("GROUND JUMP QUEUED");
+    }
+
+    public void ReleaseGroundJumpFromAnimation()
+    {
+        Debug.Log("RELEASE GROUND JUMP FROM ANIMATION");
+
+        if (!groundJumpQueued)
+            return;
+
+        PerformJump();
+        groundJumpQueued = false;
+    }
+
+    public void CancelQueuedGroundJump()
+    {
+        groundJumpQueued = false;
+    }
+
     public void CutJump()
     {
-        if (rb.linearVelocity.y <= 0f) return;
+        if (rb.linearVelocity.y <= 0f)
+            return;
 
         float before = rb.linearVelocity.y;
         float after = before * jumpCutMultiplier;
@@ -205,7 +245,8 @@ public class PlayerJump2D : MonoBehaviour
 
     void HandleGravity(bool isGrounded, bool jumpHeld)
     {
-        if (isWallSliding) return;
+        if (isWallSliding)
+            return;
 
         if (!isGrounded)
         {
@@ -236,7 +277,8 @@ public class PlayerJump2D : MonoBehaviour
 
     void TryBufferedJump(PlayerSensors2D sensors)
     {
-        if (jumpBufferCounter <= 0f) return;
+        if (jumpBufferCounter <= 0f)
+            return;
 
         if (wallCoyoteCounter > 0f && !sensors.IsGrounded)
         {
@@ -246,21 +288,36 @@ public class PlayerJump2D : MonoBehaviour
 
         if (coyoteCounter > 0f)
         {
+            if (useAnimationTimedGroundJump)
+            {
+                if (!groundJumpQueued)
+                {
+                    groundJumpQueued = true;
+                    OnGroundJumpQueued?.Invoke();
+                    Debug.Log("GROUND JUMP QUEUED");
+                }
+                return;
+            }
+
             PerformJump();
         }
     }
 
     void PerformJump()
     {
+        Debug.Log("PERFORM JUMP CALLED");
+
         if (resetVerticalVelocityBeforeJump)
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
 
+        rb.gravityScale = baseGravityScale;
         rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
 
         coyoteCounter = 0f;
         jumpBufferCounter = 0f;
         apexTriggered = false;
         isWallSliding = false;
+        groundJumpQueued = false;
 
         OnJump?.Invoke(1f);
     }
@@ -273,6 +330,7 @@ public class PlayerJump2D : MonoBehaviour
         jumpBufferCounter = 0f;
         apexTriggered = false;
         isWallSliding = false;
+        groundJumpQueued = false;
 
         rb.gravityScale = baseGravityScale;
 
@@ -290,10 +348,12 @@ public class PlayerJump2D : MonoBehaviour
 
     void UpdateApexEvent(bool isGrounded)
     {
-        if (isGrounded || apexTriggered) return;
+        if (isGrounded || apexTriggered)
+            return;
 
         float absY = Mathf.Abs(rb.linearVelocity.y);
-        if (absY > apexThreshold) return;
+        if (absY > apexThreshold)
+            return;
 
         apexTriggered = true;
 
