@@ -36,8 +36,23 @@ public class PlayerAnimation2D : MonoBehaviour
             return;
 
         bool isDead = health != null && health.IsDead;
+
+        if (isDead)
+        {
+            animator.SetBool("isDead", true);
+            animator.SetBool("isGrounded", true);
+            animator.SetBool("isWalking", false);
+            animator.SetBool("isRunning", false);
+            animator.SetBool("isJumping", false);
+            animator.SetBool("isFalling", false);
+            animator.SetBool("isDashing", false);
+            animator.SetFloat("xVelocity", 0f);
+            animator.SetFloat("yVelocity", 0f);
+            return;
+        }
+
         bool isGrounded = controller != null && controller.IsGrounded;
-        bool isDashing = !isDead && dash != null && dash.IsDashing;
+        bool isDashing = dash != null && dash.IsDashing;
 
         float xVelocity = Mathf.Abs(rb.linearVelocity.x);
         float yVelocity = rb.linearVelocity.y;
@@ -48,25 +63,16 @@ public class PlayerAnimation2D : MonoBehaviour
 
         bool justLeftGround = wasGrounded && !isGrounded;
 
-        bool isJumping = !isDead && !isDashing && !isGrounded && yVelocity > verticalThreshold && !justLeftGround;
-        bool isFalling = !isDead && !isDashing && !isGrounded && !isJumping;
+        bool isJumping = !isDashing && !isGrounded && yVelocity > verticalThreshold && !justLeftGround;
+        bool isFalling = !isDashing && !isGrounded && !isJumping;
 
-        if (isDead)
-        {
-            isWalking = false;
-            isRunning = false;
-            isJumping = false;
-            isFalling = false;
-            isDashing = false;
-        }
-
+        animator.SetBool("isDead", false);
         animator.SetBool("isGrounded", isGrounded);
         animator.SetBool("isWalking", isWalking);
         animator.SetBool("isRunning", isRunning);
         animator.SetBool("isJumping", isJumping);
         animator.SetBool("isFalling", isFalling);
         animator.SetBool("isDashing", isDashing);
-        animator.SetBool("isDead", isDead);
 
         animator.SetFloat("yVelocity", yVelocity);
         animator.SetFloat("xVelocity", xVelocity);
@@ -75,6 +81,14 @@ public class PlayerAnimation2D : MonoBehaviour
             spriteRenderer.flipX = controller.FacingSign < 0f;
 
         wasGrounded = isGrounded;
+    }
+
+    public void PlayDeathAnimation()
+    {
+        if (animator == null)
+            return;
+
+        animator.SetBool("isDead", true);
     }
 
     void ResolveVisualReferences()

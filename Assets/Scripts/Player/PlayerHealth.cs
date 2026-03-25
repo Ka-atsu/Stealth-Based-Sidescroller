@@ -25,6 +25,9 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     [Header("Camera Shake")]
     [SerializeField] private float shakeMagnitude = 1.2f;
 
+    [Header("Death")]
+    [SerializeField] private string deadLayerName = "DeadPlayer";
+
     private int currentHealth;
     private bool isInvincible;
     private bool isDead;
@@ -36,7 +39,10 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     private TrailRenderer bloodTrail;
     private Rigidbody2D rb;
     private PlayerController2D controller;
-    private Collider2D col;
+    private PlayerAnimation2D playerAnimation;
+
+    private int deadLayer = -1;
+    private int originalLayer;
 
     private Coroutine bloodTrailCoroutine;
     private Coroutine invincibilityCoroutine;
@@ -52,7 +58,10 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         bloodTrail = GetComponent<TrailRenderer>();
         rb = GetComponent<Rigidbody2D>();
         controller = GetComponent<PlayerController2D>();
-        col = GetComponent<Collider2D>();
+        playerAnimation = GetComponent<PlayerAnimation2D>();
+
+        originalLayer = gameObject.layer;
+        deadLayer = LayerMask.NameToLayer(deadLayerName);
 
         if (bloodTrail != null)
             bloodTrail.enabled = false;
@@ -107,14 +116,14 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         CameraImpulseSource.Instance?.Shake(hitDir, scaledShake);
         CameraZoomPunch.Instance?.Punch(0.2f + (damage * 0.05f), 0.12f);
 
-        if (controller != null)
-            StartCoroutine(DelayedStun());
-
         if (currentHealth <= 0)
         {
             Die();
             return;
         }
+
+        if (controller != null)
+            StartCoroutine(DelayedStun());
 
         if (invincibilityCoroutine != null)
             StopCoroutine(invincibilityCoroutine);
@@ -138,9 +147,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         float originalTimeScale = Time.timeScale;
 
         Time.timeScale = hitStopTimeScale;
-
         yield return new WaitForSecondsRealtime(duration);
-
         Time.timeScale = originalTimeScale;
     }
 
@@ -209,20 +216,37 @@ public class PlayerHealth : MonoBehaviour, IDamageable
             sr.color = Color.white;
         }
 
-        if (controller != null)
-            controller.DisableControl();
+        if (flashCoroutine != null)
+        {
+            StopCoroutine(flashCoroutine);
+            flashCoroutine = null;
+        }
+
+        if (invincibilityCoroutine != null)
+        {
+            StopCoroutine(invincibilityCoroutine);
+            invincibilityCoroutine = null;
+        }
+
+        isInvincible = false;
 
         if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
-            rb.gravityScale = 0f;
         }
 
-        if (col != null)
-            col.enabled = false;
+        if (deadLayer != -1)
+            gameObject.layer = deadLayer;
+
+        playerAnimation?.PlayDeathAnimation();
+
+        if (controller != null)
+        {
+            controller.DisableControl();
+            controller.enabled = false;
+        }
     }
 
-    // Call this from the LAST frame of your death animation using an Animation Event
     public void OnDeathAnimationFinished()
     {
         gameObject.SetActive(false);

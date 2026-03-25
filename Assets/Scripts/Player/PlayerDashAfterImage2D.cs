@@ -13,10 +13,10 @@ public class PlayerDashAfterImage2D : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
     }
 
-    public void Setup(Sprite sprite, Vector3 scale, bool flipX, Color color)
+    public void Setup(Sprite sprite, Vector3 worldScale, bool flipX, Color color)
     {
         sr.sprite = sprite;
-        transform.localScale = scale;
+        transform.localScale = worldScale;
         sr.flipX = flipX;
 
         startColor = color;

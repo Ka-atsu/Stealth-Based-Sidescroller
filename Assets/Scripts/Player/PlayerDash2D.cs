@@ -167,7 +167,9 @@ public class PlayerDash2D : MonoBehaviour
         if (sr == null || afterImagePrefab == null || sr.sprite == null)
             return;
 
-        GameObject obj = Instantiate(afterImagePrefab, transform.position, transform.rotation);
+        Transform spriteT = sr.transform;
+
+        GameObject obj = Instantiate(afterImagePrefab, spriteT.position, spriteT.rotation);
         SpriteRenderer ghostSR = obj.GetComponent<SpriteRenderer>();
         PlayerDashAfterImage2D ghost = obj.GetComponent<PlayerDashAfterImage2D>();
 
@@ -175,14 +177,15 @@ public class PlayerDash2D : MonoBehaviour
         {
             ghostSR.sprite = sr.sprite;
             ghostSR.sortingLayerID = sr.sortingLayerID;
-            ghostSR.sortingOrder = sr.sortingOrder;
+            ghostSR.sortingOrder = sr.sortingOrder - 1;
+            ghostSR.flipX = sr.flipX;
         }
 
         if (ghost != null)
         {
             ghost.Setup(
                 sr.sprite,
-                transform.localScale,
+                spriteT.lossyScale,
                 sr.flipX,
                 afterImageColor
             );

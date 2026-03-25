@@ -72317,7 +72317,7 @@ Transform:
   m_GameObject: {fileID: 5151733293437185041}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.4, y: -10.89, z: 0}
+  m_LocalPosition: {x: -2.4, y: -11.023, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -72517,7 +72517,7 @@ DistanceJoint2D:
   m_Anchor: {x: 0, y: 0}
   m_ConnectedAnchor: {x: 0, y: 0}
   m_AutoConfigureDistance: 1
-  m_Distance: 11.151328
+  m_Distance: 11.281246
   m_MaxDistanceOnly: 0
 --- !u!114 &1337138191055978199
 MonoBehaviour:
@@ -72674,7 +72674,7 @@ Transform:
   m_GameObject: {fileID: 2995644754787741536}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -67.80839, y: 0.12920952, z: -10}
+  m_LocalPosition: {x: -67.80839, y: -0.0037899017, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -72844,7 +72844,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.20089853, y: 0.73311615}
+  m_Offset: {x: 0.023588538, y: 0.71849823}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -72854,7 +72854,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.606055, y: 3.0484104}
+  m_Size: {x: 0.66081405, y: 3.0576897}
   m_EdgeRadius: 0
 --- !u!114 &2103683543793544361
 MonoBehaviour:
@@ -73723,12 +73723,12 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -7055513082138256173, guid: d03a701324dd0364baea6bca958c94ee, type: 3}
+  m_Sprite: {fileID: -1438055650, guid: 3adeeba1129ed9c45a8b160ae3100951, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 2, y: 2}
+  m_Size: {x: 4, y: 3.625}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -73861,16 +73861,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf40819855be78e43938ac0a548231d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
-  maxHealth: 5
+  maxHealth: 1
   bleedDurationOnHit: 10
-  hitStopDuration: 0.08
-  hitStopTimeScale: 0
+  hitStopDuration: 0.06
+  hitStopTimeScale: 0.05
   invincibilityDuration: 0.5
   flashInterval: 0.08
   controlLockDuration: 0.15
   knockbackForceX: 7
   knockbackForceY: 4
-  shakeMagnitude: 0.15
+  shakeMagnitude: 1.2
+  deadLayerName: DeadPlayer
 --- !u!114 &6549397872328109576
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -74599,7 +74600,7 @@ Transform:
   m_GameObject: {fileID: 6755791776860058814}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -67.80839, y: 0.12920952, z: -10}
+  m_LocalPosition: {x: -67.80839, y: -0.0037899017, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
