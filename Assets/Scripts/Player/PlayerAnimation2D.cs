@@ -6,7 +6,6 @@ public class PlayerAnimation2D : MonoBehaviour
     [Header("Thresholds")]
     [SerializeField] private float moveSpeedThreshold = 0.1f;
     [SerializeField] private float runSpeedThreshold = 11f;
-    [SerializeField] private float verticalThreshold = 0.05f;
 
     [Header("Attack Animation")]
     [SerializeField] private string stealthStrikeTriggerName = "stealthStrike";
@@ -14,6 +13,9 @@ public class PlayerAnimation2D : MonoBehaviour
 
     [Header("Jump Animation")]
     [SerializeField] private string jumpStartTriggerName = "jumpStart";
+
+    [Header("Debug")]
+    [SerializeField] private bool enableDebugLogs = false;
 
     [Header("Visual References")]
     [SerializeField] private Transform visuals;
@@ -107,7 +109,6 @@ public class PlayerAnimation2D : MonoBehaviour
         float xVelocity = Mathf.Abs(rb.linearVelocity.x);
         float yVelocity = rb.linearVelocity.y;
 
-        // Only protect JumpStart while the jump is queued and still on ground.
         bool blockGroundedForJumpStart = isGroundJumpQueued && realGrounded;
         bool animGrounded = !blockGroundedForJumpStart && realGrounded;
 
@@ -138,6 +139,12 @@ public class PlayerAnimation2D : MonoBehaviour
 
         if (controller != null && spriteRenderer != null)
             spriteRenderer.flipX = controller.FacingSign < 0f;
+
+        // Optional debug
+        if (enableDebugLogs && !realGrounded)
+        {
+            Debug.Log($"[Anim] Y={yVelocity:F2} | Jumping={isJumping} | Falling={isFalling}");
+        }
     }
 
     public void PlayDeathAnimation()
@@ -165,20 +172,27 @@ public class PlayerAnimation2D : MonoBehaviour
         if (animator == null)
             return;
 
-        Debug.Log("PLAY JUMP START ANIMATION");
+        Log("PLAY JUMP START ANIMATION");
+
         animator.ResetTrigger(jumpStartTriggerName);
         animator.SetTrigger(jumpStartTriggerName);
     }
 
     void HandleGroundJumpQueued()
     {
-        Debug.Log("JUMP QUEUED -> PLAY ANIMATION");
+        Log("JUMP QUEUED -> PLAY ANIMATION");
         PlayJumpStartAnimation();
     }
 
     void HandleJump(float strength)
     {
-        Debug.Log("JUMP ACTUALLY RELEASED");
+        Log("JUMP ACTUALLY RELEASED");
+    }
+
+    void Log(string msg)
+    {
+        if (enableDebugLogs)
+            Debug.Log("[PlayerAnimation] " + msg);
     }
 
     void ResolveVisualReferences()

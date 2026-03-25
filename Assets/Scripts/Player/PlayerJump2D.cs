@@ -123,13 +123,10 @@ public class PlayerJump2D : MonoBehaviour
 
         groundJumpQueued = true;
         OnGroundJumpQueued?.Invoke();
-        Debug.Log("GROUND JUMP QUEUED");
     }
 
     public void ReleaseGroundJumpFromAnimation()
     {
-        Debug.Log("RELEASE GROUND JUMP FROM ANIMATION");
-
         if (!groundJumpQueued)
             return;
 
@@ -294,7 +291,6 @@ public class PlayerJump2D : MonoBehaviour
                 {
                     groundJumpQueued = true;
                     OnGroundJumpQueued?.Invoke();
-                    Debug.Log("GROUND JUMP QUEUED");
                 }
                 return;
             }
@@ -305,8 +301,6 @@ public class PlayerJump2D : MonoBehaviour
 
     void PerformJump()
     {
-        Debug.Log("PERFORM JUMP CALLED");
-
         if (resetVerticalVelocityBeforeJump)
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
 

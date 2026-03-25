@@ -73021,10 +73021,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimation2D
   moveSpeedThreshold: 0.1
   runSpeedThreshold: 11
-  verticalThreshold: 0.05
   stealthStrikeTriggerName: stealthStrike
   stealthStrikeAnimLockDuration: 0.18
   jumpStartTriggerName: jumpStart
+  enableDebugLogs: 0
   visuals: {fileID: 934261720213494750}
   animator: {fileID: 8841577467671227734}
   spriteRenderer: {fileID: 6195193224108236746}
