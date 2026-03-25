@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Collider2D))]
@@ -15,6 +16,7 @@ public class PlayerController2D : MonoBehaviour
     public float FacingSign { get; private set; } = 1f;
 
     public float DefaultGravity => defaultGravity;
+    public bool CanControl { get; private set; } = true;
 
     private PlayerControls playerControls;
     private SmokeBombController smokeBombController;
@@ -34,6 +36,8 @@ public class PlayerController2D : MonoBehaviour
     bool wasGrounded;
     float stepTimer;
     public float stepInterval = 0.4f;
+
+    Coroutine stunCoroutine;
 
     void Awake()
     {
@@ -84,6 +88,14 @@ public class PlayerController2D : MonoBehaviour
             return;
         }
 
+        // During stun, player can't control movement,
+        // but physics/knockback still continue.
+        if (!CanControl)
+        {
+            dash.TickCooldown(Time.fixedDeltaTime, sensors.IsGrounded);
+            return;
+        }
+
         dash.TickCooldown(Time.fixedDeltaTime, sensors.IsGrounded);
 
         if (dash.IsDashing)
@@ -110,12 +122,22 @@ public class PlayerController2D : MonoBehaviour
         HandleFootsteps();
     }
 
-    // -----------------------
-    // Footstep System
-    // -----------------------
+    public void DisableControl()
+    {
+        CanControl = false;
+        MoveInput = Vector2.zero;
+        RunHeld = false;
+        JumpHeld = false;
+    }
 
     void HandleFootsteps()
     {
+        if (!CanControl)
+        {
+            stepTimer = 0f;
+            return;
+        }
+
         if (sensors.IsGrounded && Mathf.Abs(MoveInput.x) > 0.1f)
         {
             stepTimer -= Time.fixedDeltaTime;
@@ -132,13 +154,9 @@ public class PlayerController2D : MonoBehaviour
         }
     }
 
-    // -----------------------
-    // Input
-    // -----------------------
-
     public void SetMove(Vector2 v)
     {
-        if (IsHanging)
+        if (!CanControl || IsHanging)
         {
             MoveInput = Vector2.zero;
             RunHeld = false;
@@ -155,6 +173,12 @@ public class PlayerController2D : MonoBehaviour
 
     public void SetJumpHeld(bool held)
     {
+        if (!CanControl)
+        {
+            JumpHeld = false;
+            return;
+        }
+
         JumpHeld = held;
 
         if (IsHanging && held)
@@ -172,11 +196,19 @@ public class PlayerController2D : MonoBehaviour
             NinjaAudioManager.Instance.PlayJump();
         }
         else
+        {
             jump.CutJump();
+        }
     }
 
     public void SetRunHeld(bool held)
     {
+        if (!CanControl)
+        {
+            RunHeld = false;
+            return;
+        }
+
         if (crouch != null && crouch.IsCrouching)
             return;
 
@@ -190,6 +222,9 @@ public class PlayerController2D : MonoBehaviour
 
     public void SetCrouch(bool crouching)
     {
+        if (!CanControl)
+            return;
+
         if (IsHanging && crouching)
         {
             grapple.DropHang();
@@ -204,6 +239,9 @@ public class PlayerController2D : MonoBehaviour
 
     public void TryDash()
     {
+        if (!CanControl)
+            return;
+
         dash.TryStartDash(
             moveInput: MoveInput,
             isGrounded: sensors.IsGrounded,
@@ -216,7 +254,7 @@ public class PlayerController2D : MonoBehaviour
 
     public void TryStealthStrike()
     {
-        if (IsHanging)
+        if (!CanControl || IsHanging)
             return;
 
         if (dash != null && dash.IsDashing)
@@ -227,10 +265,6 @@ public class PlayerController2D : MonoBehaviour
 
         stealthStrike.TryStealthStrike(FacingSign);
     }
-
-    // -----------------------
-    // Hang state
-    // -----------------------
 
     public void SetHanging(bool state)
     {
@@ -247,9 +281,27 @@ public class PlayerController2D : MonoBehaviour
         }
     }
 
-    // -------------------------
-    // Smoke bomb
-    // -------------------------
+    public void Stun(float duration)
+    {
+        if (stunCoroutine != null)
+            StopCoroutine(stunCoroutine);
+
+        stunCoroutine = StartCoroutine(StunRoutine(duration));
+    }
+
+    private IEnumerator StunRoutine(float duration)
+    {
+        CanControl = false;
+
+        MoveInput = Vector2.zero;
+        RunHeld = false;
+        JumpHeld = false;
+
+        yield return new WaitForSecondsRealtime(duration);
+
+        CanControl = true;
+        stunCoroutine = null;
+    }
 
     private void OnSmokeBombPerformed(InputAction.CallbackContext context)
     {
@@ -258,6 +310,9 @@ public class PlayerController2D : MonoBehaviour
 
     private void TriggerSmokeBomb()
     {
+        if (!CanControl)
+            return;
+
         if (smokeBombController != null)
         {
             smokeBombController.TriggerSmokeBomb();

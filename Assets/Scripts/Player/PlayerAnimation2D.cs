@@ -15,6 +15,8 @@ public class PlayerAnimation2D : MonoBehaviour
 
     private Rigidbody2D rb;
     private PlayerController2D controller;
+    private PlayerDash2D dash;
+    private PlayerHealth health;
 
     private bool wasGrounded;
 
@@ -22,6 +24,8 @@ public class PlayerAnimation2D : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         controller = GetComponent<PlayerController2D>();
+        dash = GetComponent<PlayerDash2D>();
+        health = GetComponent<PlayerHealth>();
 
         ResolveVisualReferences();
     }
@@ -31,25 +35,39 @@ public class PlayerAnimation2D : MonoBehaviour
         if (animator == null || rb == null)
             return;
 
+        bool isDead = health != null && health.IsDead;
         bool isGrounded = controller != null && controller.IsGrounded;
+        bool isDashing = !isDead && dash != null && dash.IsDashing;
 
         float xVelocity = Mathf.Abs(rb.linearVelocity.x);
         float yVelocity = rb.linearVelocity.y;
 
         bool isMoving = isGrounded && xVelocity > moveSpeedThreshold;
-        bool isRunning = isGrounded && xVelocity >= runSpeedThreshold;
-        bool isWalking = isMoving && !isRunning;
+        bool isRunning = !isDashing && isMoving && xVelocity >= runSpeedThreshold;
+        bool isWalking = !isDashing && isMoving && !isRunning;
 
         bool justLeftGround = wasGrounded && !isGrounded;
 
-        bool isJumping = !isGrounded && yVelocity > verticalThreshold && !justLeftGround;
-        bool isFalling = !isGrounded && !isJumping;
+        bool isJumping = !isDead && !isDashing && !isGrounded && yVelocity > verticalThreshold && !justLeftGround;
+        bool isFalling = !isDead && !isDashing && !isGrounded && !isJumping;
+
+        if (isDead)
+        {
+            isWalking = false;
+            isRunning = false;
+            isJumping = false;
+            isFalling = false;
+            isDashing = false;
+        }
 
         animator.SetBool("isGrounded", isGrounded);
         animator.SetBool("isWalking", isWalking);
         animator.SetBool("isRunning", isRunning);
         animator.SetBool("isJumping", isJumping);
         animator.SetBool("isFalling", isFalling);
+        animator.SetBool("isDashing", isDashing);
+        animator.SetBool("isDead", isDead);
+
         animator.SetFloat("yVelocity", yVelocity);
         animator.SetFloat("xVelocity", xVelocity);
 
@@ -74,7 +92,7 @@ public class PlayerAnimation2D : MonoBehaviour
                 animator = visuals.GetComponent<Animator>();
 
             if (animator == null)
-                animator = GetComponent<Animator>();
+                animator = GetComponentInChildren<Animator>();
         }
 
         if (spriteRenderer == null)
@@ -83,7 +101,7 @@ public class PlayerAnimation2D : MonoBehaviour
                 spriteRenderer = visuals.GetComponent<SpriteRenderer>();
 
             if (spriteRenderer == null)
-                spriteRenderer = GetComponent<SpriteRenderer>();
+                spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         }
     }
 }

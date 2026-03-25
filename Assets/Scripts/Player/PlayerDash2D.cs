@@ -5,16 +5,16 @@ using UnityEngine;
 public class PlayerDash2D : MonoBehaviour
 {
     [Header("Dash")]
-    public float dashSpeed = 20f;
-    public float dashDuration = 0.2f;
+    public float dashSpeed = 24f;
+    public float dashDuration = 0.28f;
     public float dashCooldown = 0.6f;
 
     [Header("Dash Recovery")]
-    [SerializeField] private float dashRecoverDuration = 0.08f;
-    [SerializeField] private float endMomentumMultiplier = 0.15f;
+    [SerializeField] private float dashRecoverDuration = 0.05f;
+    [SerializeField] private float endMomentumMultiplier = 0.25f;
 
     [Header("Dash FX")]
-    public float freezeDuration = 0.05f;
+    public float freezeDuration = 0.02f;
 
     [Header("Camera Shake")]
     [SerializeField] private PlayerCameraShake2D cameraShake;
@@ -30,10 +30,6 @@ public class PlayerDash2D : MonoBehaviour
     [SerializeField] private GameObject afterImagePrefab;
     [SerializeField] private float afterImageSpacing = 0.03f;
     [SerializeField] private Color afterImageColor = new Color(1f, 1f, 1f, 0.35f);
-
-    [Header("Optional Dash FX")]
-    [SerializeField] private GameObject dashStartFxPrefab;
-    [SerializeField] private GameObject dashEndFxPrefab;
 
     public bool IsDashing { get; private set; }
     public bool IsDashRecovering => dashRecoverTimer > 0f;
@@ -108,9 +104,6 @@ public class PlayerDash2D : MonoBehaviour
 
         if (cameraShake != null)
             cameraShake.Shake(dashStartShakeIntensity, dashStartShakeTime);
-
-        if (dashStartFxPrefab != null)
-            Instantiate(dashStartFxPrefab, transform.position, Quaternion.identity);
     }
 
     public void TickFixed(float dt, bool isGrounded)
@@ -167,9 +160,6 @@ public class PlayerDash2D : MonoBehaviour
 
         if (cameraShake != null)
             cameraShake.Shake(dashEndShakeIntensity, dashEndShakeTime);
-
-        if (dashEndFxPrefab != null)
-            Instantiate(dashEndFxPrefab, transform.position, Quaternion.identity);
     }
 
     void SpawnAfterImage()
