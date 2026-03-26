@@ -72527,6 +72527,10 @@ PrefabInstance:
       propertyPath: cameraShake
       value: 
       objectReference: {fileID: 8424453005409454920}
+    - target: {fileID: 6420032058913705581, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
+      propertyPath: m_SortingOrder
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 8737334124697929326, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
       propertyPath: targetCamera
       value: 
