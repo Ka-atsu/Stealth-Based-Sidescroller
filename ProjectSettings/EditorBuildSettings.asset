@@ -17,6 +17,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/HowToPlay.unity
     guid: b3c9246966770ad4cb7b94afbe264f2a
+  - enabled: 1
+    path: Assets/Scenes/TheVow.unity
+    guid: bfd5107ce74866a44b530dae841097d8
+  - enabled: 1
+    path: Assets/Scenes/Level1Area1.unity
+    guid: f16a4edbedcdc774fb6a8a2160c33c25
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
