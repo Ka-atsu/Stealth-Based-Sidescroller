@@ -599,11 +599,15 @@ MonoBehaviour:
     - character:
         name: MC
         icon: {fileID: -1945616916616541762, guid: 01ec877a76434fd44b6135a03264dfbc, type: 3}
-      line: Masters Belongins, What happened here?
+      line: "Master\u2019s belongings... scattered everywhere."
     - character:
         name: MC
         icon: {fileID: -1945616916616541762, guid: 01ec877a76434fd44b6135a03264dfbc, type: 3}
-      line: I should check the nearby village
+      line: Something happened here.
+    - character:
+        name: MC
+        icon: {fileID: -1945616916616541762, guid: 01ec877a76434fd44b6135a03264dfbc, type: 3}
+      line: Maybe someone in the nearby village saw something.
 --- !u!224 &427388640 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7750312454612454006, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
