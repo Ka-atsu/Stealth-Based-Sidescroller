@@ -106,6 +106,7 @@ public class PlayerMotor2D : MonoBehaviour
         float dt,
         Vector2 moveInput,
         bool isGrounded,
+        Vector2 groundNormal,
         bool runHeld,
         bool isCrouching,
         bool movementLocked
@@ -141,14 +142,42 @@ public class PlayerMotor2D : MonoBehaviour
 
         float smoothRate = GetSmoothRate(inputX, isGrounded);
 
-        float newX = Mathf.Lerp(rb.linearVelocity.x, targetSpeed, smoothRate * dt);
+        if (isGrounded)
+        {
+            Vector2 slopeTangent = new Vector2(groundNormal.y, -groundNormal.x).normalized;
 
-        if (Mathf.Abs(inputX) < 0.01f && Mathf.Abs(newX) <= lowSpeedSnap)
-            newX = 0f;
+            if (slopeTangent.x < 0f)
+                slopeTangent *= -1f;
 
-        newX = Mathf.Clamp(newX, -currentSpeed, currentSpeed);
+            float currentAlongSlope = Vector2.Dot(rb.linearVelocity, slopeTangent);
+            float newAlongSlope = Mathf.Lerp(currentAlongSlope, targetSpeed, smoothRate * dt);
 
-        rb.linearVelocity = new Vector2(newX, rb.linearVelocity.y);
+            if (Mathf.Abs(inputX) < 0.01f && Mathf.Abs(newAlongSlope) <= lowSpeedSnap)
+                newAlongSlope = 0f;
+
+            newAlongSlope = Mathf.Clamp(newAlongSlope, -currentSpeed, currentSpeed);
+
+            Vector2 newVelocity = slopeTangent * newAlongSlope;
+
+            // helps keep the player attached to the slope
+            if (rb.linearVelocity.y <= 0f)
+                newVelocity += -groundNormal * 1.5f;
+            else
+                newVelocity.y = rb.linearVelocity.y;
+
+            rb.linearVelocity = newVelocity;
+        }
+        else
+        {
+            float newX = Mathf.Lerp(rb.linearVelocity.x, targetSpeed, smoothRate * dt);
+
+            if (Mathf.Abs(inputX) < 0.01f && Mathf.Abs(newX) <= lowSpeedSnap)
+                newX = 0f;
+
+            newX = Mathf.Clamp(newX, -currentSpeed, currentSpeed);
+
+            rb.linearVelocity = new Vector2(newX, rb.linearVelocity.y);
+        }
 
         DetectLanding(dt, isGrounded);
         DetectSkid(inputX, isGrounded);

@@ -113,6 +113,7 @@ public class PlayerController2D : MonoBehaviour
             Time.fixedDeltaTime,
             MoveInput,
             sensors.IsGrounded,
+            sensors.GroundNormal,
             RunHeld,
             crouch.IsCrouching,
             jump.IsMovementLocked

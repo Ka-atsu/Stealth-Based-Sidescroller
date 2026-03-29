@@ -1,13 +1,11 @@
 using System;
 using UnityEngine;
 
-[RequireComponent(typeof(BoxCollider2D))]
+[RequireComponent(typeof(CapsuleCollider2D))]
 public class PlayerCrouch2D : MonoBehaviour
 {
-    #region Inspector
-
     [Header("Crouch Collider")]
-    public Vector2 crouchColliderSize = new Vector2(1f, 1f);
+    public Vector2 crouchColliderSize = new Vector2(0.8f, 1f);
     public Vector2 crouchColliderOffset = new Vector2(0f, -0.5f);
 
     [Header("Stand Check")]
@@ -24,23 +22,11 @@ public class PlayerCrouch2D : MonoBehaviour
     public bool IsCrouching { get; private set; }
     public bool IsBlockedStanding => IsStandBlocked();
 
-    #endregion
-
-    #region Hooks
-
     public Action OnCrouchStarted;
     public Action OnCrouchEnded;
     public Action OnStandBlocked;
 
-    #endregion
-
-    #region Refs
-
-    BoxCollider2D box;
-
-    #endregion
-
-    #region State
+    CapsuleCollider2D capsule;
 
     Vector2 originalSize;
     Vector2 originalOffset;
@@ -49,16 +35,12 @@ public class PlayerCrouch2D : MonoBehaviour
     Vector3 visualsBaseLocalPosition;
     bool visualsIsRoot;
 
-    #endregion
-
-    #region Unity
-
     void Awake()
     {
-        box = GetComponent<BoxCollider2D>();
+        capsule = GetComponent<CapsuleCollider2D>();
 
-        originalSize = box.size;
-        originalOffset = box.offset;
+        originalSize = capsule.size;
+        originalOffset = capsule.offset;
 
         ResolveVisualsReference();
 
@@ -73,10 +55,6 @@ public class PlayerCrouch2D : MonoBehaviour
     {
         UpdateVisuals(Time.deltaTime);
     }
-
-    #endregion
-
-    #region Public API
 
     public void SetCrouch(bool crouch)
     {
@@ -103,16 +81,12 @@ public class PlayerCrouch2D : MonoBehaviour
         OnCrouchEnded?.Invoke();
     }
 
-    #endregion
-
-    #region Collider
-
     void ApplyCrouch()
     {
         float heightDiff = originalSize.y - crouchColliderSize.y;
 
-        box.size = crouchColliderSize;
-        box.offset = new Vector2(
+        capsule.size = crouchColliderSize;
+        capsule.offset = new Vector2(
             originalOffset.x,
             originalOffset.y - heightDiff * 0.5f
         );
@@ -120,8 +94,8 @@ public class PlayerCrouch2D : MonoBehaviour
 
     void ApplyStand()
     {
-        box.size = originalSize;
-        box.offset = originalOffset;
+        capsule.size = originalSize;
+        capsule.offset = originalOffset;
     }
 
     bool IsStandBlocked()
@@ -141,7 +115,7 @@ public class PlayerCrouch2D : MonoBehaviour
         for (int i = 0; i < hits.Length; i++)
         {
             if (hits[i] == null) continue;
-            if (hits[i] == box) continue;
+            if (hits[i] == capsule) continue;
             if (hits[i].transform == transform) continue;
             return true;
         }
@@ -158,10 +132,6 @@ public class PlayerCrouch2D : MonoBehaviour
             Mathf.Abs(localSize.y * lossy.y)
         );
     }
-
-    #endregion
-
-    #region Visuals
 
     void ResolveVisualsReference()
     {
@@ -195,13 +165,11 @@ public class PlayerCrouch2D : MonoBehaviour
         visuals.localPosition = Vector3.Lerp(visuals.localPosition, targetPosition, visualLerpSpeed * dt);
     }
 
-    #endregion
-
 #if UNITY_EDITOR
     void OnDrawGizmosSelected()
     {
         if (!Application.isPlaying) return;
-        if (box == null) return;
+        if (capsule == null) return;
 
         Gizmos.color = IsStandBlocked() ? Color.red : Color.green;
 
