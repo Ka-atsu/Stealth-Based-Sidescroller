@@ -7,6 +7,7 @@ public class NinjaAudioManager : MonoBehaviour
     public static NinjaAudioManager Instance;
 
     public AudioSource audioSource;
+    private AudioSource musicSource;
 
     public AudioClip footstepSound;
     public AudioClip jumpSound;
@@ -23,6 +24,12 @@ public class NinjaAudioManager : MonoBehaviour
     [Range(0f, 1f)]
     public float landingVolume = 1f;
 
+    [Header("Background Music")]
+    public AudioClip backgroundMusic;
+    [Range(0f, 1f)]
+    public float musicVolume = 0.7f;
+    public bool autoPlayMusic = true;
+
     // Sound delay adjustments (in seconds)
     public float footstepDelay = 0f;
     public float jumpDelay = 0f;
@@ -35,6 +42,7 @@ public class NinjaAudioManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            DontDestroyOnLoad(gameObject); // Persist across scenes
         }
         else
         {
@@ -45,6 +53,16 @@ public class NinjaAudioManager : MonoBehaviour
         if (audioSource == null)
         {
             audioSource = GetComponent<AudioSource>();
+        }
+
+        // Create a separate AudioSource for background music
+        musicSource = gameObject.AddComponent<AudioSource>();
+        musicSource.loop = false; // Will be set per track
+
+        // Auto-play background music if enabled
+        if (autoPlayMusic && backgroundMusic != null)
+        {
+            PlayBackgroundMusic(backgroundMusic, musicVolume, true);
         }
     }
 
@@ -95,5 +113,28 @@ public class NinjaAudioManager : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         audioSource.PlayOneShot(clip, volume);
+    }
+
+    public void PlayBackgroundMusic(AudioClip clip, float volume = 1f, bool loop = true)
+    {
+        if (musicSource == null || clip == null)
+            return;
+
+        musicSource.clip = clip;
+        musicSource.volume = volume;
+        musicSource.loop = loop;
+        musicSource.Play();
+    }
+
+    public void StopBackgroundMusic()
+    {
+        if (musicSource != null)
+            musicSource.Stop();
+    }
+
+    public void SetMusicVolume(float volume)
+    {
+        if (musicSource != null)
+            musicSource.volume = Mathf.Clamp01(volume);
     }
 }
