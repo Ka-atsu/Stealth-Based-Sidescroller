@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 
 public class SceneTeleporter : MonoBehaviour
@@ -18,17 +17,14 @@ public class SceneTeleporter : MonoBehaviour
     {
         if (playerInRange && Keyboard.current.eKey.wasPressedThisFrame)
         {
-            SceneManager.LoadScene(sceneToLoad);
+            GameSceneManager.Instance.LoadScene(sceneToLoad);
         }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log("Something entered trigger");
-
         if (other.CompareTag("Player"))
         {
-            Debug.Log("Player detected");
             playerInRange = true;
             interactUI.SetActive(true);
         }

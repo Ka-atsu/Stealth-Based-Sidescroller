@@ -142,6 +142,15 @@ public class PlayerMotor2D : MonoBehaviour
 
         float smoothRate = GetSmoothRate(inputX, isGrounded);
 
+        //Debug.Log($"TickFixed reached | grounded={isGrounded} | groundNormal={groundNormal} | inputX={inputX} | targetSpeed={targetSpeed}");
+
+        if (isGrounded && Mathf.Abs(groundNormal.x) < 0.01f)
+        {
+            rb.linearVelocity = new Vector2(targetSpeed, rb.linearVelocity.y);
+            //Debug.Log($"FORCED FLAT MOVE | inputX={inputX} target={targetSpeed} actualX={rb.linearVelocity.x} normal={groundNormal}");
+            return;
+        }
+
         if (isGrounded)
         {
             Vector2 slopeTangent = new Vector2(groundNormal.y, -groundNormal.x).normalized;
