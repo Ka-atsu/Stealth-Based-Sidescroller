@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 4027e487c816558418f0bb8c419ae37b
+guid: 72ac76259c3948240a7bb1b377694e4c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4643418097817435407
-    second: InsideHouse2_0
+      213: 3226175919030587825
+    second: InsideHouse4_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: InsideHouse2_0
+      name: InsideHouse4_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1f2c8f787d34f8fb0800000000000000
-      internalID: -4643418097817435407
+      spriteID: 1b1dcb4c7eda5cc20800000000000000
+      internalID: 3226175919030587825
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      InsideHouse2_0: -4643418097817435407
+      InsideHouse4_0: 3226175919030587825
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
