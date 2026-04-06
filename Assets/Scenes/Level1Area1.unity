@@ -1281,14 +1281,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NinjaAudioManager
   audioSource: {fileID: 1281890713}
-  footstepSound: {fileID: 0}
-  jumpSound: {fileID: 0}
-  dashSound: {fileID: 0}
-  landingSound: {fileID: 0}
-  footstepVolume: 1
-  jumpVolume: 1
-  dashVolume: 1
-  landingVolume: 1
+  footstepSound: {fileID: 8300000, guid: 7511fbdce5e7b53488529470dafd0b6f, type: 3}
+  jumpSound: {fileID: 8300000, guid: 62f21ea0ff4683e48b7362cc45628a00, type: 3}
+  dashSound: {fileID: 8300000, guid: ed8d80224a0a31649869c113b2e04a72, type: 3}
+  landingSound: {fileID: 8300000, guid: 351904f5ad1376447a7745e8888c463f, type: 3}
+  footstepVolume: 0.3
+  jumpVolume: 0.3
+  dashVolume: 0.3
+  landingVolume: 0.3
+  backgroundMusic: {fileID: 8300000, guid: bf0650851b49ac5438d13f073bf26188, type: 3}
+  musicVolume: 0.3
+  autoPlayMusic: 1
   footstepDelay: 0
   jumpDelay: 0
   dashDelay: 0
