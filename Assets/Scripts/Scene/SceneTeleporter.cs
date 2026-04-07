@@ -1,41 +1,80 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(Collider2D))]
 public class SceneTeleporter : MonoBehaviour
 {
-    public string sceneToLoad;
-    public GameObject interactUI;
+    [SerializeField] private string sceneToLoad;
+    [SerializeField] private GameObject interactUI;
 
-    private bool playerInRange = false;
+    private bool playerInRange;
+    private bool requestedLoad;
+    private Collider2D triggerCollider;
 
-    void Start()
+    private void Awake()
     {
-        interactUI.SetActive(false);
+        triggerCollider = GetComponent<Collider2D>();
     }
 
-    void Update()
+    private void Start()
     {
-        if (playerInRange && Keyboard.current.eKey.wasPressedThisFrame)
+        SetInteractUI(false);
+    }
+
+    private void Update()
+    {
+        if (requestedLoad) return;
+        if (!playerInRange) return;
+        if (Keyboard.current == null) return;
+        if (GameSceneManager.Instance == null) return;
+        if (GameSceneManager.Instance.IsLoadingScene) return;
+
+        if (Keyboard.current.eKey.wasPressedThisFrame)
         {
+            requestedLoad = true;
+            playerInRange = false;
+
+            SetInteractUI(false);
+
+            if (triggerCollider != null)
+            {
+                triggerCollider.enabled = false;
+            }
+
             GameSceneManager.Instance.LoadScene(sceneToLoad);
         }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
-        {
-            playerInRange = true;
-            interactUI.SetActive(true);
-        }
+        if (requestedLoad) return;
+        if (!other.CompareTag("Player")) return;
+        if (GameSceneManager.Instance != null && GameSceneManager.Instance.IsLoadingScene) return;
+
+        playerInRange = true;
+        SetInteractUI(true);
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
+        if (requestedLoad) return;
+        if (!other.CompareTag("Player")) return;
+
+        playerInRange = false;
+        SetInteractUI(false);
+    }
+
+    private void OnDisable()
+    {
+        playerInRange = false;
+        SetInteractUI(false);
+    }
+
+    private void SetInteractUI(bool value)
+    {
+        if (interactUI != null)
         {
-            playerInRange = false;
-            interactUI.SetActive(false);
+            interactUI.SetActive(value);
         }
     }
 }

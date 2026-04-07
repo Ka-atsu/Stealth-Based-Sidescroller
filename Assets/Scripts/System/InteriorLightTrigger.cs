@@ -4,29 +4,34 @@ using System.Collections;
 
 public class InteriorLightTrigger : MonoBehaviour
 {
-    public Light2D interiorLight;
-    public Light2D outsideLight;
+    [SerializeField] private Light2D interiorLight;
+    [SerializeField] private Light2D outsideLight;
 
     [Header("Light Values")]
-    public float interiorBright = 0.15f;
-    public float interiorDark = 0.05f;
-
-    public float outsideBright = 0.15f;
-    public float outsideDark = 0.05f;
+    [SerializeField] private float interiorBright = 0.15f;
+    [SerializeField] private float interiorDark = 0.05f;
+    [SerializeField] private float outsideBright = 0.15f;
+    [SerializeField] private float outsideDark = 0.05f;
 
     [Header("Transition")]
-    public float transitionTime = 0.4f;
+    [SerializeField] private float transitionTime = 0.4f;
 
     private Coroutine currentTransition;
 
     private void Start()
     {
-        interiorLight.intensity = interiorDark;
-        outsideLight.intensity = outsideBright;
+        if (interiorLight != null)
+            interiorLight.intensity = interiorDark;
+
+        if (outsideLight != null)
+            outsideLight.intensity = outsideBright;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (!isActiveAndEnabled) return;
+        if (GameSceneManager.Instance != null && GameSceneManager.Instance.IsLoadingScene) return;
+
         var player = other.GetComponentInParent<PlayerController2D>();
         if (player == null) return;
 
@@ -35,31 +40,53 @@ public class InteriorLightTrigger : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D other)
     {
+        if (!isActiveAndEnabled) return;
+        if (GameSceneManager.Instance != null && GameSceneManager.Instance.IsLoadingScene) return;
+
         var player = other.GetComponentInParent<PlayerController2D>();
         if (player == null) return;
 
         StartTransition(interiorDark, outsideBright);
     }
 
-    void StartTransition(float interiorTarget, float outsideTarget)
+    private void OnDisable()
     {
         if (currentTransition != null)
+        {
             StopCoroutine(currentTransition);
+            currentTransition = null;
+        }
+    }
+
+    private void StartTransition(float interiorTarget, float outsideTarget)
+    {
+        if (!isActiveAndEnabled) return;
+        if (interiorLight == null || outsideLight == null) return;
+
+        if (currentTransition != null)
+        {
+            StopCoroutine(currentTransition);
+        }
 
         currentTransition = StartCoroutine(FadeLights(interiorTarget, outsideTarget));
     }
 
-    IEnumerator FadeLights(float interiorTarget, float outsideTarget)
+    private IEnumerator FadeLights(float interiorTarget, float outsideTarget)
     {
+        if (interiorLight == null || outsideLight == null)
+            yield break;
+
         float startInterior = interiorLight.intensity;
         float startOutside = outsideLight.intensity;
-
-        float t = 0;
+        float t = 0f;
 
         while (t < transitionTime)
         {
+            if (!isActiveAndEnabled || interiorLight == null || outsideLight == null)
+                yield break;
+
             t += Time.deltaTime;
-            float progress = t / transitionTime;
+            float progress = Mathf.Clamp01(t / transitionTime);
 
             interiorLight.intensity = Mathf.Lerp(startInterior, interiorTarget, progress);
             outsideLight.intensity = Mathf.Lerp(startOutside, outsideTarget, progress);
@@ -69,5 +96,6 @@ public class InteriorLightTrigger : MonoBehaviour
 
         interiorLight.intensity = interiorTarget;
         outsideLight.intensity = outsideTarget;
+        currentTransition = null;
     }
 }
