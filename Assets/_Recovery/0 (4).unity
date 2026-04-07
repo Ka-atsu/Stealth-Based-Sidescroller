@@ -281,7 +281,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1034791520314226838, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
       propertyPath: m_Distance
-      value: 11.281246
+      value: 28.90176
       objectReference: {fileID: 0}
     - target: {fileID: 1573776456866776452, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
       propertyPath: m_LocalPosition.x
@@ -455,14 +455,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: DialogueBox
       objectReference: {fileID: 0}
-    - target: {fileID: 2595212146248541402, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
-      propertyPath: dialogue.dialogueLines.Array.data[0].character.icon
-      value: 
-      objectReference: {fileID: -9180426125723624345, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
-    - target: {fileID: 2595212146248541402, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
-      propertyPath: dialogue.dialogueLines.Array.data[2].character.icon
-      value: 
-      objectReference: {fileID: -9180426125723624345, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
     - target: {fileID: 4359012409412052069, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
       propertyPath: isDialogueActive
       value: 0
@@ -551,8 +543,7 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 2595212146248541402, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 1165728231344509825, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
     m_AddedGameObjects: []
@@ -667,23 +658,23 @@ MonoBehaviour:
     dialogueLines:
     - character:
         name: MC
-        icon: {fileID: -9180426125723624345, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
+        icon: {fileID: -1945616916616541762, guid: 01ec877a76434fd44b6135a03264dfbc, type: 3}
       line: Master...
     - character:
         name: MC
-        icon: {fileID: -9180426125723624345, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
+        icon: {fileID: -1945616916616541762, guid: 01ec877a76434fd44b6135a03264dfbc, type: 3}
       line: No...
     - character:
         name: MC
-        icon: {fileID: -9180426125723624345, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
+        icon: {fileID: -1945616916616541762, guid: 01ec877a76434fd44b6135a03264dfbc, type: 3}
       line: Who did this to you?
     - character:
         name: MC
-        icon: {fileID: -9180426125723624345, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
+        icon: {fileID: -1945616916616541762, guid: 01ec877a76434fd44b6135a03264dfbc, type: 3}
       line: I will find them.
     - character:
         name: MC
-        icon: {fileID: -9180426125723624345, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
+        icon: {fileID: -1945616916616541762, guid: 01ec877a76434fd44b6135a03264dfbc, type: 3}
       line: And I will kill every last one of them.
 --- !u!1 &1217949771
 GameObject:
@@ -1186,7 +1177,7 @@ Transform:
   m_GameObject: {fileID: 1739732655}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -92.53838, y: 1.0555296, z: -10}
+  m_LocalPosition: {x: -74.80839, y: 1.0555296, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1654,7 +1645,7 @@ Transform:
   m_GameObject: {fileID: 2029474676}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -92.53838, y: 1.0555296, z: -10}
+  m_LocalPosition: {x: -74.80839, y: 1.0555296, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

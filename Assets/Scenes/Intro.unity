@@ -488,10 +488,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: DialogueBox
       objectReference: {fileID: 0}
-    - target: {fileID: 4359012409412052069, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
-      propertyPath: isDialogueActive
-      value: 0
-      objectReference: {fileID: 0}
+    - target: {fileID: 2595212146248541402, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
+      propertyPath: dialogue.dialogueLines.Array.data[0].character.icon
+      value: 
+      objectReference: {fileID: -9180426125723624345, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
+    - target: {fileID: 2595212146248541402, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
+      propertyPath: dialogue.dialogueLines.Array.data[1].character.icon
+      value: 
+      objectReference: {fileID: -9180426125723624345, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
+    - target: {fileID: 2595212146248541402, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
+      propertyPath: dialogue.dialogueLines.Array.data[2].character.icon
+      value: 
+      objectReference: {fileID: -9180426125723624345, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
     - target: {fileID: 7750312454612454006, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -573,53 +581,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 1165728231344509825, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
-    m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 7750312454612454006, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1196421873}
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 2384931203370561604, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 427388635}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
---- !u!1 &427388634 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2384931203370561604, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
-  m_PrefabInstance: {fileID: 427388633}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &427388635
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 427388634}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a9e748c70075f7428fc642405c7e6d9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DialogueTrigger
-  dialogue:
-    dialogueLines:
-    - character:
-        name: MC
-        icon: {fileID: -1945616916616541762, guid: 01ec877a76434fd44b6135a03264dfbc, type: 3}
-      line: "Master\u2019s belongings... scattered everywhere."
-    - character:
-        name: MC
-        icon: {fileID: -1945616916616541762, guid: 01ec877a76434fd44b6135a03264dfbc, type: 3}
-      line: Something happened here.
-    - character:
-        name: MC
-        icon: {fileID: -1945616916616541762, guid: 01ec877a76434fd44b6135a03264dfbc, type: 3}
-      line: Maybe someone in the nearby village saw something.
---- !u!224 &427388640 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 7750312454612454006, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
-  m_PrefabInstance: {fileID: 427388633}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &433509318
 GameObject:
   m_ObjectHideFlags: 0
@@ -2070,100 +2035,6 @@ Transform:
   - {fileID: 783647369}
   m_Father: {fileID: 1693530798}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1196421871
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1196421873}
-  - component: {fileID: 1196421872}
-  - component: {fileID: 1196421874}
-  m_Layer: 0
-  m_Name: Trigger
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!61 &1196421872
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1196421871}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 1.487122, y: 3.2273703}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 3.974244, y: 18.972033}
-  m_EdgeRadius: 0
---- !u!4 &1196421873
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1196421871}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -954.34, y: -550.6, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 427388640}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1196421874
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1196421871}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be425a5283001e54aa7e96dd3f161cdd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DialogueObjectTrigger
-  dialogueTrigger: {fileID: 427388635}
-  playerTag: Player
-  triggerOnce: 1
 --- !u!1 &1356107037
 GameObject:
   m_ObjectHideFlags: 0
