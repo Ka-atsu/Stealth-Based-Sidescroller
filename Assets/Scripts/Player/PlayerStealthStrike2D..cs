@@ -1,4 +1,6 @@
+using System.Collections;
 using UnityEngine;
+using Unity.Cinemachine;
 
 public class PlayerStealthStrike2D : MonoBehaviour
 {
@@ -18,6 +20,31 @@ public class PlayerStealthStrike2D : MonoBehaviour
     [SerializeField] private float promptFollowSpeed = 20f;
     [SerializeField] private bool keepPromptZ = true;
 
+    [Header("Impact Juice")]
+    [SerializeField] private GameObject slashVfxPrefab;
+    [SerializeField] private GameObject airCrackVfxPrefab;
+
+    [Tooltip("Base hit position relative to the player. X automatically flips with facing.")]
+    [SerializeField] private Vector3 hitVfxOffset = new Vector3(0.25f, 0.2f, 0f);
+
+    [Tooltip("Extra slash offset relative to base hit position. X automatically flips with facing.")]
+    [SerializeField] private Vector3 slashVfxOffset = new Vector3(0f, 0f, 0f);
+
+    [Tooltip("Extra crack offset relative to base hit position. X automatically flips with facing.")]
+    [SerializeField] private Vector3 crackVfxOffset = new Vector3(-0.12f, 0.02f, 0f);
+
+    [SerializeField] private float hitStopDuration = 0.045f;
+    [SerializeField] private float hitStopTimeScale = 0.05f;
+
+    [SerializeField] private float postHitKillDelay = 0.04f;
+
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip stealthSlashSfx;
+
+    [Header("Cinemachine Impulse")]
+    [SerializeField] private CinemachineImpulseSource impulseSource;
+    [SerializeField] private Vector3 impulseVelocity = new Vector3(5f, 3f, 0f);
+
     private float nextStrikeTime;
     private PlayerController2D controller;
     private PlayerAnimation2D playerAnimation;
@@ -25,16 +52,19 @@ public class PlayerStealthStrike2D : MonoBehaviour
     private EnemyAI pendingStrikeTarget;
     private bool strikeInProgress;
 
-    void Awake()
+    private void Awake()
     {
         controller = GetComponent<PlayerController2D>();
         playerAnimation = GetComponent<PlayerAnimation2D>();
+
+        if (impulseSource == null)
+            impulseSource = GetComponentInChildren<CinemachineImpulseSource>(true);
 
         if (stealthPromptVisual != null)
             stealthPromptVisual.SetActive(false);
     }
 
-    void Update()
+    private void Update()
     {
         if (strikeInProgress)
         {
@@ -95,8 +125,15 @@ public class PlayerStealthStrike2D : MonoBehaviour
             return;
         }
 
-        Log($"Destroying target: {pendingStrikeTarget.name}");
-        pendingStrikeTarget.DieFromStealthStrike();
+        float facingSign = controller != null ? controller.FacingSign : 1f;
+        Vector3 hitPos = pendingStrikeTarget.transform.position + GetFacingOffset(facingSign);
+
+        SpawnImpactVfx(hitPos, facingSign);
+        PlayImpactSfx();
+        DoCameraShake();
+
+        StartCoroutine(PerformHitSequence(pendingStrikeTarget));
+
         pendingStrikeTarget = null;
     }
 
@@ -113,6 +150,87 @@ public class PlayerStealthStrike2D : MonoBehaviour
         }
 
         strikeInProgress = false;
+    }
+
+    private IEnumerator PerformHitSequence(EnemyAI target)
+    {
+        yield return StartCoroutine(HitStopRoutine());
+
+        if (target != null && postHitKillDelay > 0f)
+            yield return new WaitForSeconds(postHitKillDelay);
+
+        if (target != null)
+        {
+            Log($"Destroying target: {target.name}");
+            target.DieFromStealthStrike();
+        }
+    }
+
+    private IEnumerator HitStopRoutine()
+    {
+        float originalTimeScale = Time.timeScale;
+        Time.timeScale = hitStopTimeScale;
+        yield return new WaitForSecondsRealtime(hitStopDuration);
+        Time.timeScale = originalTimeScale;
+    }
+
+    private void SpawnImpactVfx(Vector3 hitPos, float facingSign)
+    {
+        Quaternion rotation = facingSign >= 0f
+            ? Quaternion.Euler(0f, 0f, -18f)
+            : Quaternion.Euler(0f, 180f, 18f);
+
+        Vector3 slashPos = hitPos + GetFacingAdjustedOffset(slashVfxOffset, facingSign);
+        Vector3 crackPos = hitPos + GetFacingAdjustedOffset(crackVfxOffset, facingSign);
+
+        if (slashVfxPrefab != null)
+            Instantiate(slashVfxPrefab, slashPos, rotation);
+
+        if (airCrackVfxPrefab != null)
+            Instantiate(airCrackVfxPrefab, crackPos, rotation);
+    }
+
+    private void PlayImpactSfx()
+    {
+        if (audioSource != null && stealthSlashSfx != null)
+            audioSource.PlayOneShot(stealthSlashSfx);
+    }
+
+    private void DoCameraShake()
+    {
+        if (impulseSource == null)
+        {
+            Debug.LogWarning("CinemachineImpulseSource is NULL on PlayerStealthStrike2D", this);
+            return;
+        }
+
+        float facingSign = controller != null ? controller.FacingSign : 1f;
+
+        Vector3 velocity = new Vector3(
+            Mathf.Abs(impulseVelocity.x) * facingSign,
+            impulseVelocity.y,
+            impulseVelocity.z
+        );
+
+        impulseSource.GenerateImpulse(velocity);
+    }
+
+    private Vector3 GetFacingOffset(float facingSign)
+    {
+        return new Vector3(
+            Mathf.Abs(hitVfxOffset.x) * facingSign,
+            hitVfxOffset.y,
+            hitVfxOffset.z
+        );
+    }
+
+    private Vector3 GetFacingAdjustedOffset(Vector3 offset, float facingSign)
+    {
+        return new Vector3(
+            offset.x * facingSign,
+            offset.y,
+            offset.z
+        );
     }
 
     private EnemyAI FindBestTarget(float facingSign)
@@ -215,7 +333,7 @@ public class PlayerStealthStrike2D : MonoBehaviour
         if (!debugStealthStrike)
             return;
 
-        //Debug.Log($"[PlayerStealthStrike2D] {msg}", this);
+        Debug.Log($"[PlayerStealthStrike2D] {msg}", this);
     }
 
     private void OnDrawGizmos()

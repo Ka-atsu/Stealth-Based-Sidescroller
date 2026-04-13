@@ -4,6 +4,10 @@ public class PlayerCameraShake2D : MonoBehaviour
 {
     [SerializeField] private float dampingSpeed = 18f;
 
+    [Header("Debug Test")]
+    [SerializeField] private float testIntensity = 1f;
+    [SerializeField] private float testDuration = 0.3f;
+
     Vector3 originalLocalPosition;
     float currentIntensity;
     float shakeTimer;
@@ -37,7 +41,14 @@ public class PlayerCameraShake2D : MonoBehaviour
 
     public void Shake(float intensity, float duration)
     {
+        Debug.Log($"SHAKE CALLED | intensity={intensity} duration={duration}", this);
         currentIntensity = intensity;
         shakeTimer = duration;
+    }
+
+    [ContextMenu("Test Shake")]
+    private void TestShake()
+    {
+        Shake(testIntensity, testDuration);
     }
 }
