@@ -172,6 +172,14 @@ public class PlayerController2D : MonoBehaviour
             RunHeld = false;
     }
 
+    public void ForceFacing(float direction)
+    {
+        if (Mathf.Abs(direction) <= 0.01f)
+            return;
+
+        FacingSign = Mathf.Sign(direction);
+    }
+
     public void SetJumpHeld(bool held)
     {
         if (!CanControl)

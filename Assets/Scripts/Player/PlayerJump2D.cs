@@ -23,30 +23,38 @@ public class PlayerJump2D : MonoBehaviour
     float jumpBufferCounter;
 
     [Header("Wall Grace")]
-    public float wallCoyoteTime = 0.1f;
+    public float wallCoyoteTime = 0.12f;
     float wallCoyoteCounter;
     int lastWallDirection;
 
-    [Header("Wall Slide / Wall Jump")]
-    public float wallSlideSpeed = 3f;
-    public float wallSlideEnterMinFallSpeed = 0.5f;
-    public float wallJumpForce = 14f;
-    public float wallJumpHorizontalForce = 16f;
-    public float wallJumpLockTime = 0.15f;
+    [Header("Wall Slide")]
+    public float wallSlideSpeed = 2.4f;
+    public float wallSlideEnterMinFallSpeed = 0.35f;
+    public bool requireInputTowardWallToSlide = true;
+
+    [Header("Wall Jump")]
+    public float wallJumpForce = 15.5f;
+    public float wallJumpHorizontalForce = 8f;
+    public float wallJumpLockTime = 0.08f;
+
+    [Range(0f, 1f)]
+    public float wallJumpHorizontalSnap = 0.85f;
+
+    public float wallJumpMinUpwardSpeed = 12f;
 
     float wallJumpLockCounter;
     bool isWallSliding;
     bool wasWallSliding;
 
     [Header("Gravity")]
-    public float baseGravityScale = 3.5f;
-    public float fallGravityMultiplier = 1.8f;
-    public float lowJumpGravityMultiplier = 1.5f;
-    public float maxFallSpeed = -28f;
+    public float baseGravityScale = 3.8f;
+    public float fallGravityMultiplier = 2.15f;
+    public float lowJumpGravityMultiplier = 1.9f;
+    public float maxFallSpeed = -30f;
 
     [Header("Apex Hang")]
-    public float apexThreshold = 0.5f;
-    public float apexGravityMultiplier = 0.7f;
+    public float apexThreshold = 1.2f;
+    public float apexGravityMultiplier = 0.65f;
     bool apexTriggered;
 
     #endregion
@@ -71,6 +79,7 @@ public class PlayerJump2D : MonoBehaviour
 
     Rigidbody2D rb;
     PlayerNoiseEmitter2D noise;
+    PlayerController2D controller;
 
     #endregion
 
@@ -86,6 +95,7 @@ public class PlayerJump2D : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         noise = GetComponent<PlayerNoiseEmitter2D>();
+        controller = GetComponent<PlayerController2D>();
 
         ApplyBaseGravity();
 
@@ -153,7 +163,9 @@ public class PlayerJump2D : MonoBehaviour
         OnJumpCut?.Invoke(cutStrength);
     }
 
-    public void TickFixed(float dt, PlayerSensors2D sensors, bool jumpHeld)
+    // moveInputX is optional so your old call still compiles.
+    // Best feel: pass your actual horizontal input here.
+    public void TickFixed(float dt, PlayerSensors2D sensors, bool jumpHeld, float moveInputX = 0f)
     {
         if (sensors == null)
         {
@@ -166,7 +178,7 @@ public class PlayerJump2D : MonoBehaviour
         UpdateJumpBuffer(dt);
         UpdateWallJumpLock(dt);
 
-        HandleWallSlide(sensors);
+        HandleWallSlide(sensors, moveInputX);
         HandleGravity(sensors.IsGrounded, jumpHeld);
         TryBufferedJump(sensors);
         UpdateApexEvent(sensors.IsGrounded);
@@ -180,7 +192,7 @@ public class PlayerJump2D : MonoBehaviour
 
     void UpdateCoyote(float dt, bool isGrounded)
     {
-        coyoteCounter = isGrounded ? coyoteTime : coyoteCounter - dt;
+        coyoteCounter = isGrounded ? coyoteTime : Mathf.Max(coyoteCounter - dt, 0f);
     }
 
     void UpdateWallCoyote(float dt, PlayerSensors2D sensors)
@@ -192,31 +204,40 @@ public class PlayerJump2D : MonoBehaviour
         }
         else
         {
-            wallCoyoteCounter -= dt;
+            wallCoyoteCounter = Mathf.Max(wallCoyoteCounter - dt, 0f);
         }
     }
 
     void UpdateJumpBuffer(float dt)
     {
-        jumpBufferCounter -= dt;
+        jumpBufferCounter = Mathf.Max(jumpBufferCounter - dt, 0f);
     }
 
     void UpdateWallJumpLock(float dt)
     {
-        wallJumpLockCounter -= dt;
+        wallJumpLockCounter = Mathf.Max(wallJumpLockCounter - dt, 0f);
     }
 
     #endregion
 
     #region Wall Slide
 
-    void HandleWallSlide(PlayerSensors2D sensors)
+    void HandleWallSlide(PlayerSensors2D sensors, float moveInputX)
     {
+        bool hasMoveInput = Mathf.Abs(moveInputX) > 0.01f;
+
+        // If no moveInputX is passed from your controller yet, this still works.
+        bool pressingTowardWall =
+            !requireInputTowardWallToSlide ||
+            !hasMoveInput ||
+            Mathf.Sign(moveInputX) == sensors.WallDirection;
+
         bool canWallSlide =
             wallJumpLockCounter <= 0f &&
             sensors.IsTouchingWall &&
             !sensors.IsGrounded &&
-            rb.linearVelocity.y < -wallSlideEnterMinFallSpeed;
+            rb.linearVelocity.y < -wallSlideEnterMinFallSpeed &&
+            pressingTowardWall;
 
         if (canWallSlide)
         {
@@ -328,10 +349,16 @@ public class PlayerJump2D : MonoBehaviour
 
         rb.gravityScale = baseGravityScale;
 
-        rb.linearVelocity = new Vector2(
-            -wallDirection * wallJumpHorizontalForce,
-            wallJumpForce
-        );
+        float currentX = rb.linearVelocity.x;
+        float targetX = -wallDirection * wallJumpHorizontalForce;
+        float launchX = Mathf.Lerp(currentX, targetX, wallJumpHorizontalSnap);
+
+        float launchY = Mathf.Max(rb.linearVelocity.y, wallJumpMinUpwardSpeed);
+        launchY = Mathf.Max(launchY, wallJumpForce);
+
+        rb.linearVelocity = new Vector2(launchX, launchY);
+
+        controller?.ForceFacing(-wallDirection);
 
         OnWallJump?.Invoke(-wallDirection);
     }
