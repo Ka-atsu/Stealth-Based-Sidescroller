@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using Unity.Cinemachine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerDash2D : MonoBehaviour
@@ -17,11 +18,10 @@ public class PlayerDash2D : MonoBehaviour
     public float freezeDuration = 0.02f;
 
     [Header("Camera Shake")]
-    [SerializeField] private PlayerCameraShake2D cameraShake;
-    [SerializeField] private float dashStartShakeIntensity = 0.18f;
-    [SerializeField] private float dashStartShakeTime = 0.08f;
-    [SerializeField] private float dashEndShakeIntensity = 0.08f;
-    [SerializeField] private float dashEndShakeTime = 0.05f;
+    [SerializeField] private CinemachineImpulseSource impulseSource;
+
+    [SerializeField] private Vector3 dashStartImpulseVelocity = new Vector3(3.5f, 1.5f, 0f);
+    [SerializeField] private Vector3 dashEndImpulseVelocity = new Vector3(2f, 0.8f, 0f);
 
     [Header("Dash Layer")]
     [SerializeField] private string dashLayerName = "PlayerDash";
@@ -65,8 +65,8 @@ public class PlayerDash2D : MonoBehaviour
         if (dashLayer == -1)
             Debug.LogWarning($"Layer '{dashLayerName}' does not exist.");
 
-        if (cameraShake == null && Camera.main != null)
-            cameraShake = Camera.main.GetComponent<PlayerCameraShake2D>();
+        if (impulseSource == null)
+            impulseSource = GetComponentInChildren<CinemachineImpulseSource>(true);
     }
 
     public void TryStartDash(Vector2 moveInput, bool isGrounded, float facingSign)
@@ -102,8 +102,7 @@ public class PlayerDash2D : MonoBehaviour
         if (dashLayer != -1)
             gameObject.layer = dashLayer;
 
-        if (cameraShake != null)
-            cameraShake.Shake(dashStartShakeIntensity, dashStartShakeTime);
+        DoDashImpulse(dashStartImpulseVelocity, facingSign);
     }
 
     public void TickFixed(float dt, bool isGrounded)
@@ -158,8 +157,25 @@ public class PlayerDash2D : MonoBehaviour
 
         gameObject.layer = originalLayerBeforeDash;
 
-        if (cameraShake != null)
-            cameraShake.Shake(dashEndShakeIntensity, dashEndShakeTime);
+        float facingSign = dashDirection.x >= 0f ? 1f : -1f;
+        DoDashImpulse(dashEndImpulseVelocity, facingSign);
+    }
+
+    void DoDashImpulse(Vector3 baseVelocity, float facingSign)
+    {
+        if (impulseSource == null)
+        {
+            Debug.LogWarning("CinemachineImpulseSource is NULL on PlayerDash2D", this);
+            return;
+        }
+
+        Vector3 velocity = new Vector3(
+            Mathf.Abs(baseVelocity.x) * facingSign,
+            baseVelocity.y,
+            baseVelocity.z
+        );
+
+        impulseSource.GenerateImpulse(velocity);
     }
 
     void SpawnAfterImage()

@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Cinemachine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(DistanceJoint2D))]
@@ -57,11 +58,9 @@ public class PlayerSwing2D : MonoBehaviour
     [SerializeField] private float trailOffsetDistance = 0.15f;
 
     [Header("Camera Shake")]
-    [SerializeField] private Camera targetCamera;
-    [SerializeField] private float attachShakeAmount = 0.08f;
-    [SerializeField] private float attachShakeDuration = 0.08f;
-    [SerializeField] private float releaseShakeAmount = 0.10f;
-    [SerializeField] private float releaseShakeDuration = 0.10f;
+    [SerializeField] private CinemachineImpulseSource impulseSource;
+    [SerializeField] private Vector3 attachImpulseVelocity = new Vector3(2.5f, 1.8f, 0f);
+    [SerializeField] private Vector3 releaseImpulseVelocity = new Vector3(3f, 2.2f, 0f);
     [SerializeField] private float highSpeedReleaseThreshold = 8f;
     [SerializeField] private float highSpeedReleaseMultiplier = 1.5f;
 
@@ -82,11 +81,6 @@ public class PlayerSwing2D : MonoBehaviour
     private Vector2 moveInput;
     private SwingState state = SwingState.None;
 
-    private Vector3 cameraOriginalLocalPosition;
-    private float cameraShakeTimer;
-    private float cameraShakeDurationCurrent;
-    private float cameraShakeAmountCurrent;
-
     public bool IsSwinging => state == SwingState.Swinging;
     public bool IsPulling => state == SwingState.Pulling;
     public bool IsBusy => state != SwingState.None;
@@ -99,11 +93,8 @@ public class PlayerSwing2D : MonoBehaviour
         cam = Camera.main;
         controller = GetComponent<PlayerController2D>();
 
-        if (targetCamera == null)
-            targetCamera = cam;
-
-        if (targetCamera != null)
-            cameraOriginalLocalPosition = targetCamera.transform.localPosition;
+        if (impulseSource == null)
+            impulseSource = GetComponentInChildren<CinemachineImpulseSource>(true);
 
         ConfigureJoint();
         ConfigureLine();
@@ -115,7 +106,6 @@ public class PlayerSwing2D : MonoBehaviour
     {
         UpdateRopeVisual();
         UpdateTrailVisual();
-        UpdateCameraShake();
     }
 
     private void FixedUpdate()
@@ -285,7 +275,8 @@ public class PlayerSwing2D : MonoBehaviour
 
         rb.linearDamping = swingDamping;
 
-        StartCameraShake(attachShakeAmount, attachShakeDuration);
+        float horizontalSign = GetImpulseHorizontalSign();
+        DoSwingImpulse(attachImpulseVelocity, horizontalSign);
 
         if (debugLogs)
             Debug.Log("Pull finished -> Swing started");
@@ -341,6 +332,7 @@ public class PlayerSwing2D : MonoBehaviour
             return;
 
         float releaseSpeed = rb.linearVelocity.magnitude;
+        float horizontalSign = GetImpulseHorizontalSign();
 
         state = SwingState.None;
         joint.enabled = false;
@@ -348,16 +340,12 @@ public class PlayerSwing2D : MonoBehaviour
 
         ResetSwingPhysics();
 
-        float shakeAmount = releaseShakeAmount;
-        float shakeDuration = releaseShakeDuration;
+        Vector3 finalReleaseImpulse = releaseImpulseVelocity;
 
         if (releaseSpeed >= highSpeedReleaseThreshold)
-        {
-            shakeAmount *= highSpeedReleaseMultiplier;
-            shakeDuration *= highSpeedReleaseMultiplier;
-        }
+            finalReleaseImpulse *= highSpeedReleaseMultiplier;
 
-        StartCameraShake(shakeAmount, shakeDuration);
+        DoSwingImpulse(finalReleaseImpulse, horizontalSign);
 
         if (speedTrail != null)
             speedTrail.emitting = false;
@@ -445,42 +433,32 @@ public class PlayerSwing2D : MonoBehaviour
         rb.linearVelocity = tangentDirection * tangential + ropeDirection * radial;
     }
 
-    private void StartCameraShake(float amount, float duration)
+    private float GetImpulseHorizontalSign()
     {
-        if (targetCamera == null || amount <= 0f || duration <= 0f)
-            return;
+        if (Mathf.Abs(rb.linearVelocity.x) > 0.01f)
+            return Mathf.Sign(rb.linearVelocity.x);
 
-        cameraShakeAmountCurrent = amount;
-        cameraShakeDurationCurrent = duration;
-        cameraShakeTimer = duration;
+        if (controller != null)
+            return controller.FacingSign;
+
+        return 1f;
     }
 
-    private void UpdateCameraShake()
+    private void DoSwingImpulse(Vector3 baseVelocity, float horizontalSign)
     {
-        if (targetCamera == null)
+        if (impulseSource == null)
+        {
+            Debug.LogWarning("CinemachineImpulseSource is NULL on PlayerSwing2D", this);
             return;
-
-        if (cameraShakeTimer > 0f)
-        {
-            cameraShakeTimer -= Time.deltaTime;
-
-            float fade = cameraShakeDurationCurrent > 0f
-                ? cameraShakeTimer / cameraShakeDurationCurrent
-                : 0f;
-
-            Vector2 offset = Random.insideUnitCircle * cameraShakeAmountCurrent * fade;
-            targetCamera.transform.localPosition = cameraOriginalLocalPosition + new Vector3(offset.x, offset.y, 0f);
         }
-        else
-        {
-            targetCamera.transform.localPosition = cameraOriginalLocalPosition;
-        }
-    }
 
-    private void OnDisable()
-    {
-        if (targetCamera != null)
-            targetCamera.transform.localPosition = cameraOriginalLocalPosition;
+        Vector3 velocity = new Vector3(
+            Mathf.Abs(baseVelocity.x) * Mathf.Sign(horizontalSign == 0f ? 1f : horizontalSign),
+            baseVelocity.y,
+            baseVelocity.z
+        );
+
+        impulseSource.GenerateImpulse(velocity);
     }
 
     private void OnDrawGizmos()

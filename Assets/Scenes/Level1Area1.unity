@@ -150,7 +150,6 @@ Transform:
   m_Children:
   - {fileID: 2029474677}
   - {fileID: 1739732656}
-  - {fileID: 147306398}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &101808339
@@ -237,12 +236,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 101808339}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -30.07, y: -8.3, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -83.520004, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 721391406}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &147306397
 GameObject:
@@ -269,12 +268,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 147306397}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -21.36, y: 5.93, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 44.048386, y: -1.8892102, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 34459866}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &147306399
 MonoBehaviour:
@@ -570,54 +569,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    - target: {fileID: 6506451746107439063, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-      propertyPath: maxFallSpeed
-      value: -30
-      objectReference: {fileID: 0}
-    - target: {fileID: 6506451746107439063, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-      propertyPath: apexThreshold
-      value: 1.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6506451746107439063, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-      propertyPath: wallJumpForce
-      value: 15.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6506451746107439063, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-      propertyPath: wallCoyoteTime
-      value: 0.12
-      objectReference: {fileID: 0}
-    - target: {fileID: 6506451746107439063, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-      propertyPath: wallSlideSpeed
-      value: 2.4
-      objectReference: {fileID: 0}
-    - target: {fileID: 6506451746107439063, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-      propertyPath: baseGravityScale
-      value: 3.8
-      objectReference: {fileID: 0}
-    - target: {fileID: 6506451746107439063, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-      propertyPath: wallJumpLockTime
-      value: 0.08
-      objectReference: {fileID: 0}
-    - target: {fileID: 6506451746107439063, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-      propertyPath: apexGravityMultiplier
-      value: 0.65
-      objectReference: {fileID: 0}
-    - target: {fileID: 6506451746107439063, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-      propertyPath: fallGravityMultiplier
-      value: 2.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 6506451746107439063, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-      propertyPath: wallJumpHorizontalForce
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 6506451746107439063, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-      propertyPath: lowJumpGravityMultiplier
-      value: 1.9
-      objectReference: {fileID: 0}
-    - target: {fileID: 6506451746107439063, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-      propertyPath: wallSlideEnterMinFallSpeed
-      value: 0.35
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -751,11 +702,45 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 544958790}
   serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 721391406}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &721391405
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 721391406}
+  m_Layer: 0
+  m_Name: House
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &721391406
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 721391405}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 53.45, y: -8.3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 101808341}
+  - {fileID: 1391876360}
+  - {fileID: 544958792}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &778787573
@@ -1296,12 +1281,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1391876358}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 16.14, y: -8.3, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -37.31, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 721391406}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1430927965
 GameObject:
@@ -1314,7 +1299,7 @@ GameObject:
   - component: {fileID: 1430927967}
   - component: {fileID: 1430927966}
   m_Layer: 0
-  m_Name: TileSet_5
+  m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1712,6 +1697,7 @@ GameObject:
   - component: {fileID: 1739732658}
   - component: {fileID: 1739732657}
   - component: {fileID: 1739732659}
+  - component: {fileID: 1739732660}
   m_Layer: 0
   m_Name: CinemachineCamera
   m_TagString: Untagged
@@ -1828,6 +1814,30 @@ MonoBehaviour:
     MaxWindowSize: 0
     Padding: 0
   m_LegacyMaxWindowSize: -2
+--- !u!114 &1739732660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1739732655}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00b2d199b96b516448144ab30fb26aed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineImpulseListener
+  ApplyAfter: 2
+  ChannelMask: 1
+  Gain: 1
+  Use2DDistance: 0
+  UseCameraSpace: 1
+  SignalCombinationMode: 0
+  ReactionSettings:
+    m_SecondaryNoise: {fileID: 0}
+    AmplitudeGain: 1
+    FrequencyGain: 1
+    Duration: 1
+    m_NoiseOffsets: {x: 0, y: 0, z: 0}
 --- !u!1 &1768609386
 GameObject:
   m_ObjectHideFlags: 0
@@ -2119,6 +2129,7 @@ GameObject:
   - component: {fileID: 2029474680}
   - component: {fileID: 2029474679}
   - component: {fileID: 2029474678}
+  - component: {fileID: 2029474684}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -2135,7 +2146,7 @@ Transform:
   m_GameObject: {fileID: 2029474676}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -107.94135, y: 1.0692878, z: -10}
+  m_LocalPosition: {x: -107.94135, y: 1.0692372, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2301,6 +2312,18 @@ Camera:
   m_OcclusionCulling: 0
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &2029474684
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2029474676}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e38b91aa76fe074cb8b9dc6c700adc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraZoomPunch
 --- !u!1 &2030373833
 GameObject:
   m_ObjectHideFlags: 0
@@ -36750,13 +36773,12 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 147306398}
   - {fileID: 34459866}
   - {fileID: 380656101}
   - {fileID: 2010133236}
   - {fileID: 1638554615}
-  - {fileID: 101808341}
-  - {fileID: 1391876360}
-  - {fileID: 544958792}
+  - {fileID: 721391406}
   - {fileID: 2030373835}
   - {fileID: 895005441}
   - {fileID: 471062678}

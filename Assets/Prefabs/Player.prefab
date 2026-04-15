@@ -537,9 +537,12 @@ MonoBehaviour:
   wallCoyoteTime: 0.1
   wallSlideSpeed: 3
   wallSlideEnterMinFallSpeed: 0.5
+  requireInputTowardWallToSlide: 1
   wallJumpForce: 14
   wallJumpHorizontalForce: 16
   wallJumpLockTime: 0.15
+  wallJumpHorizontalSnap: 0.85
+  wallJumpMinUpwardSpeed: 12
   baseGravityScale: 3.5
   fallGravityMultiplier: 1.8
   lowJumpGravityMultiplier: 1.5
@@ -564,11 +567,9 @@ MonoBehaviour:
   dashRecoverDuration: 0.05
   endMomentumMultiplier: 0.25
   freezeDuration: 0.02
-  cameraShake: {fileID: 0}
-  dashStartShakeIntensity: 0.18
-  dashStartShakeTime: 0.08
-  dashEndShakeIntensity: 0.08
-  dashEndShakeTime: 0.05
+  impulseSource: {fileID: 3908483876689491067}
+  dashStartImpulseVelocity: {x: 3.5, y: 1.5, z: 0}
+  dashEndImpulseVelocity: {x: 2, y: 0.8, z: 0}
   dashLayerName: PlayerDash
   afterImagePrefab: {fileID: 8457736704435820773, guid: ecd810f0f36c8fe4abad3dbc180f81a3, type: 3}
   afterImageSpacing: 0.03
@@ -686,7 +687,9 @@ MonoBehaviour:
   slashVfxPrefab: {fileID: 2636439244522158913, guid: 6a1e049b10e706b4f8864bff7de8aeb2, type: 3}
   airCrackVfxPrefab: {fileID: 8180662637224241094, guid: d5315f9c82d38f04aa1af2180353d45f, type: 3}
   hitVfxOffset: {x: 0.25, y: 0.2, z: 0}
-  hitStopDuration: 0.045
+  slashVfxOffset: {x: 0, y: 0, z: 0}
+  crackVfxOffset: {x: -0.12, y: 0.02, z: 0}
+  hitStopDuration: 0.5
   hitStopTimeScale: 0.05
   postHitKillDelay: 0.04
   audioSource: {fileID: 0}
@@ -895,11 +898,9 @@ MonoBehaviour:
   trailMaxTime: 0.12
   trailMaxWidth: 0.18
   trailOffsetDistance: 0.15
-  targetCamera: {fileID: 0}
-  attachShakeAmount: 0.08
-  attachShakeDuration: 0.08
-  releaseShakeAmount: 0.1
-  releaseShakeDuration: 0.1
+  impulseSource: {fileID: 3908483876689491067}
+  attachImpulseVelocity: {x: 2.5, y: 1.8, z: 0}
+  releaseImpulseVelocity: {x: 3, y: 2.2, z: 0}
   highSpeedReleaseThreshold: 8
   highSpeedReleaseMultiplier: 1.5
   topArcDrag: 2.5
@@ -1382,7 +1383,7 @@ GameObject:
   - component: {fileID: 7801079319184058169}
   - component: {fileID: 3908483876689491067}
   m_Layer: 0
-  m_Name: StealthStrikeImpulseSource
+  m_Name: ImpulseSource
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

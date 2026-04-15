@@ -2944,12 +2944,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1937276033}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 65.40839, y: -7.81921, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5033902245106575712}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1937276035
 MonoBehaviour:
@@ -32193,6 +32193,7 @@ GameObject:
   - component: {fileID: 5247835642713805202}
   - component: {fileID: 2562976973830295934}
   - component: {fileID: 5549763297436509097}
+  - component: {fileID: 8424453005409454920}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -32301,7 +32302,6 @@ Transform:
   m_Children:
   - {fileID: 1649592549515145520}
   - {fileID: 9076418883945938900}
-  - {fileID: 1937276034}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!81 &5037418467573781022
@@ -32521,6 +32521,7 @@ GameObject:
   - component: {fileID: 9076418883945938900}
   - component: {fileID: 6731481830268656146}
   - component: {fileID: 4808774148806667594}
+  - component: {fileID: 9076418883945938901}
   m_Layer: 0
   m_Name: CinemachineCamera
   m_TagString: Untagged
@@ -32579,6 +32580,18 @@ Camera:
   m_OcclusionCulling: 0
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &8424453005409454920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2995644754787741536}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e38b91aa76fe074cb8b9dc6c700adc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraZoomPunch
 --- !u!1 &8974451676572634983
 GameObject:
   m_ObjectHideFlags: 0
@@ -32610,10 +32623,35 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5033902245106575712}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9076418883945938901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6755791776860058814}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00b2d199b96b516448144ab30fb26aed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineImpulseListener
+  ApplyAfter: 2
+  ChannelMask: 1
+  Gain: 1
+  Use2DDistance: 0
+  UseCameraSpace: 1
+  SignalCombinationMode: 0
+  ReactionSettings:
+    m_SecondaryNoise: {fileID: 0}
+    AmplitudeGain: 1
+    FrequencyGain: 1
+    Duration: 1
+    m_NoiseOffsets: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 1937276034}
   - {fileID: 5033902245106575712}
   - {fileID: 380656101}
   - {fileID: 2072998641585246066}

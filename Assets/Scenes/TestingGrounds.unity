@@ -80717,10 +80717,6 @@ PrefabInstance:
       propertyPath: audioSource
       value: 
       objectReference: {fileID: 793480087}
-    - target: {fileID: 1108577097183701122, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-      propertyPath: hitStopDuration
-      value: 0.5
-      objectReference: {fileID: 0}
     - target: {fileID: 1573776456866776452, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2.4
@@ -80765,10 +80761,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    - target: {fileID: 8737334124697929326, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-      propertyPath: targetCamera
-      value: 
-      objectReference: {fileID: 8424453005409454919}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
