@@ -81024,9 +81024,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 877fd57b2846f1e45a8f792c00431158, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCameraShake2D
-  dampingSpeed: 18
-  testIntensity: 1
-  testDuration: 0.3
 --- !u!4 &9076418883945938900
 Transform:
   m_ObjectHideFlags: 0

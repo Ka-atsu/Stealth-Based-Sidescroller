@@ -1,11 +1,25 @@
 ﻿using UnityEngine;
 
+public enum GuardResponseRole
+{
+    None,
+    Hold,
+    SearchLeft,
+    SearchRight
+}
+
 public class EnemyAI : MonoBehaviour
 {
     [Header("Debug")]
     public bool debugLogs = true;
     public bool debugPerception = false;
     public bool debugActions = false;
+
+    [Header("Group Coordination")]
+    [SerializeField] private LayerMask enemyLayer;
+    [SerializeField] private float allyAlertRadius = 6f;
+    [SerializeField] private float holdMinTime = 0.4f;
+    [SerializeField] private float holdMaxTime = 1.2f;
 
     EnemyMovement movement;
     EnemyVision vision;
@@ -23,7 +37,7 @@ public class EnemyAI : MonoBehaviour
     EnemyStateMachine.EnemyState lastState;
 
     float searchTimer = 0f;
-    float searchDuration = 5f;
+    [SerializeField] float searchDuration = 5f;
 
     bool lastCanSeePlayer;
     bool lastHasBlood;
@@ -33,6 +47,10 @@ public class EnemyAI : MonoBehaviour
 
     bool isStealthStrikeVictim;
     Transform stealthStrikeAttacker;
+
+    GuardResponseRole responseRole = GuardResponseRole.None;
+    float holdTimer = 0f;
+    bool hasSharedThisAlert = false;
 
     void Start()
     {
@@ -79,7 +97,8 @@ public class EnemyAI : MonoBehaviour
         // PERCEPTION
         //----------------------------------
 
-        vision.Detect();
+        if (vision != null)
+            vision.Detect();
 
         if (bloodTracker != null)
             bloodTracker.DetectNearbyBlood();
@@ -91,6 +110,17 @@ public class EnemyAI : MonoBehaviour
         Vector3 hearingTarget = hearingSearch ? hearing.lastHeardPosition : Vector3.zero;
 
         LogPerceptionChanges(canSeePlayer, hasBlood, hearingSearch, hearingTarget);
+
+        // Reset shared alert only when calm again
+        if (!canSeePlayer &&
+            !hearingSearch &&
+            !hasBlood &&
+            stateMachine.currentState == EnemyStateMachine.EnemyState.Patrol)
+        {
+            hasSharedThisAlert = false;
+            responseRole = GuardResponseRole.None;
+            holdTimer = 0f;
+        }
 
         //----------------------------------
         // STATE DECISION (PRIORITY)
@@ -104,6 +134,7 @@ public class EnemyAI : MonoBehaviour
         else if (canSeePlayer)
         {
             LogAction("Decision -> Alerted");
+            AlertNearbyGuard(player.position);
             stateMachine.SetState(EnemyStateMachine.EnemyState.Alerted);
         }
         else if (hasBlood)
@@ -114,7 +145,11 @@ public class EnemyAI : MonoBehaviour
         else if (hearingSearch && stateMachine.currentState != EnemyStateMachine.EnemyState.Search)
         {
             LogAction($"Decision -> Search from hearing at {hearingTarget}");
-            EnterSearch(hearingTarget);
+
+            AlertNearbyGuard(hearingTarget);
+
+            if (responseRole == GuardResponseRole.None)
+                EnterSearch(hearingTarget);
 
             if (hearing != null)
                 hearing.StopInvestigating();
@@ -214,12 +249,41 @@ public class EnemyAI : MonoBehaviour
 
                 searchTimer -= Time.deltaTime;
 
-                LogAction($"Searching around {currentSearchTarget} | time left: {searchTimer:F2}");
-                searchBehavior.SearchRandomly(currentSearchTarget);
+                if (responseRole == GuardResponseRole.Hold)
+                {
+                    holdTimer -= Time.deltaTime;
+                    movement.Stop();
+
+                    LogAction($"Holding position | hold left: {holdTimer:F2}");
+
+                    if (holdTimer <= 0f)
+                    {
+                        responseRole = Random.value > 0.5f
+                            ? GuardResponseRole.SearchLeft
+                            : GuardResponseRole.SearchRight;
+
+                        if (searchBehavior != null)
+                            searchBehavior.ResetSearch();
+
+                        LogAction($"Hold finished -> {responseRole}");
+                    }
+                }
+                else if (responseRole == GuardResponseRole.SearchLeft ||
+                         responseRole == GuardResponseRole.SearchRight)
+                {
+                    LogAction($"Assigned search {responseRole} around {currentSearchTarget} | time left: {searchTimer:F2}");
+                    searchBehavior.SearchAssigned(currentSearchTarget, responseRole);
+                }
+                else
+                {
+                    LogAction($"Searching around {currentSearchTarget} | time left: {searchTimer:F2}");
+                    searchBehavior.SearchRandomly(currentSearchTarget);
+                }
 
                 if (searchTimer <= 0f)
                 {
                     LogAction("Search expired -> Return");
+                    responseRole = GuardResponseRole.None;
                     stateMachine.SetState(EnemyStateMachine.EnemyState.Return);
                 }
 
@@ -239,10 +303,91 @@ public class EnemyAI : MonoBehaviour
 
             case EnemyStateMachine.EnemyState.Return:
                 LogAction("Returning to patrol");
+                responseRole = GuardResponseRole.None;
                 movement.Patrol();
                 stateMachine.SetState(EnemyStateMachine.EnemyState.Patrol);
                 break;
         }
+    }
+
+    //----------------------------------
+    // GROUP COORDINATION
+    //----------------------------------
+
+    void AlertNearbyGuard(Vector3 target)
+    {
+        if (hasSharedThisAlert)
+            return;
+
+        hasSharedThisAlert = true;
+
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, allyAlertRadius, enemyLayer);
+        EnemyAI chosenAlly = null;
+        float closestDist = float.MaxValue;
+
+        foreach (Collider2D hit in hits)
+        {
+            if (hit == null || hit.transform == transform)
+                continue;
+
+            EnemyAI ally = hit.GetComponent<EnemyAI>();
+            if (ally == null) continue;
+            if (ally.isStealthStrikeVictim) continue;
+
+            float dist = Vector2.Distance(transform.position, ally.transform.position);
+            if (dist < closestDist)
+            {
+                closestDist = dist;
+                chosenAlly = ally;
+            }
+        }
+
+        if (chosenAlly == null)
+        {
+            EnterSearch(target);
+            return;
+        }
+
+        bool callerHolds = Random.value > 0.5f;
+
+        if (callerHolds)
+        {
+            responseRole = GuardResponseRole.Hold;
+            chosenAlly.ReceiveGroupOrder(
+                target,
+                Random.value > 0.5f ? GuardResponseRole.SearchLeft : GuardResponseRole.SearchRight
+            );
+        }
+        else
+        {
+            responseRole = Random.value > 0.5f ? GuardResponseRole.SearchLeft : GuardResponseRole.SearchRight;
+            chosenAlly.ReceiveGroupOrder(target, GuardResponseRole.Hold);
+        }
+
+        EnterSearch(target);
+    }
+
+    public void ReceiveGroupOrder(Vector3 target, GuardResponseRole role)
+    {
+        if (isStealthStrikeVictim)
+            return;
+
+        hasSharedThisAlert = true;
+        responseRole = role;
+        currentSearchTarget = target;
+        searchTimer = searchDuration;
+
+        if (searchBehavior != null)
+            searchBehavior.ResetSearch();
+
+        if (role == GuardResponseRole.Hold)
+            holdTimer = Random.Range(holdMinTime, holdMaxTime);
+        else
+            holdTimer = 0f;
+
+        Log($"Received group order -> {role} at {target}");
+
+        stateMachine.SetState(EnemyStateMachine.EnemyState.Search);
     }
 
     //----------------------------------
@@ -286,9 +431,6 @@ public class EnemyAI : MonoBehaviour
 
     void EnterSearch(Vector3 target)
     {
-        if (stateMachine.currentState == EnemyStateMachine.EnemyState.Search)
-            return;
-
         currentSearchTarget = target;
         searchTimer = searchDuration;
 
@@ -390,7 +532,7 @@ public class EnemyAI : MonoBehaviour
         );
 #endif
 
-        if (attack != null)
+        if (attack != null && attack.attackPoint != null)
         {
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(attack.attackPoint.position, attack.attackRange);
@@ -414,5 +556,8 @@ public class EnemyAI : MonoBehaviour
             Gizmos.color = Color.magenta;
             Gizmos.DrawWireSphere(bloodTracker.GetBloodTargetPosition(), 0.25f);
         }
+
+        Gizmos.color = new Color(0f, 0.7f, 1f, 0.35f);
+        Gizmos.DrawWireSphere(transform.position, allyAlertRadius);
     }
 }

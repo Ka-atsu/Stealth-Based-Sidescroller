@@ -197,6 +197,7 @@ GameObject:
   - component: {fileID: 5403623446325679794}
   - component: {fileID: 4820524808776908205}
   - component: {fileID: 6698689541014902991}
+  - component: {fileID: 186201341253228397}
   m_Layer: 8
   m_Name: Enemy
   m_TagString: Untagged
@@ -370,6 +371,13 @@ MonoBehaviour:
   debugLogs: 0
   debugPerception: 0
   debugActions: 0
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  allyAlertRadius: 6
+  holdMinTime: 0.4
+  holdMaxTime: 1.2
+  searchDuration: 5
 --- !u!114 &6593923808583365865
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -385,12 +393,18 @@ MonoBehaviour:
   patrolSpeed: 2
   chaseSpeed: 4
   groundCheck: {fileID: 4312294673817438955}
-  groundCheckDistance: 0.5
+  groundCheckDistance: 5
   wallCheck: {fileID: 5811595434342470330}
   wallCheckDistance: 0.5
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  allyCheckDistance: 0.45
+  allyTurnDelayMin: 0.2
+  allyTurnDelayMax: 0.7
   attackPoint: {fileID: 3936054941446456922}
 --- !u!114 &5403931198697174090
 MonoBehaviour:
@@ -494,3 +508,21 @@ MonoBehaviour:
   reachDistance: 0.5
   waitAtPointTime: 0.5
   targetRefreshDistance: 0.25
+--- !u!114 &186201341253228397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8997600602487922229}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d18341224cf5f1545a1f50aed3e0aec7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemySeparation2D
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  separationRadius: 0.8
+  separationStrength: 2
+  maxPush: 1.2
