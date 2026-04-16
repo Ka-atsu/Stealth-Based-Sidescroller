@@ -2526,6 +2526,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1281890714}
   - component: {fileID: 1281890713}
+  - component: {fileID: 1281890715}
   m_Layer: 0
   m_Name: Audio Source
   m_TagString: Untagged
@@ -2645,6 +2646,34 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1638554615}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1281890715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1281890712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd9b4e26287350c45b74620f7623935f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NinjaAudioManager
+  audioSource: {fileID: 0}
+  footstepSound: {fileID: 0}
+  jumpSound: {fileID: 0}
+  dashSound: {fileID: 0}
+  landingSound: {fileID: 0}
+  footstepVolume: 1
+  jumpVolume: 1
+  dashVolume: 1
+  landingVolume: 1
+  backgroundMusic: {fileID: 0}
+  musicVolume: 0.7
+  autoPlayMusic: 1
+  footstepDelay: 0
+  jumpDelay: 0
+  dashDelay: 0
+  landingDelay: 0
 --- !u!1 &1337706206
 GameObject:
   m_ObjectHideFlags: 0
