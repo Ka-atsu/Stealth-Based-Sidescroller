@@ -16,8 +16,16 @@ public class GameSceneManager : MonoBehaviour
 
     public int ReadScrollCount => PlayerPrefs.GetInt(ScrollReadCountKey, 0);
 
+    private List<CollectedScrollData> collectedScrolls = new List<CollectedScrollData>();
+
+    public IReadOnlyList<CollectedScrollData> CollectedScrolls => collectedScrolls;
+
     private void Awake()
     {
+        // Clear all PlayerPrefs for testing purposes
+        PlayerPrefs.DeleteAll();
+        PlayerPrefs.Save();
+
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -154,6 +162,34 @@ public class GameSceneManager : MonoBehaviour
         PlayerPrefs.Save();
 
         Debug.Log($"Registered scroll: {scrollID} | Total Read: {newCount}");
+    }
+
+    public void RegisterCollectedScroll(string scrollID, string scrollTitle, string storyText)
+    {
+        if (string.IsNullOrWhiteSpace(scrollID))
+        {
+            Debug.LogWarning("Scroll ID is empty.");
+            return;
+        }
+
+        bool alreadyExists = false;
+
+        for (int i = 0; i < collectedScrolls.Count; i++)
+        {
+            if (collectedScrolls[i].id == scrollID)
+            {
+                alreadyExists = true;
+                break;
+            }
+        }
+
+        if (!alreadyExists)
+        {
+            collectedScrolls.Add(new CollectedScrollData(scrollID, scrollTitle, storyText));
+            Debug.Log("Added scroll to journal: " + scrollTitle);
+        }
+
+        RegisterReadScroll(scrollID);
     }
 
     private void LoadScrollProgress()

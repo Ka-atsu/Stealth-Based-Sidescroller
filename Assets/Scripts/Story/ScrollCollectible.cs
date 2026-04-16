@@ -48,7 +48,7 @@ public class ScrollCollectible : MonoBehaviour
 
                 if (GameSceneManager.Instance != null)
                 {
-                    GameSceneManager.Instance.RegisterReadScroll(scrollID);
+                    GameSceneManager.Instance.RegisterCollectedScroll(scrollID, scrollTitle, storyText);
                 }
                 else
                 {
