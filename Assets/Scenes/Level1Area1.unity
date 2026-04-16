@@ -962,10 +962,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 519bb1de094f14549ba6874f18d0a30e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScrollCollectible
+  scrollID: scroll_01
   scrollTitle: Old Scroll
   storyText: This is the hidden story written on the scroll.
   destroyAfterReading: 0
-  canReadOnlyOnce: 0
 --- !u!61 &569791164
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2746,6 +2746,10 @@ PrefabInstance:
       value: 72
       objectReference: {fileID: 0}
     - target: {fileID: 6593923808583365865, guid: 6291665a687a6fe48b1b9b72d904295b, type: 3}
+      propertyPath: debugAllyBlock
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6593923808583365865, guid: 6291665a687a6fe48b1b9b72d904295b, type: 3}
       propertyPath: startFacingRight
       value: 0
       objectReference: {fileID: 0}
@@ -3326,6 +3330,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1090060310}
     - target: {fileID: 6593923808583365865, guid: 6291665a687a6fe48b1b9b72d904295b, type: 3}
+      propertyPath: debugAllyBlock
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6593923808583365865, guid: 6291665a687a6fe48b1b9b72d904295b, type: 3}
       propertyPath: startFacingRight
       value: 1
       objectReference: {fileID: 0}
@@ -3646,50 +3654,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2145022217}
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &2023520735
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2023520737}
-  - component: {fileID: 2023520736}
-  m_Layer: 0
-  m_Name: GameManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &2023520736
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2023520735}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ae4cc836071d1045ae5718f7853fab8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameSceneManager
---- !u!4 &2023520737
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2023520735}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -29.99611, y: -6.93221, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2029474676
@@ -38499,7 +38463,6 @@ SceneRoots:
   - {fileID: 1090060311}
   - {fileID: 1430927967}
   - {fileID: 890141911}
-  - {fileID: 2023520737}
   - {fileID: 1077939991}
   - {fileID: 1684630120}
   - {fileID: 481419310}
