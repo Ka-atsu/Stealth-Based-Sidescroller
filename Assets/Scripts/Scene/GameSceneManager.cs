@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -9,6 +10,11 @@ public class GameSceneManager : MonoBehaviour
     public string CurrentSceneName { get; private set; }
     public int CurrentSceneBuildIndex { get; private set; }
     public bool IsLoadingScene { get; private set; }
+
+    private const string ScrollReadCountKey = "ScrollReadCount";
+    private HashSet<string> readScrollIDs = new HashSet<string>();
+
+    public int ReadScrollCount => PlayerPrefs.GetInt(ScrollReadCountKey, 0);
 
     private void Awake()
     {
@@ -23,6 +29,8 @@ public class GameSceneManager : MonoBehaviour
 
         SceneManager.sceneLoaded += OnSceneLoaded;
         UpdateCurrentScene(SceneManager.GetActiveScene());
+
+        LoadScrollProgress();
     }
 
     private void OnDestroy()
@@ -115,5 +123,71 @@ public class GameSceneManager : MonoBehaviour
         }
 
         return false;
+    }
+
+    // =========================
+    // Scroll Save System
+    // =========================
+
+    public bool HasReadScroll(string scrollID)
+    {
+        if (string.IsNullOrWhiteSpace(scrollID)) return false;
+        return readScrollIDs.Contains(scrollID);
+    }
+
+    public void RegisterReadScroll(string scrollID)
+    {
+        if (string.IsNullOrWhiteSpace(scrollID))
+        {
+            Debug.LogWarning("Scroll ID is empty.");
+            return;
+        }
+
+        if (readScrollIDs.Contains(scrollID))
+            return;
+
+        readScrollIDs.Add(scrollID);
+
+        int newCount = ReadScrollCount + 1;
+        PlayerPrefs.SetInt(ScrollReadCountKey, newCount);
+        PlayerPrefs.SetInt(GetScrollKey(scrollID), 1);
+        PlayerPrefs.Save();
+
+        Debug.Log($"Registered scroll: {scrollID} | Total Read: {newCount}");
+    }
+
+    private void LoadScrollProgress()
+    {
+        readScrollIDs.Clear();
+
+        // Optional rebuild from PlayerPrefs is not necessary if we check keys directly,
+        // but keeping HashSet useful for runtime fast checks.
+        Debug.Log("Scroll progress loaded. Current count: " + ReadScrollCount);
+    }
+
+    private string GetScrollKey(string scrollID)
+    {
+        return "ScrollRead_" + scrollID;
+    }
+
+    public bool GetSavedScrollState(string scrollID)
+    {
+        if (string.IsNullOrWhiteSpace(scrollID)) return false;
+
+        bool isRead = PlayerPrefs.GetInt(GetScrollKey(scrollID), 0) == 1;
+
+        if (isRead)
+            readScrollIDs.Add(scrollID);
+
+        return isRead;
+    }
+
+    public void ResetScrollProgress()
+    {
+        PlayerPrefs.SetInt(ScrollReadCountKey, 0);
+        readScrollIDs.Clear();
+        PlayerPrefs.Save();
+
+        Debug.Log("All scroll progress reset.");
     }
 }

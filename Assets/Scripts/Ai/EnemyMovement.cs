@@ -4,7 +4,7 @@ using UnityEngine.Rendering.Universal;
 public class EnemyMovement : MonoBehaviour
 {
     [Header("Debug")]
-    [SerializeField] private bool debugAllyBlock = true;
+    [SerializeField] private bool debugAllyBlock = false;
 
     [Header("Speed")]
     public float patrolSpeed = 2f;
