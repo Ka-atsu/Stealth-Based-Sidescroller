@@ -45,6 +45,9 @@ TagManager:
   - name: BackGround2
     uniqueID: 4256662461
     locked: 0
+  - name: UI
+    uniqueID: 2069117543
+    locked: 0
   - name: Player
     uniqueID: 4004298917
     locked: 0
@@ -54,8 +57,8 @@ TagManager:
   - name: Back
     uniqueID: 2514354809
     locked: 0
-  - name: UI
-    uniqueID: 2069117543
+  - name: ForeGround
+    uniqueID: 1932995147
     locked: 0
   m_RenderingLayers:
   - Default

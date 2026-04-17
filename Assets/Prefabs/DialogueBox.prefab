@@ -29,7 +29,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 3973784232363012746}
   - {fileID: 5658542178570883902}
@@ -39,8 +39,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1.4713, y: -407.06323}
-  m_SizeDelta: {x: 1882.1, y: 241.0389}
+  m_AnchoredPosition: {x: -14.8845, y: -315.85913}
+  m_SizeDelta: {x: 2164.245, y: 1620.2183}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9217655058442386355
 CanvasRenderer:
@@ -63,15 +63,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: ca22c613be4a8f04db16b4b94bb0f030, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -115,7 +115,7 @@ GameObject:
   - component: {fileID: 2361641099438634949}
   - component: {fileID: 2700966480656844204}
   - component: {fileID: 4359012409412052069}
-  - component: {fileID: 2595212146248541402}
+  - component: {fileID: 5811076112468340069}
   m_Layer: 5
   m_Name: DialogueBox
   m_TagString: Untagged
@@ -226,7 +226,7 @@ MonoBehaviour:
   isDialogueActive: 0
   textSpeed: 0.05
   animator: {fileID: 3523988148631575232}
---- !u!114 &2595212146248541402
+--- !u!114 &5811076112468340069
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -242,16 +242,24 @@ MonoBehaviour:
     dialogueLines:
     - character:
         name: MC
-        icon: {fileID: 21300000, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
-      line: "Master\u2019s belongings... scattered everywhere."
+        icon: {fileID: -9180426125723624345, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
+      line: Master...
     - character:
         name: MC
-        icon: {fileID: 21300000, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
-      line: Something happened here.
+        icon: {fileID: -9180426125723624345, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
+      line: No...
     - character:
         name: MC
-        icon: {fileID: 21300000, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
-      line: Maybe someone in the nearby village saw something.
+        icon: {fileID: -9180426125723624345, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
+      line: Who did this to you?
+    - character:
+        name: MC
+        icon: {fileID: -9180426125723624345, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
+      line: I will find them.
+    - character:
+        name: MC
+        icon: {fileID: -9180426125723624345, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
+      line: And I will kill every last one of them.
 --- !u!1 &2782574328185360557
 GameObject:
   m_ObjectHideFlags: 0
@@ -480,7 +488,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be425a5283001e54aa7e96dd3f161cdd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DialogueObjectTrigger
-  dialogueTrigger: {fileID: 2595212146248541402}
+  dialogueTrigger: {fileID: 0}
   playerTag: Player
   triggerOnce: 1
 --- !u!1 &3454070678238641729
@@ -517,7 +525,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -60.351, y: -37}
+  m_AnchoredPosition: {x: 9.2373, y: -98}
   m_SizeDelta: {x: 1220.6577, y: 119.24}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &371381152203979875
@@ -654,7 +662,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -250.58789, y: 69.48075}
+  m_AnchoredPosition: {x: -181, y: 67}
   m_SizeDelta: {x: 840.1832, y: 62.4729}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1022388521430812114
@@ -791,8 +799,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -809.1235, y: -2.1308}
-  m_SizeDelta: {x: 229.0607, y: 214.21}
+  m_AnchoredPosition: {x: -755, y: -39.75}
+  m_SizeDelta: {x: 199.7613, y: 235.74}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3278304935833825317
 CanvasRenderer:
@@ -982,7 +990,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2201339047198568696
 RectTransform:
   m_ObjectHideFlags: 0

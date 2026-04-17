@@ -738,11 +738,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce629e9852cb87e41b048a7cfd0ce856, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInputHandler
---- !u!1 &543238467 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2384931203370561604, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
-  m_PrefabInstance: {fileID: 872332698}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &555282405
 GameObject:
   m_ObjectHideFlags: 0
@@ -936,18 +931,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: DialogueBox
       objectReference: {fileID: 0}
-    - target: {fileID: 2595212146248541402, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
-      propertyPath: dialogue.dialogueLines.Array.data[0].character.icon
-      value: 
-      objectReference: {fileID: -9180426125723624345, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
-    - target: {fileID: 2595212146248541402, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
-      propertyPath: dialogue.dialogueLines.Array.data[2].character.icon
-      value: 
-      objectReference: {fileID: -9180426125723624345, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
-    - target: {fileID: 4359012409412052069, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
-      propertyPath: isDialogueActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 7750312454612454006, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -1028,19 +1011,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8215288064601603440, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 2595212146248541402, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
-    m_RemovedGameObjects:
-    - {fileID: 1165728231344509825, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 2384931203370561604, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 966368421}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
 --- !u!1 &959136177
 GameObject:
@@ -1126,46 +1100,23 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4359012409412052069, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
   m_PrefabInstance: {fileID: 872332698}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 543238467}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6297d6197b8cb4342b62da2d09c4422f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DialogueManager
---- !u!114 &966368421
+--- !u!114 &966368421 stripped
 MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 5811076112468340069, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
+  m_PrefabInstance: {fileID: 872332698}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 543238467}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8a9e748c70075f7428fc642405c7e6d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DialogueTrigger
-  dialogue:
-    dialogueLines:
-    - character:
-        name: MC
-        icon: {fileID: -9180426125723624345, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
-      line: Master...
-    - character:
-        name: MC
-        icon: {fileID: -9180426125723624345, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
-      line: No...
-    - character:
-        name: MC
-        icon: {fileID: -9180426125723624345, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
-      line: Who did this to you?
-    - character:
-        name: MC
-        icon: {fileID: -9180426125723624345, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
-      line: I will find them.
-    - character:
-        name: MC
-        icon: {fileID: -9180426125723624345, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
-      line: And I will kill every last one of them.
 --- !u!1 &1062045586
 GameObject:
   m_ObjectHideFlags: 0

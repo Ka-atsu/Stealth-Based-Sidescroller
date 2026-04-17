@@ -622,7 +622,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf40819855be78e43938ac0a548231d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
-  maxHealth: 1
+  maxHealth: 3
   bleedDurationOnHit: 10
   hitStopDuration: 0.06
   hitStopTimeScale: 0.05
@@ -693,7 +693,7 @@ MonoBehaviour:
   hitStopTimeScale: 0.05
   postHitKillDelay: 0.04
   audioSource: {fileID: 0}
-  stealthSlashSfx: {fileID: 8300000, guid: 674574cb986033548aec9505d51cd226, type: 3}
+  stealthSlashSfx: {fileID: 8300000, guid: 870f4772cd5b85c41995fd8fd6a41764, type: 3}
   impulseSource: {fileID: 3908483876689491067}
   impulseVelocity: {x: 0.7, y: 0.35, z: 0}
 --- !u!114 &6095743387980597828
@@ -735,7 +735,7 @@ DistanceJoint2D:
   m_Anchor: {x: 0, y: 0}
   m_ConnectedAnchor: {x: 0, y: 0}
   m_AutoConfigureDistance: 1
-  m_Distance: 11.281246
+  m_Distance: 51.421455
   m_MaxDistanceOnly: 0
 --- !u!120 &3429327519159587753
 LineRenderer:
