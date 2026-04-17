@@ -4,7 +4,7 @@ using System.Collections;
 public class PlayerHealth : MonoBehaviour, IDamageable
 {
     [Header("Health")]
-    [SerializeField] private int maxHealth = 5;
+    [SerializeField] private int maxHealth = 3;
     [SerializeField] private float bleedDurationOnHit = 10f;
 
     [Header("Hit Stop")]
@@ -65,6 +65,16 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
         if (bloodTrail != null)
             bloodTrail.enabled = false;
+    }
+
+    public int GetCurrentHealth()
+    {
+        return currentHealth;
+    }
+
+    public int GetMaxHealth()
+    {
+        return maxHealth;
     }
 
     public void TakeDamage(int damage)

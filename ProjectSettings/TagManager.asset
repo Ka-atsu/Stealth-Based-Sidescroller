@@ -19,7 +19,7 @@ TagManager:
   - HangPoint
   - PlayerDash
   - DeadPlayer
-  - 
+  - LightBlocker
   - 
   - 
   - 
@@ -42,6 +42,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: BackGround2
+    uniqueID: 4256662461
+    locked: 0
   - name: Player
     uniqueID: 4004298917
     locked: 0
@@ -50,6 +53,9 @@ TagManager:
     locked: 0
   - name: Back
     uniqueID: 2514354809
+    locked: 0
+  - name: ForeGround
+    uniqueID: 2136418291
     locked: 0
   m_RenderingLayers:
   - Default

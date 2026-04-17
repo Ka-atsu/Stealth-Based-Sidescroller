@@ -23,8 +23,8 @@ public class GameSceneManager : MonoBehaviour
     private void Awake()
     {
         // Clear all PlayerPrefs for testing purposes
-        PlayerPrefs.DeleteAll();
-        PlayerPrefs.Save();
+        //PlayerPrefs.DeleteAll();
+        //PlayerPrefs.Save();
 
         if (Instance != null && Instance != this)
         {
