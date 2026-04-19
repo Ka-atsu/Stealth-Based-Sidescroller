@@ -673,7 +673,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStealthStrike2D
   debugStealthStrike: 1
-  strikeRange: 1.5
+  strikeRange: 1
   strikeOffset: {x: 0.7, y: 0.7}
   enemyMask:
     serializedVersion: 2

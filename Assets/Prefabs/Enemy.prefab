@@ -193,11 +193,13 @@ GameObject:
   - component: {fileID: 6593923808583365865}
   - component: {fileID: 5403931198697174090}
   - component: {fileID: 658540273869113938}
+  - component: {fileID: 3252310476544862741}
   - component: {fileID: 7527518937666091895}
   - component: {fileID: 5403623446325679794}
   - component: {fileID: 4820524808776908205}
   - component: {fileID: 6698689541014902991}
   - component: {fileID: 186201341253228397}
+  - component: {fileID: 4968801327760435492}
   m_Layer: 8
   m_Name: Enemy
   m_TagString: Untagged
@@ -273,7 +275,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 7
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 6278108325236577069, guid: d07dc86b71f6f4c4ea83e26bfb5a16ce, type: 3}
+  m_Sprite: {fileID: -1631059481322583128, guid: 59e4111db798c8e4991622cb6b200459, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -344,17 +346,17 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.08863258, y: 0.018488646}
+  m_Offset: {x: -0.08863258, y: -0.14808011}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 2.6666667, y: 2.6666667}
+    oldSize: {x: 4, y: 3.625}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1.2957954, y: 2.781551}
+  m_Size: {x: 1.2957954, y: 3.1146884}
   m_EdgeRadius: 0
 --- !u!114 &1908342525740171559
 MonoBehaviour:
@@ -390,8 +392,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cba63fc02bdb0d44aa4ebfa7f91522b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyMovement
+  debugAllyBlock: 1
   patrolSpeed: 2
   chaseSpeed: 4
+  startFacingRight: 1
+  spriteFacesRightByDefault: 1
   groundCheck: {fileID: 4312294673817438955}
   groundCheckDistance: 5
   wallCheck: {fileID: 5811595434342470330}
@@ -402,9 +407,11 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 256
-  allyCheckDistance: 0.45
+  allyDetectForwardOffset: 0.45
+  allyDetectRadius: 0.45
   allyTurnDelayMin: 0.2
   allyTurnDelayMax: 0.7
+  allyTurnCooldown: 0.25
   attackPoint: {fileID: 3936054941446456922}
 --- !u!114 &5403931198697174090
 MonoBehaviour:
@@ -441,6 +448,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStateMachine
   currentState: 0
+--- !u!114 &3252310476544862741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8997600602487922229}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf75100c0cccbbc48bf68846d6f8d08b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAnimationController
+  animator: {fileID: 4968801327760435492}
+  rb: {fileID: 3598823780715694061}
+  attack: {fileID: 5403623446325679794}
+  stateMachine: {fileID: 658540273869113938}
+  moveThreshold: 0.05
 --- !u!114 &7527518937666091895
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -526,3 +550,25 @@ MonoBehaviour:
   separationRadius: 0.8
   separationStrength: 2
   maxPush: 1.2
+--- !u!95 &4968801327760435492
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8997600602487922229}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: e5ec390c8e5c4af4b8371d8bf93771bd, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
