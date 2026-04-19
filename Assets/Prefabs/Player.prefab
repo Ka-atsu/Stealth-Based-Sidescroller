@@ -735,7 +735,7 @@ DistanceJoint2D:
   m_Anchor: {x: 0, y: 0}
   m_ConnectedAnchor: {x: 0, y: 0}
   m_AutoConfigureDistance: 1
-  m_Distance: 51.421455
+  m_Distance: 52.55387
   m_MaxDistanceOnly: 0
 --- !u!120 &3429327519159587753
 LineRenderer:
@@ -868,10 +868,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f187130c4832ca34dace382c56be7932, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerSwing2D
-  grappleRange: 8
+  grappleRange: 10
   grappleLayer:
     serializedVersion: 2
     m_Bits: 1024
+  grappleOriginOffset: {x: 0.4, y: 0.8}
   pullSpeed: 18
   pullWhenGroundedOnly: 1
   attachRopeLength: 2.5
@@ -898,11 +899,12 @@ MonoBehaviour:
   trailMaxTime: 0.12
   trailMaxWidth: 0.18
   trailOffsetDistance: 0.15
-  impulseSource: {fileID: 3908483876689491067}
-  attachImpulseVelocity: {x: 2.5, y: 1.8, z: 0}
-  releaseImpulseVelocity: {x: 3, y: 2.2, z: 0}
-  highSpeedReleaseThreshold: 8
-  highSpeedReleaseMultiplier: 1.5
+  grappleHitVFX: {fileID: 1980817700443632640, guid: 7211fecdf4c56564d858378d6e16630f, type: 3}
+  swingReleaseVFX: {fileID: 1315574781683939520, guid: b11795f7a27ec034b9250c05311cd03e, type: 3}
+  visualRoot: {fileID: 6633545368474093503}
+  maxTiltAngle: 22
+  tiltLerpSpeed: 10
+  minSpeedForTilt: 0.15
   topArcDrag: 2.5
   topArcStartY: 0.75
   debugLogs: 0

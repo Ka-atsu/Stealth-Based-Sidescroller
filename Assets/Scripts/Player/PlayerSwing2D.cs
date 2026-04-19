@@ -1,5 +1,4 @@
 using UnityEngine;
-using Unity.Cinemachine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(DistanceJoint2D))]
@@ -16,6 +15,8 @@ public class PlayerSwing2D : MonoBehaviour
     [Header("Grapple")]
     [SerializeField] private float grappleRange = 8f;
     [SerializeField] private LayerMask grappleLayer;
+    [SerializeField] private Vector2 grappleOriginOffset = new Vector2(0.4f, 0.8f);
+    [SerializeField] private bool blockBelowPlayer = true;
 
     [Header("Pull")]
     [SerializeField] private float pullSpeed = 18f;
@@ -32,6 +33,10 @@ public class PlayerSwing2D : MonoBehaviour
     [SerializeField] private bool capTangentialSpeedOnly = true;
     [SerializeField] private float swingDamping = 0.35f;
     [SerializeField] private float normalDamping = 0f;
+
+    [Header("Auto Release")]
+    [SerializeField] private bool useAutoReleaseTimer = true;
+    [SerializeField] private float maxSwingDuration = 1.75f;
 
     [Header("Swing Control")]
     [SerializeField] private float withMomentumForceMultiplier = 1f;
@@ -57,12 +62,15 @@ public class PlayerSwing2D : MonoBehaviour
     [SerializeField] private float trailMaxWidth = 0.18f;
     [SerializeField] private float trailOffsetDistance = 0.15f;
 
-    [Header("Camera Shake")]
-    [SerializeField] private CinemachineImpulseSource impulseSource;
-    [SerializeField] private Vector3 attachImpulseVelocity = new Vector3(2.5f, 1.8f, 0f);
-    [SerializeField] private Vector3 releaseImpulseVelocity = new Vector3(3f, 2.2f, 0f);
-    [SerializeField] private float highSpeedReleaseThreshold = 8f;
-    [SerializeField] private float highSpeedReleaseMultiplier = 1.5f;
+    [Header("Impact Juice")]
+    [SerializeField] private GameObject grappleHitVFX;
+    [SerializeField] private GameObject swingReleaseVFX;
+
+    [Header("Visual Tilt")]
+    [SerializeField] private Transform visualRoot;
+    [SerializeField] private float maxTiltAngle = 22f;
+    [SerializeField] private float tiltLerpSpeed = 10f;
+    [SerializeField] private float minSpeedForTilt = 0.15f;
 
     [Header("Arc")]
     [SerializeField] private float topArcDrag = 2.5f;
@@ -81,6 +89,9 @@ public class PlayerSwing2D : MonoBehaviour
     private Vector2 moveInput;
     private SwingState state = SwingState.None;
 
+    private float defaultVisualZRotation;
+    private float swingTimer;
+
     public bool IsSwinging => state == SwingState.Swinging;
     public bool IsPulling => state == SwingState.Pulling;
     public bool IsBusy => state != SwingState.None;
@@ -93,8 +104,10 @@ public class PlayerSwing2D : MonoBehaviour
         cam = Camera.main;
         controller = GetComponent<PlayerController2D>();
 
-        if (impulseSource == null)
-            impulseSource = GetComponentInChildren<CinemachineImpulseSource>(true);
+        if (visualRoot == null)
+            visualRoot = transform;
+
+        defaultVisualZRotation = visualRoot.localEulerAngles.z;
 
         ConfigureJoint();
         ConfigureLine();
@@ -106,6 +119,7 @@ public class PlayerSwing2D : MonoBehaviour
     {
         UpdateRopeVisual();
         UpdateTrailVisual();
+        UpdateVisualTilt();
     }
 
     private void FixedUpdate()
@@ -153,7 +167,8 @@ public class PlayerSwing2D : MonoBehaviour
 
     private void TickPull()
     {
-        Vector2 toPoint = grapplePoint - (Vector2)transform.position;
+        Vector2 currentPosition = GetSwingOriginPosition();
+        Vector2 toPoint = grapplePoint - currentPosition;
         float distance = toPoint.magnitude;
         float targetDistance = Mathf.Clamp(attachRopeLength, minRopeLength, maxRopeLength);
 
@@ -171,6 +186,20 @@ public class PlayerSwing2D : MonoBehaviour
     {
         rb.linearDamping = swingDamping;
 
+        if (useAutoReleaseTimer)
+        {
+            swingTimer += Time.fixedDeltaTime;
+
+            if (swingTimer >= maxSwingDuration)
+            {
+                if (debugLogs)
+                    Debug.Log("Auto release triggered");
+
+                ReleaseSwing();
+                return;
+            }
+        }
+
         Vector2 ropeDirection = GetRopeDirection();
         Vector2 tangentDirection = GetTangentDirection(ropeDirection);
 
@@ -182,12 +211,17 @@ public class PlayerSwing2D : MonoBehaviour
 
     private Vector2 GetRopeDirection()
     {
-        return ((Vector2)transform.position - grapplePoint).normalized;
+        return (GetSwingOriginPosition() - grapplePoint).normalized;
     }
 
     private Vector2 GetTangentDirection(Vector2 ropeDirection)
     {
         return new Vector2(-ropeDirection.y, ropeDirection.x);
+    }
+
+    private Vector2 GetSwingOriginPosition()
+    {
+        return ropeStartPoint != null ? (Vector2)ropeStartPoint.position : (Vector2)transform.position;
     }
 
     private void ApplySwingForce(Vector2 ropeDirection, Vector2 tangentDirection)
@@ -264,10 +298,11 @@ public class PlayerSwing2D : MonoBehaviour
     private void BeginSwing()
     {
         state = SwingState.Swinging;
+        swingTimer = 0f;
 
         joint.connectedAnchor = grapplePoint;
         joint.distance = Mathf.Clamp(
-            Vector2.Distance(transform.position, grapplePoint),
+            Vector2.Distance(GetSwingOriginPosition(), grapplePoint),
             minRopeLength,
             maxRopeLength
         );
@@ -275,8 +310,7 @@ public class PlayerSwing2D : MonoBehaviour
 
         rb.linearDamping = swingDamping;
 
-        float horizontalSign = GetImpulseHorizontalSign();
-        DoSwingImpulse(attachImpulseVelocity, horizontalSign);
+        SpawnGrappleHitVFX();
 
         if (debugLogs)
             Debug.Log("Pull finished -> Swing started");
@@ -292,11 +326,20 @@ public class PlayerSwing2D : MonoBehaviour
         if (state != SwingState.None || cam == null)
             return;
 
+        float facing = 1f;
+        if (controller != null)
+            facing = controller.FacingSign;
+
+        Vector2 origin = (Vector2)transform.position + new Vector2(
+            grappleOriginOffset.x * facing,
+            grappleOriginOffset.y
+        );
+
         Vector2 worldMouse = cam.ScreenToWorldPoint(mouseScreenPosition);
-        Vector2 direction = (worldMouse - (Vector2)transform.position).normalized;
+        Vector2 direction = (worldMouse - origin).normalized;
 
         RaycastHit2D hit = Physics2D.Raycast(
-            transform.position,
+            origin,
             direction,
             grappleRange,
             grappleLayer
@@ -304,6 +347,13 @@ public class PlayerSwing2D : MonoBehaviour
 
         if (!hit.collider)
             return;
+
+        if (blockBelowPlayer && hit.point.y <= origin.y)
+        {
+            if (debugLogs)
+                Debug.Log("Grapple blocked: target is below player");
+            return;
+        }
 
         grapplePoint = hit.point;
         line.enabled = true;
@@ -331,21 +381,13 @@ public class PlayerSwing2D : MonoBehaviour
         if (state == SwingState.None)
             return;
 
-        float releaseSpeed = rb.linearVelocity.magnitude;
-        float horizontalSign = GetImpulseHorizontalSign();
-
         state = SwingState.None;
+        swingTimer = 0f;
         joint.enabled = false;
         line.enabled = false;
 
         ResetSwingPhysics();
-
-        Vector3 finalReleaseImpulse = releaseImpulseVelocity;
-
-        if (releaseSpeed >= highSpeedReleaseThreshold)
-            finalReleaseImpulse *= highSpeedReleaseMultiplier;
-
-        DoSwingImpulse(finalReleaseImpulse, horizontalSign);
+        SpawnReleaseVFX();
 
         if (speedTrail != null)
             speedTrail.emitting = false;
@@ -404,6 +446,33 @@ public class PlayerSwing2D : MonoBehaviour
         }
     }
 
+    private void UpdateVisualTilt()
+    {
+        if (visualRoot == null)
+            return;
+
+        float targetZ = defaultVisualZRotation;
+
+        if (state == SwingState.Swinging)
+        {
+            Vector2 ropeDirection = GetRopeDirection();
+            Vector2 tangentDirection = GetTangentDirection(ropeDirection);
+            float tangentialSpeed = Vector2.Dot(rb.linearVelocity, tangentDirection);
+
+            float normalizedSpeed = Mathf.InverseLerp(minSpeedForTilt, maxSwingSpeed, Mathf.Abs(tangentialSpeed));
+            float tiltAmount = normalizedSpeed * maxTiltAngle * -Mathf.Sign(tangentialSpeed);
+
+            targetZ = defaultVisualZRotation + tiltAmount;
+        }
+
+        Quaternion targetRotation = Quaternion.Euler(0f, 0f, targetZ);
+        visualRoot.localRotation = Quaternion.Lerp(
+            visualRoot.localRotation,
+            targetRotation,
+            tiltLerpSpeed * Time.deltaTime
+        );
+    }
+
     private float GetCurrentSwingSpeed()
     {
         if (state != SwingState.Swinging)
@@ -433,38 +502,41 @@ public class PlayerSwing2D : MonoBehaviour
         rb.linearVelocity = tangentDirection * tangential + ropeDirection * radial;
     }
 
-    private float GetImpulseHorizontalSign()
+    private void SpawnGrappleHitVFX()
     {
-        if (Mathf.Abs(rb.linearVelocity.x) > 0.01f)
-            return Mathf.Sign(rb.linearVelocity.x);
+        if (grappleHitVFX == null)
+            return;
 
-        if (controller != null)
-            return controller.FacingSign;
-
-        return 1f;
+        Instantiate(grappleHitVFX, grapplePoint, Quaternion.identity);
     }
 
-    private void DoSwingImpulse(Vector3 baseVelocity, float horizontalSign)
+    private void SpawnReleaseVFX()
     {
-        if (impulseSource == null)
-        {
-            Debug.LogWarning("CinemachineImpulseSource is NULL on PlayerSwing2D", this);
+        if (swingReleaseVFX == null)
             return;
-        }
 
-        Vector3 velocity = new Vector3(
-            Mathf.Abs(baseVelocity.x) * Mathf.Sign(horizontalSign == 0f ? 1f : horizontalSign),
-            baseVelocity.y,
-            baseVelocity.z
-        );
-
-        impulseSource.GenerateImpulse(velocity);
+        Instantiate(swingReleaseVFX, transform.position, Quaternion.identity);
     }
 
     private void OnDrawGizmos()
     {
+        float facing = 1f;
+
+        if (Application.isPlaying)
+        {
+            PlayerController2D runtimeController = GetComponent<PlayerController2D>();
+            if (runtimeController != null)
+                facing = runtimeController.FacingSign;
+        }
+
+        Vector3 origin = transform.position + new Vector3(
+            grappleOriginOffset.x * facing,
+            grappleOriginOffset.y,
+            0f
+        );
+
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, grappleRange);
+        Gizmos.DrawWireSphere(origin, grappleRange);
 
         if (state != SwingState.None)
         {
@@ -472,7 +544,7 @@ public class PlayerSwing2D : MonoBehaviour
             Gizmos.DrawSphere(grapplePoint, 0.15f);
 
             Gizmos.color = Color.green;
-            Gizmos.DrawLine(transform.position, grapplePoint);
+            Gizmos.DrawLine(GetSwingOriginPosition(), grapplePoint);
         }
     }
 }
