@@ -23487,6 +23487,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 6023844631685730614, guid: 6291665a687a6fe48b1b9b72d904295b, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -1631059481322583128, guid: 59e4111db798c8e4991622cb6b200459, type: 3}
+    - target: {fileID: 6211360796238043245, guid: 6291665a687a6fe48b1b9b72d904295b, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.x
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6211360796238043245, guid: 6291665a687a6fe48b1b9b72d904295b, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.y
+      value: 3.625
+      objectReference: {fileID: 0}
     - target: {fileID: 6593923808583365865, guid: 6291665a687a6fe48b1b9b72d904295b, type: 3}
       propertyPath: spriteFacesRightByDefault
       value: 1
@@ -23538,8 +23550,85 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8997600602487922229, guid: 6291665a687a6fe48b1b9b72d904295b, type: 3}
+      insertIndex: 8
+      addedObject: {fileID: 746672415}
+    - targetCorrespondingSourceObject: {fileID: 8997600602487922229, guid: 6291665a687a6fe48b1b9b72d904295b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 746672401}
   m_SourcePrefab: {fileID: 100100000, guid: 6291665a687a6fe48b1b9b72d904295b, type: 3}
+--- !u!1 &746672400 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8997600602487922229, guid: 6291665a687a6fe48b1b9b72d904295b, type: 3}
+  m_PrefabInstance: {fileID: 746672399}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &746672401
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 746672400}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: e5ec390c8e5c4af4b8371d8bf93771bd, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &746672405 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5403623446325679794, guid: 6291665a687a6fe48b1b9b72d904295b, type: 3}
+  m_PrefabInstance: {fileID: 746672399}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 746672400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab259767016a0a04eae77ccee6564021, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAttack
+--- !u!114 &746672407 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 658540273869113938, guid: 6291665a687a6fe48b1b9b72d904295b, type: 3}
+  m_PrefabInstance: {fileID: 746672399}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 746672400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9c0882146cda3b4596831f99f528d14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyStateMachine
+--- !u!50 &746672412 stripped
+Rigidbody2D:
+  m_CorrespondingSourceObject: {fileID: 3598823780715694061, guid: 6291665a687a6fe48b1b9b72d904295b, type: 3}
+  m_PrefabInstance: {fileID: 746672399}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &746672415
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 746672400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf75100c0cccbbc48bf68846d6f8d08b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAnimationController
+  animator: {fileID: 746672401}
+  rb: {fileID: 746672412}
+  attack: {fileID: 746672405}
+  stateMachine: {fileID: 746672407}
+  moveThreshold: 0.05
 --- !u!1 &752876531
 GameObject:
   m_ObjectHideFlags: 0

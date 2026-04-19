@@ -126,7 +126,12 @@ public class EnemyAI : MonoBehaviour
         // STATE DECISION (PRIORITY)
         //----------------------------------
 
-        if (attack != null && attack.CanAttack() && canSeePlayer)
+        if (attack != null && attack.IsAttacking)
+        {
+            LogAction("Decision -> Keep Attacking");
+            stateMachine.SetState(EnemyStateMachine.EnemyState.Attack);
+        }
+        else if (attack != null && attack.CanAttack() && canSeePlayer)
         {
             LogAction("Decision -> Attack");
             stateMachine.SetState(EnemyStateMachine.EnemyState.Attack);
@@ -293,7 +298,7 @@ public class EnemyAI : MonoBehaviour
                 LogAction("Stopping to attack");
                 movement.Stop();
 
-                if (!attack.IsAttacking)
+                if (attack != null && !attack.IsAttacking && attack.CanAttack())
                 {
                     LogAction("TryAttack()");
                     attack.TryAttack();

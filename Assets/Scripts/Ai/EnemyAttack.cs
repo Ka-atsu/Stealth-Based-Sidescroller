@@ -1,8 +1,8 @@
 using UnityEngine;
-using System.Collections;
 
 public class EnemyAttack : MonoBehaviour
 {
+    [Header("Attack Settings")]
     public float attackRange = 2f;
     public float attackCooldown = 1f;
     public int damage = 1;
@@ -11,7 +11,7 @@ public class EnemyAttack : MonoBehaviour
     public LayerMask playerLayer;
 
     private Transform player;
-    private float lastAttackTime = -999f;
+    private float nextAttackTime = 0f;
     private bool isAttacking = false;
 
     public bool IsAttacking => isAttacking;
@@ -19,50 +19,35 @@ public class EnemyAttack : MonoBehaviour
     void Start()
     {
         GameObject p = GameObject.FindGameObjectWithTag("Player");
-        if (p != null) player = p.transform;
+        if (p != null)
+            player = p.transform;
     }
 
     public bool CanAttack()
     {
         if (player == null) return false;
         if (isAttacking) return false;
-        if (Time.time < lastAttackTime + attackCooldown) return false;
+        if (Time.time < nextAttackTime) return false;
 
         float dist = Mathf.Abs(player.position.x - transform.position.x);
-
         return dist <= attackRange;
     }
 
     public void TryAttack()
     {
-        if (isAttacking) return;
+        if (!CanAttack())
+            return;
 
-        StartCoroutine(AttackRoutine());
-    }
-
-    private IEnumerator AttackRoutine()
-    {
         isAttacking = true;
-        lastAttackTime = Time.time;
-
-        yield return new WaitForSeconds(0.1f);
-
-        DoSlashHit();
-
-        yield return new WaitForSeconds(attackCooldown);
-
-        isAttacking = false;
+        nextAttackTime = Time.time + attackCooldown;
     }
 
-    void DoSlashHit()
+    // CALL THIS FROM ANIMATION EVENT at the hit frame
+    public void DealDamage()
     {
-        if (player == null) return;
-
-        // Face the player
-        Vector2 dir = (player.position - transform.position).normalized;
-
-        // Position hitbox in front of enemy
-        Vector2 hitPosition = (Vector2)transform.position + dir * 1.2f;
+        Vector2 hitPosition = attackPoint != null
+            ? (Vector2)attackPoint.position
+            : (Vector2)transform.position;
 
         Collider2D hit = Physics2D.OverlapBox(
             hitPosition,
@@ -72,24 +57,26 @@ public class EnemyAttack : MonoBehaviour
         );
 
         if (hit == null)
-        {
             return;
-        }
 
-        IDamageable d = hit.GetComponentInParent<IDamageable>();
-
-        if (d != null)
+        IDamageable damageable = hit.GetComponentInParent<IDamageable>();
+        if (damageable != null)
         {
-            d.TakeDamage(damage);
+            damageable.TakeDamage(damage);
         }
+    }
+
+    // CALL THIS FROM ANIMATION EVENT at the last frame
+    public void EndAttack()
+    {
+        isAttacking = false;
     }
 
     void OnDrawGizmosSelected()
     {
-        if (player == null) return;
-
-        Vector2 dir = (player.position - transform.position).normalized;
-        Vector2 hitPosition = (Vector2)transform.position + dir * 1.2f;
+        Vector2 hitPosition = attackPoint != null
+            ? (Vector2)attackPoint.position
+            : (Vector2)transform.position;
 
         Gizmos.color = Color.red;
         Gizmos.DrawWireCube(hitPosition, attackBoxSize);
