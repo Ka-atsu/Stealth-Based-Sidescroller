@@ -12,17 +12,33 @@ public class GameSceneManager : MonoBehaviour
     public bool IsLoadingScene { get; private set; }
 
     private const string ScrollReadCountKey = "ScrollReadCount";
+    private const string ScoreKey = "PlayerScore";
+    private const string StealthKillCountKey = "StealthKillCount";
+
     private HashSet<string> readScrollIDs = new HashSet<string>();
 
     public int ReadScrollCount => PlayerPrefs.GetInt(ScrollReadCountKey, 0);
+    public int CurrentScore => PlayerPrefs.GetInt(ScoreKey, 0);
+    public int StealthKillCount { get; private set; }
+
+    // TRUE after player reads a new scroll, consumed after a valid stealth kill reward
+    public bool HasUnreadScrollRewardTrigger { get; private set; }
+
+    [Header("Score Settings")]
+    [SerializeField] private int stealthKillAfterScrollScore = 100;
+
+    [Header("Ending Screen Multipliers")]
+    [SerializeField] private int enemyKillMultiplier = 100;
+    [SerializeField] private int scrollReadMultiplier = 50;
+
+    public int EnemyKillMultiplier => enemyKillMultiplier;
+    public int ScrollReadMultiplier => scrollReadMultiplier;
 
     private List<CollectedScrollData> collectedScrolls = new List<CollectedScrollData>();
-
     public IReadOnlyList<CollectedScrollData> CollectedScrolls => collectedScrolls;
 
     private void Awake()
     {
-        // Clear all PlayerPrefs for testing purposes
         //PlayerPrefs.DeleteAll();
         //PlayerPrefs.Save();
 
@@ -38,7 +54,7 @@ public class GameSceneManager : MonoBehaviour
         SceneManager.sceneLoaded += OnSceneLoaded;
         UpdateCurrentScene(SceneManager.GetActiveScene());
 
-        LoadScrollProgress();
+        LoadProgress();
     }
 
     private void OnDestroy()
@@ -161,6 +177,9 @@ public class GameSceneManager : MonoBehaviour
         PlayerPrefs.SetInt(GetScrollKey(scrollID), 1);
         PlayerPrefs.Save();
 
+        // Reading a NEW scroll arms the reward for the next successful stealth kill
+        HasUnreadScrollRewardTrigger = true;
+
         Debug.Log($"Registered scroll: {scrollID} | Total Read: {newCount}");
     }
 
@@ -192,13 +211,63 @@ public class GameSceneManager : MonoBehaviour
         RegisterReadScroll(scrollID);
     }
 
-    private void LoadScrollProgress()
+    // =========================
+    // Score / Kill System
+    // =========================
+
+    public void RegisterSuccessfulStealthKill()
+    {
+        StealthKillCount++;
+        PlayerPrefs.SetInt(StealthKillCountKey, StealthKillCount);
+        PlayerPrefs.Save();
+
+        Debug.Log("Successful stealth kill registered. Total: " + StealthKillCount);
+
+        if (!HasUnreadScrollRewardTrigger)
+        {
+            Debug.Log("No scroll reward trigger active. No score added.");
+            return;
+        }
+
+        AddScore(stealthKillAfterScrollScore);
+        HasUnreadScrollRewardTrigger = false;
+
+        Debug.Log($"Stealth kill after reading scroll! +{stealthKillAfterScrollScore} score");
+    }
+
+    public void AddScore(int amount)
+    {
+        if (amount <= 0) return;
+
+        int newScore = CurrentScore + amount;
+        PlayerPrefs.SetInt(ScoreKey, newScore);
+        PlayerPrefs.Save();
+
+        Debug.Log("Score updated: " + newScore);
+    }
+
+    public void ResetScore()
+    {
+        PlayerPrefs.SetInt(ScoreKey, 0);
+        StealthKillCount = 0;
+        PlayerPrefs.SetInt(StealthKillCountKey, 0);
+        PlayerPrefs.Save();
+
+        HasUnreadScrollRewardTrigger = false;
+
+        Debug.Log("Score reset.");
+    }
+
+    private void LoadProgress()
     {
         readScrollIDs.Clear();
+        HasUnreadScrollRewardTrigger = false;
 
-        // Optional rebuild from PlayerPrefs is not necessary if we check keys directly,
-        // but keeping HashSet useful for runtime fast checks.
+        StealthKillCount = PlayerPrefs.GetInt(StealthKillCountKey, 0);
+
         Debug.Log("Scroll progress loaded. Current count: " + ReadScrollCount);
+        Debug.Log("Current score: " + CurrentScore);
+        Debug.Log("Stealth kill count: " + StealthKillCount);
     }
 
     private string GetScrollKey(string scrollID)
@@ -222,8 +291,24 @@ public class GameSceneManager : MonoBehaviour
     {
         PlayerPrefs.SetInt(ScrollReadCountKey, 0);
         readScrollIDs.Clear();
+        HasUnreadScrollRewardTrigger = false;
         PlayerPrefs.Save();
 
         Debug.Log("All scroll progress reset.");
+    }
+
+    public void ResetAllProgress()
+    {
+        PlayerPrefs.SetInt(ScrollReadCountKey, 0);
+        PlayerPrefs.SetInt(ScoreKey, 0);
+        PlayerPrefs.SetInt(StealthKillCountKey, 0);
+        PlayerPrefs.Save();
+
+        readScrollIDs.Clear();
+        collectedScrolls.Clear();
+        HasUnreadScrollRewardTrigger = false;
+        StealthKillCount = 0;
+
+        Debug.Log("All game progress reset.");
     }
 }

@@ -21,6 +21,10 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private float holdMinTime = 0.4f;
     [SerializeField] private float holdMaxTime = 1.2f;
 
+    [Header("Attack Recovery")]
+    [SerializeField] private float lostPlayerSearchDuration = 1.5f;
+    [SerializeField] private bool searchBrieflyAfterAttackCancel = true;
+
     EnemyMovement movement;
     EnemyVision vision;
     EnemyStateMachine stateMachine;
@@ -126,12 +130,31 @@ public class EnemyAI : MonoBehaviour
         // STATE DECISION (PRIORITY)
         //----------------------------------
 
-        if (attack != null && attack.IsAttacking)
+        bool attackInProgress = attack != null && attack.IsAttacking;
+        bool canAttackNow = attack != null && attack.CanAttack();
+
+        bool shouldKeepAttackState = attackInProgress && canSeePlayer;
+        bool shouldStartAttack = canAttackNow && canSeePlayer;
+
+        if (shouldKeepAttackState)
         {
             LogAction("Decision -> Keep Attacking");
             stateMachine.SetState(EnemyStateMachine.EnemyState.Attack);
         }
-        else if (attack != null && attack.CanAttack() && canSeePlayer)
+        else if (attackInProgress && !canSeePlayer)
+        {
+            LogAction("Player lost during attack -> Cancel attack state");
+
+            if (searchBrieflyAfterAttackCancel)
+            {
+                EnterBriefSearch(player.position);
+            }
+            else
+            {
+                stateMachine.SetState(EnemyStateMachine.EnemyState.Patrol);
+            }
+        }
+        else if (shouldStartAttack)
         {
             LogAction("Decision -> Attack");
             stateMachine.SetState(EnemyStateMachine.EnemyState.Attack);
@@ -295,8 +318,21 @@ public class EnemyAI : MonoBehaviour
                 break;
 
             case EnemyStateMachine.EnemyState.Attack:
-                LogAction("Stopping to attack");
                 movement.Stop();
+
+                if (!canSeePlayer)
+                {
+                    LogAction("Attack state canceled: player out of range / not visible");
+
+                    if (searchBrieflyAfterAttackCancel)
+                        EnterBriefSearch(player.position);
+                    else
+                        stateMachine.SetState(EnemyStateMachine.EnemyState.Return);
+
+                    break;
+                }
+
+                LogAction("Stopping to attack");
 
                 if (attack != null && !attack.IsAttacking && attack.CanAttack())
                 {
@@ -447,6 +483,21 @@ public class EnemyAI : MonoBehaviour
         stateMachine.SetState(EnemyStateMachine.EnemyState.Search);
     }
 
+    void EnterBriefSearch(Vector3 target)
+    {
+        currentSearchTarget = target;
+        searchTimer = lostPlayerSearchDuration;
+        responseRole = GuardResponseRole.None;
+        holdTimer = 0f;
+
+        if (searchBehavior != null)
+            searchBehavior.ResetSearch();
+
+        Log($"ENTER BRIEF SEARCH -> target: {target}, duration: {lostPlayerSearchDuration:F2}");
+
+        stateMachine.SetState(EnemyStateMachine.EnemyState.Search);
+    }
+
     public bool CanBeStealthKilledFrom(Vector2 attackerPosition)
     {
         if (movement == null)
@@ -526,43 +577,43 @@ public class EnemyAI : MonoBehaviour
     // GIZMOS
     //----------------------------------
 
-    void OnDrawGizmos()
-    {
-        if (stateMachine == null) return;
+    //    void OnDrawGizmos()
+    //    {
+    //        if (stateMachine == null) return;
 
-#if UNITY_EDITOR
-        UnityEditor.Handles.Label(
-            transform.position + Vector3.up * 1.5f,
-            "STATE: " + stateMachine.currentState.ToString()
-        );
-#endif
+    //#if UNITY_EDITOR
+    //        UnityEditor.Handles.Label(
+    //            transform.position + Vector3.up * 1.5f,
+    //            "STATE: " + stateMachine.currentState.ToString()
+    //        );
+    //#endif
 
-        if (attack != null && attack.attackPoint != null)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(attack.attackPoint.position, attack.attackRange);
-        }
+    //        if (attack != null && attack.attackPoint != null)
+    //        {
+    //            Gizmos.color = Color.red;
+    //            Gizmos.DrawWireSphere(attack.attackPoint.position, attack.attackRange);
+    //        }
 
-        if (player != null)
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(transform.position, player.position);
-        }
+    //        if (player != null)
+    //        {
+    //            Gizmos.color = Color.yellow;
+    //            Gizmos.DrawLine(transform.position, player.position);
+    //        }
 
-        if (stateMachine.currentState == EnemyStateMachine.EnemyState.Search)
-        {
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawWireSphere(currentSearchTarget, 0.35f);
-            Gizmos.DrawLine(transform.position, currentSearchTarget);
-        }
+    //        if (stateMachine.currentState == EnemyStateMachine.EnemyState.Search)
+    //        {
+    //            Gizmos.color = Color.cyan;
+    //            Gizmos.DrawWireSphere(currentSearchTarget, 0.35f);
+    //            Gizmos.DrawLine(transform.position, currentSearchTarget);
+    //        }
 
-        if (bloodTracker != null && bloodTracker.HasBloodTarget())
-        {
-            Gizmos.color = Color.magenta;
-            Gizmos.DrawWireSphere(bloodTracker.GetBloodTargetPosition(), 0.25f);
-        }
+    //        if (bloodTracker != null && bloodTracker.HasBloodTarget())
+    //        {
+    //            Gizmos.color = Color.magenta;
+    //            Gizmos.DrawWireSphere(bloodTracker.GetBloodTargetPosition(), 0.25f);
+    //        }
 
-        Gizmos.color = new Color(0f, 0.7f, 1f, 0.35f);
-        Gizmos.DrawWireSphere(transform.position, allyAlertRadius);
-    }
+    //        Gizmos.color = new Color(0f, 0.7f, 1f, 0.35f);
+    //        Gizmos.DrawWireSphere(transform.position, allyAlertRadius);
+    //    }
 }

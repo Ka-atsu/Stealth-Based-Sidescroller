@@ -163,6 +163,11 @@ public class PlayerStealthStrike2D : MonoBehaviour
         {
             Log($"Destroying target: {target.name}");
             target.DieFromStealthStrike();
+
+            if (GameSceneManager.Instance != null)
+            {
+                GameSceneManager.Instance.RegisterSuccessfulStealthKill();
+            }
         }
     }
 
