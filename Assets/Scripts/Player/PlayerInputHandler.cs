@@ -9,11 +9,13 @@ public class PlayerInputHandler : MonoBehaviour
     PlayerGrappleHang2D grapple;
     PlayerSwing2D swing;
     PlayerInput playerInput;
+    PlayerAttackSlashSpawner slashSpawner;
 
     Vector2 mousePosition;
     Vector2 moveInput;
 
     bool sprintHeld;
+    bool useRoomCombatAttack;
     IInteractable currentInteractable;
 
     void Awake()
@@ -22,6 +24,7 @@ public class PlayerInputHandler : MonoBehaviour
         grapple = GetComponent<PlayerGrappleHang2D>();
         swing = GetComponent<PlayerSwing2D>();
         playerInput = GetComponent<PlayerInput>();
+        slashSpawner = GetComponent<PlayerAttackSlashSpawner>();
     }
 
     public void EnableControls()
@@ -53,6 +56,12 @@ public class PlayerInputHandler : MonoBehaviour
     {
         if (currentInteractable == interactable)
             currentInteractable = null;
+    }
+
+    public void SetRoomCombatAttackEnabled(bool value)
+    {
+        useRoomCombatAttack = value;
+        Debug.Log("Room combat attack mode: " + value, this);
     }
 
     public void OnInteract(InputValue value)
@@ -114,7 +123,16 @@ public class PlayerInputHandler : MonoBehaviour
     public void OnAttack(InputValue value)
     {
         if (!value.isPressed) return;
-        controller.TryStealthStrike();
+
+        if (useRoomCombatAttack)
+        {
+            if (slashSpawner != null)
+                slashSpawner.PerformAttack();
+        }
+        else
+        {
+            controller.TryStealthStrike();
+        }
     }
 
     public void OnLook(InputValue value)

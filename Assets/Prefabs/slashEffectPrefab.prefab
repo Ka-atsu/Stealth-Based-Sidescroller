@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2641299658854236462}
   - component: {fileID: 5690835945988409759}
   - component: {fileID: 334217023297225609}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: slashEffectPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -82,12 +82,12 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 50
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -6716218114370465885, guid: de4205ce8cc0d8548887ea31d5cc0062, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b70d6e534d9f43a4d9b2db07aa522404, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.75, y: 0.5}
+  m_Size: {x: 4, y: 3.625}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
