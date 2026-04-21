@@ -80721,6 +80721,10 @@ PrefabInstance:
       propertyPath: audioSource
       value: 
       objectReference: {fileID: 793480087}
+    - target: {fileID: 1108577097183701122, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
+      propertyPath: stealthSlashSfx
+      value: 
+      objectReference: {fileID: 8300000, guid: 870f4772cd5b85c41995fd8fd6a41764, type: 3}
     - target: {fileID: 1573776456866776452, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2.4
