@@ -1,40 +1,53 @@
-﻿using UnityEngine;
-using UnityEngine.InputSystem;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class PlayerAttackSlashSpawner : MonoBehaviour
 {
-    [Header("References")]
+    [Header("Visual")]
     [SerializeField] private GameObject slashEffectPrefab;
     [SerializeField] private Transform slashSpawnPoint;
+    [SerializeField] private Vector2 slashOffset = new Vector2(1f, 0.4f);
+
+    [Header("Damage")]
+    [SerializeField] private Transform attackPoint;
+    [SerializeField] private Vector2 attackOffset = new Vector2(1.2f, 0.5f);
+    [SerializeField] private Vector2 attackBoxSize = new Vector2(1.8f, 1.4f);
+    [SerializeField] private LayerMask enemyLayer;
+    [SerializeField] private int damage = 1;
+
+    [Header("References")]
     [SerializeField] private PlayerController2D playerController;
 
-    [Header("Input")]
-    [SerializeField] private InputActionReference attackAction;
-
-    [Header("Fallback Offset")]
-    [SerializeField] private Vector3 slashOffset = new Vector3(1f, 0.4f, 0f);
-
-    private void OnEnable()
+    private float GetFacingSign()
     {
-        if (attackAction != null && attackAction.action != null)
-        {
-            attackAction.action.performed += OnAttackPerformed;
-            attackAction.action.Enable();
-        }
+        if (playerController == null)
+            return 1f;
+
+        return playerController.FacingSign >= 0f ? 1f : -1f;
     }
 
-    private void OnDisable()
+    private Vector3 GetMirroredWorldPoint(Transform point, Vector2 fallbackOffset)
     {
-        if (attackAction != null && attackAction.action != null)
+        float facingSign = GetFacingSign();
+
+        if (point != null)
         {
-            attackAction.action.performed -= OnAttackPerformed;
-            attackAction.action.Disable();
+            Vector3 local = point.localPosition;
+            local.x = Mathf.Abs(local.x) * facingSign;
+            return transform.TransformPoint(local);
         }
+
+        return transform.position + new Vector3(
+            Mathf.Abs(fallbackOffset.x) * facingSign,
+            fallbackOffset.y,
+            0f
+        );
     }
 
-    private void OnAttackPerformed(InputAction.CallbackContext context)
+    public void PerformAttack()
     {
         SpawnSlash();
+        DoDamage();
     }
 
     public void SpawnSlash()
@@ -45,27 +58,10 @@ public class PlayerAttackSlashSpawner : MonoBehaviour
             return;
         }
 
-        bool facingRight = true;
+        float facingSign = GetFacingSign();
+        bool facingRight = facingSign > 0f;
 
-        if (playerController != null)
-            facingRight = playerController.FacingSign >= 0f;
-
-        Vector3 spawnPosition;
-
-        if (slashSpawnPoint != null)
-        {
-            spawnPosition = slashSpawnPoint.position;
-        }
-        else
-        {
-            float facingSign = facingRight ? 1f : -1f;
-            spawnPosition = transform.position + new Vector3(
-                slashOffset.x * facingSign,
-                slashOffset.y,
-                0f
-            );
-        }
-
+        Vector3 spawnPosition = GetMirroredWorldPoint(slashSpawnPoint, slashOffset);
         spawnPosition.z = 0f;
 
         Quaternion rotation = facingRight
@@ -74,10 +70,60 @@ public class PlayerAttackSlashSpawner : MonoBehaviour
 
         GameObject slash = Instantiate(slashEffectPrefab, spawnPosition, rotation);
 
-        PlayerSlashEffect effect = slash.GetComponent<PlayerSlashEffect>();
+        PlayerSlashHitEffect effect = slash.GetComponent<PlayerSlashHitEffect>();
         if (effect != null)
             effect.SetFacing(facingRight);
 
-        Debug.Log("Slash spawned", this);
+        Debug.Log($"Slash spawned at {spawnPosition} | facing={(facingRight ? "Right" : "Left")}", this);
+    }
+
+    private void DoDamage()
+    {
+        Vector2 center = GetMirroredWorldPoint(attackPoint, attackOffset);
+        Collider2D[] hits = Physics2D.OverlapBoxAll(center, attackBoxSize, 0f, enemyLayer);
+
+        HashSet<BossAI2D> damagedBosses = new HashSet<BossAI2D>();
+
+        foreach (Collider2D hit in hits)
+        {
+            BossAI2D boss = hit.GetComponentInParent<BossAI2D>();
+            if (boss == null)
+                continue;
+
+            if (damagedBosses.Contains(boss))
+                continue;
+
+            damagedBosses.Add(boss);
+            boss.TakeDamage(damage);
+
+            Debug.Log($"Hit boss {boss.name} for {damage} damage.", boss);
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.cyan;
+
+        float facingSign = 1f;
+        if (playerController != null)
+            facingSign = playerController.FacingSign >= 0f ? 1f : -1f;
+
+        Vector2 center;
+
+        if (attackPoint != null)
+        {
+            Vector3 local = attackPoint.localPosition;
+            local.x = Mathf.Abs(local.x) * facingSign;
+            center = transform.TransformPoint(local);
+        }
+        else
+        {
+            center = (Vector2)transform.position + new Vector2(
+                Mathf.Abs(attackOffset.x) * facingSign,
+                attackOffset.y
+            );
+        }
+
+        Gizmos.DrawWireCube(center, attackBoxSize);
     }
 }

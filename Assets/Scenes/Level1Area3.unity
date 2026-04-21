@@ -21742,7 +21742,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!212 &146125066
 SpriteRenderer:
   serializedVersion: 2
@@ -21831,7 +21831,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossAI2D
   rb: {fileID: 146125070}
-  animator: {fileID: 146125071}
   player: {fileID: 380656105}
   attackPoint: {fileID: 344587937}
   maxHealth: 20
@@ -21931,7 +21930,7 @@ Animator:
   m_GameObject: {fileID: 146125065}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: f8fbeed930415a646b406f13cc1eb00f, type: 2}
+  m_Controller: {fileID: 0}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -22640,6 +22639,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1108577097183701122, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1108577097183701122, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
       propertyPath: audioSource
       value: 
       objectReference: {fileID: 1098826260}
@@ -22687,6 +22690,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 3665174223037552514, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5799450304446670463, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
+      propertyPath: damage
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5799450304446670463, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
+      propertyPath: attackPoint
+      value: 
+      objectReference: {fileID: 1524346825}
     - target: {fileID: 5799450304446670463, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
       propertyPath: attackAction
       value: 
@@ -22696,6 +22711,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 660009636}
     - target: {fileID: 5799450304446670463, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
+      propertyPath: enemyLayer.m_Bits
+      value: 256
+      objectReference: {fileID: 0}
+    - target: {fileID: 5799450304446670463, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
       propertyPath: slashEffectPrefab
       value: 
       objectReference: {fileID: 584388588817763432, guid: 826b296624ec6924a98c441963f0a368, type: 3}
@@ -22703,6 +22722,9 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1953079808524718435, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1646134653}
     - targetCorrespondingSourceObject: {fileID: 9178485113487735090, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
       insertIndex: -1
       addedObject: {fileID: 0}
@@ -23653,6 +23675,97 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &583594265
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 583594267}
+  - component: {fileID: 583594266}
+  - component: {fileID: 583594268}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!61 &583594266
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 583594265}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 1.8109484, y: 0.4594941}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 58.89624, y: 10.892636}
+  m_EdgeRadius: 0
+--- !u!4 &583594267
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 583594265}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 12.15, y: -19.88, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &583594268
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 583594265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b6282c0dcc93ea43bebb29a32f9501a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomCombatAttackZone
 --- !u!1 &601763810
 GameObject:
   m_ObjectHideFlags: 0
@@ -23915,7 +24028,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5522325309030649293, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
   m_PrefabInstance: {fileID: 380656101}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1646134629}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e268ca0b45fdb024b8be930e70ee69a1, type: 3}
@@ -47199,6 +47312,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1503344859}
   m_CullTransparentMesh: 1
+--- !u!4 &1524346825 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3975166123185948867, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
+  m_PrefabInstance: {fileID: 380656101}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1546511418
 GameObject:
   m_ObjectHideFlags: 0
@@ -47565,6 +47683,31 @@ Transform:
   - {fileID: 1281890714}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1646134629 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1953079808524718435, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
+  m_PrefabInstance: {fileID: 380656101}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1646134653
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1646134629}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1cb22f458ac87d247902fc770890befe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSlashHitEffect
+  damage: 5
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  hitEffectPrefab: {fileID: 8180662637224241094, guid: d5315f9c82d38f04aa1af2180353d45f, type: 3}
+  hitEffectOffset: {x: 0, y: 0, z: 0}
+  destroySlashOnHit: 0
+  debugLogs: 0
 --- !u!1 &1647756294
 GameObject:
   m_ObjectHideFlags: 0
@@ -48694,7 +48837,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2030373835}
   - component: {fileID: 2030373834}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: CameraBounds
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -83197,3 +83340,4 @@ SceneRoots:
   - {fileID: 1004405631}
   - {fileID: 146125067}
   - {fileID: 601763812}
+  - {fileID: 583594267}

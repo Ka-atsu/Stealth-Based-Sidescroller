@@ -15,7 +15,6 @@ public class BossAI2D : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private Rigidbody2D rb;
-    [SerializeField] private Animator animator;
     [SerializeField] private Transform player;
     [SerializeField] private Transform attackPoint;
 
@@ -53,16 +52,12 @@ public class BossAI2D : MonoBehaviour
     private void Reset()
     {
         rb = GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>();
     }
 
     private void Awake()
     {
         if (rb == null)
             rb = GetComponent<Rigidbody2D>();
-
-        if (animator == null)
-            animator = GetComponent<Animator>();
 
         currentHealth = maxHealth;
 
@@ -85,7 +80,6 @@ public class BossAI2D : MonoBehaviour
             return;
 
         UpdateStateLogic();
-        UpdateAnimator();
     }
 
     private void FixedUpdate()
@@ -347,16 +341,6 @@ public class BossAI2D : MonoBehaviour
 
         currentState = newState;
         Log("State -> " + currentState);
-    }
-
-    private void UpdateAnimator()
-    {
-        if (animator == null)
-            return;
-
-        animator.SetInteger("State", (int)currentState);
-        animator.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
-        animator.SetBool("Dead", currentState == BossState.Dead);
     }
 
     private void Log(string message)
