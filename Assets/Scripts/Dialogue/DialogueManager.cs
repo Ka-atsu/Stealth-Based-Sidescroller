@@ -52,7 +52,7 @@ public class DialogueManager : MonoBehaviour
         //Changing the name of the "continue" button to "exit"
         if(lines.Count == 1)
         {
-            buttonName.text = "Exit";
+            buttonName.text = "";
         }
 
         DialogueLine currentLine = lines.Dequeue();
