@@ -635,6 +635,7 @@ MonoBehaviour:
   knockbackForceY: 4
   shakeMagnitude: 1.2
   deadLayerName: DeadPlayer
+  fallbackReloadDelay: 1.5
 --- !u!114 &8382768597663340534
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -737,7 +738,7 @@ DistanceJoint2D:
   m_Anchor: {x: 0, y: 0}
   m_ConnectedAnchor: {x: 0, y: 0}
   m_AutoConfigureDistance: 1
-  m_Distance: 52.55387
+  m_Distance: 51.421455
   m_MaxDistanceOnly: 0
 --- !u!120 &3429327519159587753
 LineRenderer:
@@ -1039,8 +1040,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAttackSlashSpawner
   slashEffectPrefab: {fileID: 0}
   slashSpawnPoint: {fileID: 3975166123185948867}
+  slashOffset: {x: 1, y: 0.4}
+  attackPoint: {fileID: 0}
+  attackOffset: {x: 1.2, y: 0.5}
+  attackBoxSize: {x: 1.8, y: 1.4}
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  damage: 1
   playerController: {fileID: 0}
-  slashOffset: {x: 1, y: 0.4, z: 0}
 --- !u!1 &2289057335233337255
 GameObject:
   m_ObjectHideFlags: 0

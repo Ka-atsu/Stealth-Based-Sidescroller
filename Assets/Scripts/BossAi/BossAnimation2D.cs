@@ -13,11 +13,13 @@ public class BossAnimation2D : MonoBehaviour
     [SerializeField] private string isMovingParam = "IsMoving";
     [SerializeField] private string isDeadParam = "IsDead";
     [SerializeField] private string attackTrigger = "Attack";
+    [SerializeField] private string rangedAttackTrigger = "RangedAttack";
     [SerializeField] private string hurtTrigger = "Hurt";
     [SerializeField] private string dieTrigger = "Die";
 
     [Header("Settings")]
     [SerializeField] private float moveThreshold = 0.01f;
+    [SerializeField] private bool useSeparateRangedTrigger = true;
     [SerializeField] private bool debugLogs = false;
 
     private void Reset()
@@ -102,12 +104,24 @@ public class BossAnimation2D : MonoBehaviour
             case BossAI2D.BossState.Attack:
                 animator.ResetTrigger(hurtTrigger);
                 animator.ResetTrigger(dieTrigger);
-                animator.SetTrigger(attackTrigger);
-                Log("Trigger Attack");
+
+                if (useSeparateRangedTrigger && bossAI.CurrentAttackMode == BossAI2D.AttackMode.Ranged)
+                {
+                    animator.ResetTrigger(attackTrigger);
+                    animator.SetTrigger(rangedAttackTrigger);
+                    Log("Trigger RangedAttack");
+                }
+                else
+                {
+                    animator.ResetTrigger(rangedAttackTrigger);
+                    animator.SetTrigger(attackTrigger);
+                    Log("Trigger Attack");
+                }
                 break;
 
             case BossAI2D.BossState.Hurt:
                 animator.ResetTrigger(attackTrigger);
+                animator.ResetTrigger(rangedAttackTrigger);
                 animator.ResetTrigger(dieTrigger);
                 animator.SetTrigger(hurtTrigger);
                 Log("Trigger Hurt");
@@ -115,6 +129,7 @@ public class BossAnimation2D : MonoBehaviour
 
             case BossAI2D.BossState.Dead:
                 animator.ResetTrigger(attackTrigger);
+                animator.ResetTrigger(rangedAttackTrigger);
                 animator.ResetTrigger(hurtTrigger);
                 animator.SetTrigger(dieTrigger);
                 Log("Trigger Die");
@@ -122,7 +137,6 @@ public class BossAnimation2D : MonoBehaviour
         }
     }
 
-    // Put this on the exact attack impact frame in the Attack clip
     public void Animation_AttackHit()
     {
         if (bossAI == null)
@@ -132,7 +146,6 @@ public class BossAnimation2D : MonoBehaviour
         Log("Animation Event -> AttackHit");
     }
 
-    // Put this on the last frame of the Attack clip
     public void Animation_AttackFinished()
     {
         if (bossAI == null)

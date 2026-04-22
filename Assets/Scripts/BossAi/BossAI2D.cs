@@ -13,26 +13,47 @@ public class BossAI2D : MonoBehaviour
         Dead
     }
 
+    public enum AttackMode
+    {
+        None,
+        Melee,
+        Ranged
+    }
+
     [Header("References")]
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private Transform player;
     [SerializeField] private Transform attackPoint;
+    [SerializeField] private Transform rangedSpawnPoint;
     [SerializeField] private BossHitVFXSpawner2D hitVFXSpawner;
 
     [Header("Stats")]
     [SerializeField] private int maxHealth = 20;
     [SerializeField] private float moveSpeed = 3f;
 
-    [Header("Box Detection")]
-    [SerializeField] private Vector2 detectionBoxSize = new Vector2(8f, 4f);
-    [SerializeField] private Vector2 detectionBoxOffset = new Vector2(4f, 0f);
+    [Header("Detection")]
+    [SerializeField] private Vector2 detectionBoxSize = new Vector2(10f, 5f);
+    [SerializeField] private Vector2 detectionBoxOffset = new Vector2(5f, 0f);
     [SerializeField] private LayerMask playerLayer;
 
-    [Header("Attack")]
+    [Header("Melee Attack")]
     [SerializeField] private Vector2 attackBoxSize = new Vector2(2f, 2f);
     [SerializeField] private Vector2 attackBoxOffset = new Vector2(1.5f, 0f);
     [SerializeField] private int contactDamage = 1;
-    [SerializeField] private float attackCooldown = 1.5f;
+    [SerializeField] private float meleeCooldown = 1.25f;
+
+    [Header("Ranged Attack")]
+    [SerializeField] private bool enableRangedAttack = true;
+    [SerializeField] private GameObject rangedProjectilePrefab;
+    [SerializeField] private float rangedMinDistance = 3f;
+    [SerializeField] private float rangedMaxDistance = 9f;
+    [SerializeField] private int rangedDamage = 1;
+    [SerializeField] private float rangedProjectileSpeed = 9f;
+    [SerializeField] private float rangedImpactRadius = 0.8f;
+    [SerializeField] private float rangedCooldown = 2f;
+    [SerializeField] private Vector2 rangedSpawnOffset = new Vector2(1.5f, 0.4f);
+
+    [Header("Attack Timing")]
     [SerializeField] private float attackAnimationTimeout = 1.2f;
 
     [Header("Hurt")]
@@ -42,18 +63,29 @@ public class BossAI2D : MonoBehaviour
     [SerializeField] private bool debugLogs = true;
 
     private BossState currentState;
+    private AttackMode currentAttackMode = AttackMode.None;
+
     private int currentHealth;
     private bool isFacingRight = true;
     private bool canAttack = true;
     private bool isBusy;
-    private bool hasDealtDamageThisAttack;
     private bool attackAnimationFinished;
+    private bool hasDealtDamageThisAttack;
+
+    private Vector2 lastKnownPlayerPosition;
+    private bool hasLastKnownPlayerPosition;
+    private Vector2 queuedRangedTargetPosition;
+
+    private Coroutine attackRoutine;
+    private Coroutine hurtRoutine;
 
     public int CurrentHealth => currentHealth;
     public int MaxHealth => maxHealth;
     public float HealthNormalized => maxHealth > 0 ? (float)currentHealth / maxHealth : 0f;
 
     public BossState CurrentState => currentState;
+    public AttackMode CurrentAttackMode => currentAttackMode;
+
     public event System.Action<BossState> OnStateChanged;
 
     private void Reset()
@@ -77,6 +109,12 @@ public class BossAI2D : MonoBehaviour
             GameObject foundPlayer = GameObject.FindGameObjectWithTag("Player");
             if (foundPlayer != null)
                 player = foundPlayer.transform;
+        }
+
+        if (player != null)
+        {
+            lastKnownPlayerPosition = player.position;
+            hasLastKnownPlayerPosition = true;
         }
 
         ChangeState(BossState.Idle);
@@ -120,7 +158,15 @@ public class BossAI2D : MonoBehaviour
             return;
 
         bool canSeePlayer = IsPlayerInsideDetectionBox();
-        bool inAttackRange = IsPlayerInsideAttackBox();
+
+        if (canSeePlayer && player != null)
+        {
+            lastKnownPlayerPosition = player.position;
+            hasLastKnownPlayerPosition = true;
+        }
+
+        bool inMeleeRange = IsPlayerInsideAttackBox();
+        bool canUseRanged = CanUseRangedAttack(canSeePlayer, inMeleeRange);
 
         switch (currentState)
         {
@@ -136,9 +182,13 @@ public class BossAI2D : MonoBehaviour
                 {
                     ChangeState(BossState.Idle);
                 }
-                else if (inAttackRange && canAttack)
+                else if (inMeleeRange && canAttack)
                 {
-                    StartCoroutine(AttackRoutine());
+                    StartAttack(AttackMode.Melee);
+                }
+                else if (canUseRanged && canAttack)
+                {
+                    StartAttack(AttackMode.Ranged);
                 }
                 break;
 
@@ -146,15 +196,44 @@ public class BossAI2D : MonoBehaviour
                 break;
 
             case BossState.Cooldown:
-                if (canSeePlayer && !inAttackRange)
-                    ChangeState(BossState.Chase);
-                else if (!canSeePlayer)
+                if (!canSeePlayer)
                     ChangeState(BossState.Idle);
+                else if (!isBusy)
+                    ChangeState(BossState.Chase);
                 break;
 
             case BossState.Hurt:
                 break;
         }
+    }
+
+    private void StartAttack(AttackMode mode)
+    {
+        if (attackRoutine != null)
+            return;
+
+        attackRoutine = StartCoroutine(AttackRoutine(mode));
+    }
+
+    private bool CanUseRangedAttack(bool canSeePlayer, bool inMeleeRange)
+    {
+        if (!enableRangedAttack)
+            return false;
+
+        if (rangedProjectilePrefab == null)
+            return false;
+
+        if (!canSeePlayer)
+            return false;
+
+        if (inMeleeRange)
+            return false;
+
+        if (player == null)
+            return false;
+
+        float distance = Mathf.Abs(player.position.x - transform.position.x);
+        return distance >= rangedMinDistance && distance <= rangedMaxDistance;
     }
 
     private void ChasePlayer()
@@ -166,20 +245,33 @@ public class BossAI2D : MonoBehaviour
         rb.linearVelocity = new Vector2(direction * moveSpeed, rb.linearVelocity.y);
     }
 
-    private IEnumerator AttackRoutine()
+    private IEnumerator AttackRoutine(AttackMode mode)
     {
         isBusy = true;
         canAttack = false;
-        hasDealtDamageThisAttack = false;
         attackAnimationFinished = false;
-
-        ChangeState(BossState.Attack);
+        hasDealtDamageThisAttack = false;
+        currentAttackMode = mode;
 
         if (rb != null)
             rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
 
-        FacePlayer();
-        Log("Boss attack started");
+        if (mode == AttackMode.Ranged)
+        {
+            queuedRangedTargetPosition = hasLastKnownPlayerPosition
+                ? lastKnownPlayerPosition
+                : (player != null ? (Vector2)player.position : (Vector2)transform.position);
+
+            FaceTarget(queuedRangedTargetPosition);
+            Log("Attack mode = Ranged | Target = " + queuedRangedTargetPosition);
+        }
+        else
+        {
+            FacePlayer();
+            Log("Attack mode = Melee");
+        }
+
+        ChangeState(BossState.Attack);
 
         float timer = 0f;
 
@@ -190,17 +282,26 @@ public class BossAI2D : MonoBehaviour
         }
 
         if (currentState == BossState.Dead)
+        {
+            attackRoutine = null;
             yield break;
+        }
 
         ChangeState(BossState.Cooldown);
 
-        yield return new WaitForSeconds(attackCooldown);
-
-        canAttack = true;
-        isBusy = false;
+        float cooldown = mode == AttackMode.Ranged ? rangedCooldown : meleeCooldown;
+        yield return new WaitForSeconds(cooldown);
 
         if (currentState == BossState.Dead)
+        {
+            attackRoutine = null;
             yield break;
+        }
+
+        currentAttackMode = AttackMode.None;
+        canAttack = true;
+        isBusy = false;
+        attackRoutine = null;
 
         if (IsPlayerInsideDetectionBox())
             ChangeState(BossState.Chase);
@@ -213,7 +314,14 @@ public class BossAI2D : MonoBehaviour
         if (currentState != BossState.Attack)
             return;
 
-        DealDamageToPlayer();
+        if (currentAttackMode == AttackMode.Melee)
+        {
+            DealDamageToPlayer();
+        }
+        else if (currentAttackMode == AttackMode.Ranged)
+        {
+            FireRangedProjectile();
+        }
     }
 
     public void OnAttackAnimationFinished()
@@ -225,27 +333,21 @@ public class BossAI2D : MonoBehaviour
         Log("Attack animation finished");
     }
 
-    public void DealDamageToPlayer()
+    private void DealDamageToPlayer()
     {
         if (hasDealtDamageThisAttack)
             return;
 
-        if (player == null)
-        {
-            Debug.LogWarning("BossAI2D: player is null");
-            return;
-        }
-
         Collider2D hit = Physics2D.OverlapBox(GetAttackBoxCenter(), attackBoxSize, 0f, playerLayer);
         if (hit == null)
         {
-            Log("Boss attack missed: no player in attack box");
+            Log("Melee missed");
             return;
         }
 
         PlayerHealth playerHealth = hit.GetComponentInParent<PlayerHealth>();
         if (playerHealth == null)
-            playerHealth = player.GetComponent<PlayerHealth>();
+            playerHealth = hit.GetComponent<PlayerHealth>();
 
         if (playerHealth == null)
         {
@@ -259,7 +361,45 @@ public class BossAI2D : MonoBehaviour
         if (hitVFXSpawner != null)
             hitVFXSpawner.SpawnHitEffect(hit.transform.position);
 
-        Log("Boss dealt damage to player");
+        Log("Boss dealt melee damage");
+    }
+
+    private void FireRangedProjectile()
+    {
+        if (hasDealtDamageThisAttack)
+            return;
+
+        if (rangedProjectilePrefab == null)
+        {
+            Debug.LogWarning("BossAI2D: rangedProjectilePrefab is missing", this);
+            return;
+        }
+
+        Vector2 spawnPosition = GetRangedSpawnPosition();
+        GameObject projectileObject = Instantiate(rangedProjectilePrefab, spawnPosition, Quaternion.identity);
+
+        BossTargetProjectile2D projectile = projectileObject.GetComponent<BossTargetProjectile2D>();
+        if (projectile == null)
+            projectile = projectileObject.GetComponentInChildren<BossTargetProjectile2D>();
+
+        if (projectile == null)
+        {
+            Debug.LogWarning("BossAI2D: ranged projectile prefab needs BossTargetProjectile2D on root or child", projectileObject);
+            Destroy(projectileObject);
+            return;
+        }
+
+        projectile.Initialize(
+            queuedRangedTargetPosition,
+            rangedDamage,
+            rangedProjectileSpeed,
+            rangedImpactRadius,
+            playerLayer,
+            transform.position
+        );
+
+        hasDealtDamageThisAttack = true;
+        Log("Boss fired ranged projectile");
     }
 
     public void TakeDamage(int damage)
@@ -278,7 +418,12 @@ public class BossAI2D : MonoBehaviour
             return;
         }
 
-        StartCoroutine(HurtRoutine());
+        InterruptCurrentAction();
+
+        if (hurtRoutine != null)
+            StopCoroutine(hurtRoutine);
+
+        hurtRoutine = StartCoroutine(HurtRoutine());
     }
 
     private IEnumerator HurtRoutine()
@@ -294,6 +439,7 @@ public class BossAI2D : MonoBehaviour
 
         yield return new WaitForSeconds(hurtDuration);
 
+        hurtRoutine = null;
         isBusy = false;
 
         if (currentState == BossState.Dead)
@@ -305,8 +451,25 @@ public class BossAI2D : MonoBehaviour
             ChangeState(BossState.Idle);
     }
 
+    private void InterruptCurrentAction()
+    {
+        if (attackRoutine != null)
+        {
+            StopCoroutine(attackRoutine);
+            attackRoutine = null;
+        }
+
+        attackAnimationFinished = false;
+        hasDealtDamageThisAttack = false;
+        currentAttackMode = AttackMode.None;
+        canAttack = true;
+        isBusy = false;
+    }
+
     private void Die()
     {
+        InterruptCurrentAction();
+
         isBusy = true;
         ChangeState(BossState.Dead);
 
@@ -358,14 +521,31 @@ public class BossAI2D : MonoBehaviour
         );
     }
 
+    private Vector2 GetRangedSpawnPosition()
+    {
+        if (rangedSpawnPoint != null)
+            return rangedSpawnPoint.position;
+
+        float facingSign = isFacingRight ? 1f : -1f;
+        return (Vector2)transform.position + new Vector2(
+            rangedSpawnOffset.x * facingSign,
+            rangedSpawnOffset.y
+        );
+    }
+
     private void FacePlayer()
     {
         if (player == null)
             return;
 
-        if (player.position.x > transform.position.x && !isFacingRight)
+        FaceTarget(player.position);
+    }
+
+    private void FaceTarget(Vector2 targetPosition)
+    {
+        if (targetPosition.x > transform.position.x && !isFacingRight)
             Flip();
-        else if (player.position.x < transform.position.x && isFacingRight)
+        else if (targetPosition.x < transform.position.x && isFacingRight)
             Flip();
     }
 
@@ -385,7 +565,6 @@ public class BossAI2D : MonoBehaviour
 
         currentState = newState;
         OnStateChanged?.Invoke(currentState);
-
         Log("State -> " + currentState);
     }
 
@@ -401,13 +580,11 @@ public class BossAI2D : MonoBehaviour
     {
         float facingSign = isFacingRight ? 1f : -1f;
 
-        Vector2 boxCenter = (Vector2)transform.position + new Vector2(
-            detectionBoxOffset.x * facingSign,
-            detectionBoxOffset.y
-        );
-
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireCube(boxCenter, detectionBoxSize);
+        Gizmos.DrawWireCube(
+            (Vector2)transform.position + new Vector2(detectionBoxOffset.x * facingSign, detectionBoxOffset.y),
+            detectionBoxSize
+        );
 
         Gizmos.color = Color.red;
         Gizmos.DrawWireCube(
@@ -416,5 +593,18 @@ public class BossAI2D : MonoBehaviour
                 : (Vector2)transform.position + new Vector2(attackBoxOffset.x * facingSign, attackBoxOffset.y),
             attackBoxSize
         );
+
+        if (enableRangedAttack)
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(transform.position, rangedMinDistance);
+            Gizmos.DrawWireSphere(transform.position, rangedMaxDistance);
+
+            if (Application.isPlaying)
+            {
+                Gizmos.color = Color.magenta;
+                Gizmos.DrawWireSphere(lastKnownPlayerPosition, 0.2f);
+            }
+        }
     }
 }

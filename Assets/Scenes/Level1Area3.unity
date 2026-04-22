@@ -21732,11 +21732,11 @@ GameObject:
   m_Component:
   - component: {fileID: 146125067}
   - component: {fileID: 146125066}
+  - component: {fileID: 146125069}
+  - component: {fileID: 146125070}
+  - component: {fileID: 146125071}
   - component: {fileID: 146125068}
   - component: {fileID: 146125072}
-  - component: {fileID: 146125070}
-  - component: {fileID: 146125069}
-  - component: {fileID: 146125071}
   - component: {fileID: 146125073}
   m_Layer: 8
   m_Name: Boss
@@ -21835,6 +21835,7 @@ MonoBehaviour:
   rb: {fileID: 146125070}
   player: {fileID: 380656105}
   attackPoint: {fileID: 344587937}
+  rangedSpawnPoint: {fileID: 344587937}
   hitVFXSpawner: {fileID: 146125073}
   maxHealth: 20
   moveSpeed: 3
@@ -21846,7 +21847,16 @@ MonoBehaviour:
   attackBoxSize: {x: 2, y: 2}
   attackBoxOffset: {x: 1.5, y: 0}
   contactDamage: 1
-  attackCooldown: 1.5
+  meleeCooldown: 1.25
+  enableRangedAttack: 1
+  rangedProjectilePrefab: {fileID: 1608016327368511092, guid: daf9ad41dc9b57a4b80cd51432ceff2b, type: 3}
+  rangedMinDistance: 3
+  rangedMaxDistance: 9
+  rangedDamage: 1
+  rangedProjectileSpeed: 9
+  rangedImpactRadius: 0.85
+  rangedCooldown: 2
+  rangedSpawnOffset: {x: 1.5, y: 0.35}
   attackAnimationTimeout: 1.2
   hurtDuration: 0.35
   debugLogs: 1
@@ -21964,9 +21974,11 @@ MonoBehaviour:
   isMovingParam: IsMoving
   isDeadParam: IsDead
   attackTrigger: Attack
+  rangedAttackTrigger: RangedAttack
   hurtTrigger: Hurt
   dieTrigger: Die
   moveThreshold: 0.05
+  useSeparateRangedTrigger: 1
   debugLogs: 0
 --- !u!114 &146125073
 MonoBehaviour:
@@ -22687,13 +22699,9 @@ PrefabInstance:
       value: 52.680805
       objectReference: {fileID: 0}
     - target: {fileID: 1108577097183701122, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1108577097183701122, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
       propertyPath: audioSource
       value: 
-      objectReference: {fileID: 1098826260}
+      objectReference: {fileID: 1638554614}
     - target: {fileID: 1573776456866776452, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
       propertyPath: m_LocalPosition.x
       value: -51.73
@@ -22738,41 +22746,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    - target: {fileID: 3665174223037552514, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-      propertyPath: m_IsTrigger
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5799450304446670463, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-      propertyPath: damage
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 5799450304446670463, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-      propertyPath: attackPoint
-      value: 
-      objectReference: {fileID: 1524346825}
-    - target: {fileID: 5799450304446670463, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-      propertyPath: attackAction
-      value: 
-      objectReference: {fileID: 1120369429361536294, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
-    - target: {fileID: 5799450304446670463, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-      propertyPath: playerController
-      value: 
-      objectReference: {fileID: 660009636}
-    - target: {fileID: 5799450304446670463, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-      propertyPath: enemyLayer.m_Bits
-      value: 256
-      objectReference: {fileID: 0}
-    - target: {fileID: 5799450304446670463, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-      propertyPath: slashEffectPrefab
-      value: 
-      objectReference: {fileID: 584388588817763432, guid: 826b296624ec6924a98c441963f0a368, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1953079808524718435, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1646134653}
     - targetCorrespondingSourceObject: {fileID: 9178485113487735090, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
       insertIndex: -1
       addedObject: {fileID: 0}
@@ -24071,17 +24048,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 640265478}
   m_CullTransparentMesh: 1
---- !u!114 &660009636 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5522325309030649293, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-  m_PrefabInstance: {fileID: 380656101}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1646134629}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e268ca0b45fdb024b8be930e70ee69a1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerController2D
 --- !u!1 &684225641
 GameObject:
   m_ObjectHideFlags: 0
@@ -47368,11 +47334,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1503344859}
   m_CullTransparentMesh: 1
---- !u!4 &1524346825 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 3975166123185948867, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-  m_PrefabInstance: {fileID: 380656101}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1546511418
 GameObject:
   m_ObjectHideFlags: 0
@@ -47739,31 +47700,6 @@ Transform:
   - {fileID: 1281890714}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1646134629 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1953079808524718435, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
-  m_PrefabInstance: {fileID: 380656101}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1646134653
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1646134629}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1cb22f458ac87d247902fc770890befe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerSlashHitEffect
-  damage: 5
-  enemyLayer:
-    serializedVersion: 2
-    m_Bits: 256
-  hitEffectPrefab: {fileID: 8180662637224241094, guid: d5315f9c82d38f04aa1af2180353d45f, type: 3}
-  hitEffectOffset: {x: 0, y: 0, z: 0}
-  destroySlashOnHit: 0
-  debugLogs: 0
 --- !u!1 &1647756294
 GameObject:
   m_ObjectHideFlags: 0

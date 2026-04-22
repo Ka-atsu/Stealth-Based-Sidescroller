@@ -379,6 +379,8 @@ MonoBehaviour:
   allyAlertRadius: 6
   holdMinTime: 0.4
   holdMaxTime: 1.2
+  lostPlayerSearchDuration: 1.5
+  searchBrieflyAfterAttackCancel: 1
   searchDuration: 5
 --- !u!114 &6593923808583365865
 MonoBehaviour:
@@ -430,10 +432,10 @@ MonoBehaviour:
   visionMask:
     serializedVersion: 2
     m_Bits: 72
-  detectionBuildSpeed: 0.5
+  detectionBuildSpeed: 0.9
   detectionDecaySpeed: 0.6
   suspicionThreshold: 0.35
-  closeVisionFullSpeedRange: 1.5
+  closeVisionFullSpeedRange: 1.9
   detectionUI: {fileID: 0}
 --- !u!114 &658540273869113938
 MonoBehaviour:
