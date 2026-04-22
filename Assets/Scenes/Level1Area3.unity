@@ -21733,9 +21733,11 @@ GameObject:
   - component: {fileID: 146125067}
   - component: {fileID: 146125066}
   - component: {fileID: 146125068}
+  - component: {fileID: 146125072}
   - component: {fileID: 146125070}
   - component: {fileID: 146125069}
   - component: {fileID: 146125071}
+  - component: {fileID: 146125073}
   m_Layer: 8
   m_Name: Boss
   m_TagString: Untagged
@@ -21833,6 +21835,7 @@ MonoBehaviour:
   rb: {fileID: 146125070}
   player: {fileID: 380656105}
   attackPoint: {fileID: 344587937}
+  hitVFXSpawner: {fileID: 146125073}
   maxHealth: 20
   moveSpeed: 3
   detectionBoxSize: {x: 50, y: 10}
@@ -21844,8 +21847,8 @@ MonoBehaviour:
   attackBoxOffset: {x: 1.5, y: 0}
   contactDamage: 1
   attackCooldown: 1.5
-  attackDuration: 0.8
-  hitFrameDelay: 0.25
+  attackAnimationTimeout: 1.2
+  hurtDuration: 0.35
   debugLogs: 1
 --- !u!61 &146125069
 BoxCollider2D:
@@ -21930,7 +21933,7 @@ Animator:
   m_GameObject: {fileID: 146125065}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: dbf6e1f9f51d7ed46a030ec9ec6c6015, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -21942,6 +21945,47 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &146125072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 146125065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f56bd1aad7e8694da0c5c3f270c2299, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BossAnimation2D
+  bossAI: {fileID: 146125068}
+  animator: {fileID: 146125071}
+  rb: {fileID: 146125070}
+  moveSpeedParam: MoveSpeed
+  isMovingParam: IsMoving
+  isDeadParam: IsDead
+  attackTrigger: Attack
+  hurtTrigger: Hurt
+  dieTrigger: Die
+  moveThreshold: 0.05
+  debugLogs: 0
+--- !u!114 &146125073
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 146125065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e501bfd81597c2447a8128ed33c14cc4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BossHitVFXSpawner2D
+  attackPoint: {fileID: 344587937}
+  hitEffectPrefab: {fileID: 1364051515217659542, guid: 3539cdc0afc2bf142814fd7a461c84a1, type: 3}
+  spawnOffset: {x: 0, y: 0.2}
+  parentToWorld: 1
+  effectScaleMultiplier: 1.15
+  effectLifetimeMultiplier: 1.25
 --- !u!1 &147306397
 GameObject:
   m_ObjectHideFlags: 0
@@ -22638,6 +22682,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1034791520314226838, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
+      propertyPath: m_Distance
+      value: 52.680805
+      objectReference: {fileID: 0}
     - target: {fileID: 1108577097183701122, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -22648,11 +22696,11 @@ PrefabInstance:
       objectReference: {fileID: 1098826260}
     - target: {fileID: 1573776456866776452, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -51.6
+      value: -51.73
       objectReference: {fileID: 0}
     - target: {fileID: 1573776456866776452, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -9.967411
+      value: -9.963659
       objectReference: {fileID: 0}
     - target: {fileID: 1573776456866776452, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
       propertyPath: m_LocalPosition.z
@@ -22949,8 +22997,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -22967,8 +23015,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 16
+  m_fontSizeBase: 16
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -23036,8 +23084,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 216, y: 194}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 711.3235, y: -213.30124}
+  m_SizeDelta: {x: 1190.6472, y: 864.6025}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &458011024
 GameObject:
@@ -23687,7 +23735,7 @@ GameObject:
   - component: {fileID: 583594266}
   - component: {fileID: 583594268}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: RoomCombat
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -24144,6 +24192,14 @@ PrefabInstance:
       propertyPath: bloodTrailManager
       value: 
       objectReference: {fileID: 601763811}
+    - target: {fileID: 6593923808583365865, guid: 6291665a687a6fe48b1b9b72d904295b, type: 3}
+      propertyPath: startFacingRight
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6593923808583365865, guid: 6291665a687a6fe48b1b9b72d904295b, type: 3}
+      propertyPath: spriteFacesRightByDefault
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8247169960609473959, guid: 6291665a687a6fe48b1b9b72d904295b, type: 3}
       propertyPath: m_LocalPosition.x
       value: -29.75
@@ -24346,7 +24402,7 @@ Transform:
   m_GameObject: {fileID: 824025502}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -96.06, y: -12.669999, z: 0}
+  m_LocalPosition: {x: -96.27, y: -12.669999, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -48303,7 +48359,7 @@ Transform:
   m_GameObject: {fileID: 1739732655}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -117.008385, y: 1.0517988, z: -10}
+  m_LocalPosition: {x: -117.13838, y: 1.0555506, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -48657,7 +48713,7 @@ Transform:
   m_GameObject: {fileID: 2029474676}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -117.008385, y: 1.0517988, z: -10}
+  m_LocalPosition: {x: -117.13838, y: 1.0555506, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

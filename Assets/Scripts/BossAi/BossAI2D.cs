@@ -17,6 +17,7 @@ public class BossAI2D : MonoBehaviour
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private Transform player;
     [SerializeField] private Transform attackPoint;
+    [SerializeField] private BossHitVFXSpawner2D hitVFXSpawner;
 
     [Header("Stats")]
     [SerializeField] private int maxHealth = 20;
@@ -32,8 +33,10 @@ public class BossAI2D : MonoBehaviour
     [SerializeField] private Vector2 attackBoxOffset = new Vector2(1.5f, 0f);
     [SerializeField] private int contactDamage = 1;
     [SerializeField] private float attackCooldown = 1.5f;
-    [SerializeField] private float attackDuration = 0.8f;
-    [SerializeField] private float hitFrameDelay = 0.25f;
+    [SerializeField] private float attackAnimationTimeout = 1.2f;
+
+    [Header("Hurt")]
+    [SerializeField] private float hurtDuration = 0.35f;
 
     [Header("Debug")]
     [SerializeField] private bool debugLogs = true;
@@ -44,20 +47,28 @@ public class BossAI2D : MonoBehaviour
     private bool canAttack = true;
     private bool isBusy;
     private bool hasDealtDamageThisAttack;
+    private bool attackAnimationFinished;
 
     public int CurrentHealth => currentHealth;
     public int MaxHealth => maxHealth;
     public float HealthNormalized => maxHealth > 0 ? (float)currentHealth / maxHealth : 0f;
 
+    public BossState CurrentState => currentState;
+    public event System.Action<BossState> OnStateChanged;
+
     private void Reset()
     {
         rb = GetComponent<Rigidbody2D>();
+        hitVFXSpawner = GetComponent<BossHitVFXSpawner2D>();
     }
 
     private void Awake()
     {
         if (rb == null)
             rb = GetComponent<Rigidbody2D>();
+
+        if (hitVFXSpawner == null)
+            hitVFXSpawner = GetComponent<BossHitVFXSpawner2D>();
 
         currentHealth = maxHealth;
 
@@ -84,6 +95,9 @@ public class BossAI2D : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (rb == null)
+            return;
+
         if (currentState == BossState.Dead)
         {
             rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
@@ -129,8 +143,6 @@ public class BossAI2D : MonoBehaviour
                 break;
 
             case BossState.Attack:
-                if (!canSeePlayer)
-                    ChangeState(BossState.Idle);
                 break;
 
             case BossState.Cooldown:
@@ -147,7 +159,7 @@ public class BossAI2D : MonoBehaviour
 
     private void ChasePlayer()
     {
-        if (player == null)
+        if (player == null || rb == null)
             return;
 
         float direction = Mathf.Sign(player.position.x - transform.position.x);
@@ -159,27 +171,26 @@ public class BossAI2D : MonoBehaviour
         isBusy = true;
         canAttack = false;
         hasDealtDamageThisAttack = false;
+        attackAnimationFinished = false;
 
         ChangeState(BossState.Attack);
 
-        rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
-        FacePlayer();
+        if (rb != null)
+            rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
 
+        FacePlayer();
         Log("Boss attack started");
 
-        yield return new WaitForSeconds(hitFrameDelay);
+        float timer = 0f;
 
-        if (currentState != BossState.Dead && IsPlayerInsideAttackBox())
+        while (!attackAnimationFinished && currentState != BossState.Dead && timer < attackAnimationTimeout)
         {
-            DealDamageToPlayer();
-        }
-        else
-        {
-            Log("Boss attack missed before hit frame");
+            timer += Time.deltaTime;
+            yield return null;
         }
 
-        float remaining = Mathf.Max(0f, attackDuration - hitFrameDelay);
-        yield return new WaitForSeconds(remaining);
+        if (currentState == BossState.Dead)
+            yield break;
 
         ChangeState(BossState.Cooldown);
 
@@ -188,8 +199,30 @@ public class BossAI2D : MonoBehaviour
         canAttack = true;
         isBusy = false;
 
-        if (currentState != BossState.Dead)
+        if (currentState == BossState.Dead)
+            yield break;
+
+        if (IsPlayerInsideDetectionBox())
             ChangeState(BossState.Chase);
+        else
+            ChangeState(BossState.Idle);
+    }
+
+    public void OnAttackHitFrame()
+    {
+        if (currentState != BossState.Attack)
+            return;
+
+        DealDamageToPlayer();
+    }
+
+    public void OnAttackAnimationFinished()
+    {
+        if (currentState != BossState.Attack)
+            return;
+
+        attackAnimationFinished = true;
+        Log("Attack animation finished");
     }
 
     public void DealDamageToPlayer()
@@ -206,7 +239,7 @@ public class BossAI2D : MonoBehaviour
         Collider2D hit = Physics2D.OverlapBox(GetAttackBoxCenter(), attackBoxSize, 0f, playerLayer);
         if (hit == null)
         {
-            Debug.Log("Boss attack missed: no player in attack box");
+            Log("Boss attack missed: no player in attack box");
             return;
         }
 
@@ -222,7 +255,11 @@ public class BossAI2D : MonoBehaviour
 
         playerHealth.TakeDamage(contactDamage, transform.position);
         hasDealtDamageThisAttack = true;
-        Debug.Log("Boss dealt damage to player");
+
+        if (hitVFXSpawner != null)
+            hitVFXSpawner.SpawnHitEffect(hit.transform.position);
+
+        Log("Boss dealt damage to player");
     }
 
     public void TakeDamage(int damage)
@@ -252,11 +289,15 @@ public class BossAI2D : MonoBehaviour
         isBusy = true;
         ChangeState(BossState.Hurt);
 
-        rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+        if (rb != null)
+            rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
 
-        yield return new WaitForSeconds(0.35f);
+        yield return new WaitForSeconds(hurtDuration);
 
         isBusy = false;
+
+        if (currentState == BossState.Dead)
+            yield break;
 
         if (IsPlayerInsideDetectionBox())
             ChangeState(BossState.Chase);
@@ -269,8 +310,11 @@ public class BossAI2D : MonoBehaviour
         isBusy = true;
         ChangeState(BossState.Dead);
 
-        rb.linearVelocity = Vector2.zero;
-        rb.simulated = false;
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.simulated = false;
+        }
 
         Collider2D col = GetComponent<Collider2D>();
         if (col != null)
@@ -340,6 +384,8 @@ public class BossAI2D : MonoBehaviour
             return;
 
         currentState = newState;
+        OnStateChanged?.Invoke(currentState);
+
         Log("State -> " + currentState);
     }
 
