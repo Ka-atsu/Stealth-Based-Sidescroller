@@ -15,6 +15,6 @@ public class ScrollCountUI : MonoBehaviour
             return;
         }
 
-        countText.text = "Scrolls Read: " + GameSceneManager.Instance.ReadScrollCount;
+        countText.text = ": " + GameSceneManager.Instance.ReadScrollCount;
     }
 }

@@ -46391,7 +46391,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 519bb1de094f14549ba6874f18d0a30e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScrollCollectible
-  scrollID: Scroll_01
+  scrollID: Scroll_04
   scrollTitle: When the Door Opens
   storyText: "The lantern is nearly out.\n\nThe students have been sent away under
     the pretense of pilgrimage. They argued, of course. Loyalty is a beautiful thing,

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour, IDamageable
 {
@@ -27,10 +28,12 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
     [Header("Death")]
     [SerializeField] private string deadLayerName = "DeadPlayer";
+    [SerializeField] private float fallbackReloadDelay = 1.2f;
 
     private int currentHealth;
     private bool isInvincible;
     private bool isDead;
+    private bool isReloading;
 
     public bool IsDead => isDead;
 
@@ -48,6 +51,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     private Coroutine invincibilityCoroutine;
     private Coroutine hitStopCoroutine;
     private Coroutine flashCoroutine;
+    private Coroutine reloadCoroutine;
 
     private void Awake()
     {
@@ -159,6 +163,8 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         Time.timeScale = hitStopTimeScale;
         yield return new WaitForSecondsRealtime(duration);
         Time.timeScale = originalTimeScale;
+
+        hitStopCoroutine = null;
     }
 
     private IEnumerator FlashRed()
@@ -219,12 +225,15 @@ public class PlayerHealth : MonoBehaviour, IDamageable
             return;
 
         isDead = true;
+        isInvincible = false;
 
-        if (sr != null)
+        if (hitStopCoroutine != null)
         {
-            sr.enabled = true;
-            sr.color = Color.white;
+            StopCoroutine(hitStopCoroutine);
+            hitStopCoroutine = null;
         }
+
+        Time.timeScale = 1f;
 
         if (flashCoroutine != null)
         {
@@ -238,27 +247,69 @@ public class PlayerHealth : MonoBehaviour, IDamageable
             invincibilityCoroutine = null;
         }
 
-        isInvincible = false;
+        if (bloodTrailCoroutine != null)
+        {
+            StopCoroutine(bloodTrailCoroutine);
+            bloodTrailCoroutine = null;
+        }
+
+        if (sr != null)
+        {
+            sr.enabled = true;
+            sr.color = Color.white;
+        }
+
+        if (bloodTrail != null)
+            bloodTrail.enabled = false;
 
         if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
+            rb.simulated = false;
         }
 
         if (deadLayer != -1)
             gameObject.layer = deadLayer;
-
-        playerAnimation?.PlayDeathAnimation();
 
         if (controller != null)
         {
             controller.DisableControl();
             controller.enabled = false;
         }
+
+        playerAnimation?.PlayDeathAnimation();
+
+        // fallback in case animation event is missing
+        if (reloadCoroutine == null)
+            reloadCoroutine = StartCoroutine(ReloadSceneAfterDelay(fallbackReloadDelay));
+    }
+
+    private IEnumerator ReloadSceneAfterDelay(float delay)
+    {
+        yield return new WaitForSecondsRealtime(delay);
+        ReloadScene();
     }
 
     public void OnDeathAnimationFinished()
     {
-        gameObject.SetActive(false);
+        ReloadScene();
+    }
+
+    private void ReloadScene()
+    {
+        if (isReloading)
+            return;
+
+        isReloading = true;
+        Time.timeScale = 1f;
+
+        if (GameSceneManager.Instance != null)
+        {
+            GameSceneManager.Instance.ReloadCurrentScene();
+        }
+        else
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
     }
 }
