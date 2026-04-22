@@ -22686,6 +22686,55 @@ Transform:
   - {fileID: 313926479}
   m_Father: {fileID: 1337706207}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &375818651
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 375818652}
+  - component: {fileID: 375818653}
+  m_Layer: 0
+  m_Name: BossDeathSceneTransition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &375818652
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 375818651}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &375818653
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 375818651}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 240acd67429a85649ae5c650e46940d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BossDeathSceneTransition2D
+  bossAI: {fileID: 146125068}
+  nextSceneName: EndingCutscene
+  delayBeforeLoad: 3
+  useRealtimeDelay: 1
+  debugLogs: 1
 --- !u!1001 &380656101
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -22746,6 +22795,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 5799450304446670463, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
+      propertyPath: attackPoint
+      value: 
+      objectReference: {fileID: 752144348}
+    - target: {fileID: 5799450304446670463, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
+      propertyPath: playerController
+      value: 
+      objectReference: {fileID: 2072583823}
+    - target: {fileID: 5799450304446670463, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
+      propertyPath: enemyLayer.m_Bits
+      value: 256
+      objectReference: {fileID: 0}
+    - target: {fileID: 5799450304446670463, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
+      propertyPath: slashEffectPrefab
+      value: 
+      objectReference: {fileID: 584388588817763432, guid: 826b296624ec6924a98c441963f0a368, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -24215,6 +24280,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6291665a687a6fe48b1b9b72d904295b, type: 3}
+--- !u!4 &752144348 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3975166123185948867, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
+  m_PrefabInstance: {fileID: 380656101}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &752876531
 GameObject:
   m_ObjectHideFlags: 0
@@ -24535,6 +24605,53 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1 &872120209
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 872120211}
+  - component: {fileID: 872120210}
+  m_Layer: 0
+  m_Name: GameManger
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &872120210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 872120209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ae4cc836071d1045ae5718f7853fab8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameSceneManager
+  stealthKillAfterScrollScore: 100
+  enemyKillMultiplier: 100
+  scrollReadMultiplier: 50
+--- !u!4 &872120211
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 872120209}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6.16937, y: -16.23392, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &908847834
 GameObject:
   m_ObjectHideFlags: 0
@@ -48905,6 +49022,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2072583823 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5522325309030649293, guid: 0c4d4e0ffdbc0ca4d8533d33dd225dc6, type: 3}
+  m_PrefabInstance: {fileID: 380656101}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e268ca0b45fdb024b8be930e70ee69a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerController2D
 --- !u!1001 &2145022216
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -83333,3 +83461,5 @@ SceneRoots:
   - {fileID: 146125067}
   - {fileID: 601763812}
   - {fileID: 583594267}
+  - {fileID: 375818652}
+  - {fileID: 872120211}
