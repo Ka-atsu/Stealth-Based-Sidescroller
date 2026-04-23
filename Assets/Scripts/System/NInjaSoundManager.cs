@@ -120,6 +120,13 @@ public class NinjaAudioManager : MonoBehaviour
         if (musicSource == null || clip == null)
             return;
 
+        if (musicSource.clip == clip && musicSource.isPlaying)
+        {
+            musicSource.volume = volume;
+            musicSource.loop = loop;
+            return;
+        }
+
         musicSource.clip = clip;
         musicSource.volume = volume;
         musicSource.loop = loop;

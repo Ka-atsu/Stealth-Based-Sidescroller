@@ -27,6 +27,13 @@ public class EndingResultsUI : MonoBehaviour
     [SerializeField] private float totalCountDuration = 1.2f;
     [SerializeField] private string totalPrefix = "Total Score: ";
 
+    [Header("Background Music")]
+    [SerializeField] private AudioClip backgroundMusic;
+    [Range(0f, 1f)] [SerializeField] private float backgroundMusicVolume = 0.8f;
+    [SerializeField] private bool backgroundMusicLoop = true;
+    [SerializeField] private bool playMusicOnStart = true;
+    [SerializeField] private bool stopMusicOnDisable = false;
+
     [Header("Fallback Values")]
     [SerializeField] private int fallbackKillMultiplier = 100;
     [SerializeField] private int fallbackScrollMultiplier = 50;
@@ -34,12 +41,48 @@ public class EndingResultsUI : MonoBehaviour
     private void Start()
     {
         PlayResults();
+
+        if (playMusicOnStart)
+            PlayBackgroundMusic();
+    }
+
+    private void OnDisable()
+    {
+        if (stopMusicOnDisable)
+            StopBackgroundMusic();
     }
 
     public void PlayResults()
     {
         StopAllCoroutines();
         StartCoroutine(PlayResultsRoutine(BuildResultsFromGameManager()));
+    }
+
+    public void PlayBackgroundMusic()
+    {
+        if (backgroundMusic == null)
+            return;
+
+        NinjaAudioManager manager = NinjaAudioManager.Instance != null
+            ? NinjaAudioManager.Instance
+            : Object.FindFirstObjectByType<NinjaAudioManager>();
+
+        if (manager == null)
+            return;
+
+        manager.PlayBackgroundMusic(backgroundMusic, backgroundMusicVolume, backgroundMusicLoop);
+    }
+
+    public void StopBackgroundMusic()
+    {
+        NinjaAudioManager manager = NinjaAudioManager.Instance != null
+            ? NinjaAudioManager.Instance
+            : Object.FindFirstObjectByType<NinjaAudioManager>();
+
+        if (manager == null)
+            return;
+
+        manager.StopBackgroundMusic();
     }
 
     private List<ResultLine> BuildResultsFromGameManager()
