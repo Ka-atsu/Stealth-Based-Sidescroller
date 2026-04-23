@@ -522,6 +522,11 @@ MonoBehaviour:
   lineDelay: 0.35
   totalCountDuration: 1.2
   totalPrefix: 'Total Score: '
+  backgroundMusic: {fileID: 8300000, guid: 61447f9f30cb49c4d97478c4dc435a28, type: 3}
+  backgroundMusicVolume: 0.97
+  backgroundMusicLoop: 1
+  playMusicOnStart: 1
+  stopMusicOnDisable: 0
   fallbackKillMultiplier: 100
   fallbackScrollMultiplier: 50
 --- !u!1 &1576395172
