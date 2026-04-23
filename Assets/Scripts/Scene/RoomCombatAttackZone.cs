@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Collider2D))]
 public class RoomCombatAttackZone : MonoBehaviour, IInteractable
@@ -19,6 +20,10 @@ public class RoomCombatAttackZone : MonoBehaviour, IInteractable
     [Range(0f, 1f)] [SerializeField] private float normalMusicVolume = 0.7f;
     [SerializeField] private bool normalMusicLoop = true;
     [SerializeField] private float resumeDelay = 0.5f;
+
+    [Header("Cutscene Fallback (when RoomCombat is inactive)")]
+    [SerializeField] private bool loadCutsceneWhenInactive = true;
+    [SerializeField] private string cutsceneSceneName;
 
     private bool bossDefeated;
     private Coroutine resumeRoutine;
@@ -126,6 +131,12 @@ public class RoomCombatAttackZone : MonoBehaviour, IInteractable
 
     private void StartResumeNormalMusic()
     {
+        if (!isActiveAndEnabled)
+        {
+            TryLoadCutsceneWhenInactive();
+            return;
+        }
+
         if (audioManager == null)
             return;
 
@@ -136,6 +147,23 @@ public class RoomCombatAttackZone : MonoBehaviour, IInteractable
         }
 
         resumeRoutine = StartCoroutine(ResumeNormalMusicAfterDelay());
+    }
+
+    private void TryLoadCutsceneWhenInactive()
+    {
+        if (!loadCutsceneWhenInactive)
+            return;
+
+        if (string.IsNullOrWhiteSpace(cutsceneSceneName))
+            return;
+
+        if (GameSceneManager.Instance != null)
+        {
+            GameSceneManager.Instance.LoadScene(cutsceneSceneName);
+            return;
+        }
+
+        SceneManager.LoadScene(cutsceneSceneName);
     }
 
     private IEnumerator ResumeNormalMusicAfterDelay()
