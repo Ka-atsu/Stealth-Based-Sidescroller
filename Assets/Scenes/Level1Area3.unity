@@ -48700,6 +48700,18 @@ PrefabInstance:
       propertyPath: m_Offset.y
       value: -3.1870785
       objectReference: {fileID: 0}
+    - target: {fileID: 3220359573942435655, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0.000021935
+      objectReference: {fileID: 0}
+    - target: {fileID: 3220359573942435655, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 333
+      objectReference: {fileID: 0}
+    - target: {fileID: 3523988148631575232, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: c663039c83b99fd41a13a376506e468f, type: 2}
     - target: {fileID: 3807040874796727086, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
       propertyPath: m_Color.a
       value: 0
