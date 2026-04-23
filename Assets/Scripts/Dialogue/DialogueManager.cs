@@ -19,6 +19,10 @@ public class DialogueManager : MonoBehaviour
     public float textSpeed;
     public Animator animator;
 
+    public event System.Action<Dialogue> OnDialogueEnded;
+
+    private Dialogue currentDialogue;
+
     private void Awake()
     {
         if(Instance == null)
@@ -29,6 +33,7 @@ public class DialogueManager : MonoBehaviour
 
     public void StartDialogue(Dialogue dialogue)
     {
+        currentDialogue = dialogue;
         isDialogueActive = true;
         animator.SetBool("IsOpen", isDialogueActive);
         lines.Clear();
@@ -70,6 +75,11 @@ public class DialogueManager : MonoBehaviour
     {
         isDialogueActive = false;
         animator.SetBool("IsOpen", isDialogueActive);
+
+        if (currentDialogue != null)
+            OnDialogueEnded?.Invoke(currentDialogue);
+
+        currentDialogue = null;
     }
 
     IEnumerator TypeSentence(DialogueLine dialogueLine)
