@@ -23860,6 +23860,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b6282c0dcc93ea43bebb29a32f9501a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomCombatAttackZone
+  audioManager: {fileID: 1638554613}
+  bossAI: {fileID: 146125068}
+  bossMusic: {fileID: 8300000, guid: 6b269a1c3d6149a459cea14f22aaddf1, type: 3}
+  bossMusicVolume: 0.87
+  bossMusicLoop: 1
+  startBossMusicOnInteract: 1
+  normalMusicOverride: {fileID: 8300000, guid: f974af3b4d6e0d0449a5995514328f03, type: 3}
+  normalMusicVolume: 0
+  normalMusicLoop: 1
+  resumeDelay: 0.5
 --- !u!1 &601763810
 GameObject:
   m_ObjectHideFlags: 0
@@ -47657,15 +47667,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NinjaAudioManager
   audioSource: {fileID: 1281890713}
-  footstepSound: {fileID: 0}
-  jumpSound: {fileID: 0}
-  dashSound: {fileID: 0}
-  landingSound: {fileID: 0}
+  footstepSound: {fileID: 8300000, guid: 7511fbdce5e7b53488529470dafd0b6f, type: 3}
+  jumpSound: {fileID: 8300000, guid: 62f21ea0ff4683e48b7362cc45628a00, type: 3}
+  dashSound: {fileID: 8300000, guid: e4f41b3f09958614cb584ebd1dcb6f89, type: 3}
+  landingSound: {fileID: 8300000, guid: 351904f5ad1376447a7745e8888c463f, type: 3}
   footstepVolume: 1
   jumpVolume: 1
   dashVolume: 1
   landingVolume: 1
-  backgroundMusic: {fileID: 0}
+  backgroundMusic: {fileID: 8300000, guid: f974af3b4d6e0d0449a5995514328f03, type: 3}
   musicVolume: 0.7
   autoPlayMusic: 1
   footstepDelay: 0
@@ -48728,6 +48738,10 @@ PrefabInstance:
       propertyPath: dialogueTrigger
       value: 
       objectReference: {fileID: 1506055087}
+    - target: {fileID: 5811076112468340069, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
+      propertyPath: bossMusicZone
+      value: 
+      objectReference: {fileID: 583594268}
     - target: {fileID: 5811076112468340069, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
       propertyPath: dialogue.dialogueLines.Array.size
       value: 5
