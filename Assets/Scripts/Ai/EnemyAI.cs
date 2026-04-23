@@ -23,7 +23,6 @@ public class EnemyAI : MonoBehaviour
 
     [Header("Attack Recovery")]
     [SerializeField] private float lostPlayerSearchDuration = 1.5f;
-    [SerializeField] private bool searchBrieflyAfterAttackCancel = true;
 
     EnemyMovement movement;
     EnemyVision vision;

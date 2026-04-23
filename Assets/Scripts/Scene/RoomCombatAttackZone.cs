@@ -8,22 +8,26 @@ public class RoomCombatAttackZone : MonoBehaviour, IInteractable
     [Header("References")]
     [SerializeField] private NinjaAudioManager audioManager;
     [SerializeField] private BossAI2D bossAI;
+    [SerializeField] private BossHealthBarUI bossHealthBarUI;
 
     [Header("Boss Music")]
     [SerializeField] private AudioClip bossMusic;
-    [Range(0f, 1f)] [SerializeField] private float bossMusicVolume = 0.9f;
+    [Range(0f, 1f)][SerializeField] private float bossMusicVolume = 0.9f;
     [SerializeField] private bool bossMusicLoop = true;
     [SerializeField] private bool startBossMusicOnInteract = true;
 
     [Header("Normal Music (resume after boss defeated)")]
     [SerializeField] private AudioClip normalMusicOverride;
-    [Range(0f, 1f)] [SerializeField] private float normalMusicVolume = 0.7f;
+    [Range(0f, 1f)][SerializeField] private float normalMusicVolume = 0.7f;
     [SerializeField] private bool normalMusicLoop = true;
     [SerializeField] private float resumeDelay = 0.5f;
 
     [Header("Cutscene Fallback (when RoomCombat is inactive)")]
     [SerializeField] private bool loadCutsceneWhenInactive = true;
     [SerializeField] private string cutsceneSceneName;
+
+    [Header("Debug")]
+    [SerializeField] private bool debugLogs = true;
 
     private bool bossDefeated;
     private Coroutine resumeRoutine;
@@ -40,6 +44,9 @@ public class RoomCombatAttackZone : MonoBehaviour, IInteractable
 
         if (bossAI == null)
             bossAI = Object.FindFirstObjectByType<BossAI2D>();
+
+        if (bossHealthBarUI == null)
+            bossHealthBarUI = Object.FindFirstObjectByType<BossHealthBarUI>();
     }
 
     private void Awake()
@@ -49,6 +56,9 @@ public class RoomCombatAttackZone : MonoBehaviour, IInteractable
 
         if (bossAI == null)
             bossAI = Object.FindFirstObjectByType<BossAI2D>();
+
+        if (bossHealthBarUI == null)
+            bossHealthBarUI = Object.FindFirstObjectByType<BossHealthBarUI>();
     }
 
     private void OnEnable()
@@ -73,10 +83,16 @@ public class RoomCombatAttackZone : MonoBehaviour, IInteractable
     {
         if (bossAI != null && bossAI.CurrentState == BossAI2D.BossState.Dead)
             bossDefeated = true;
+
+        if (bossHealthBarUI != null)
+            bossHealthBarUI.Hide();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (debugLogs)
+            Debug.Log("OnTriggerEnter2D: " + other.name, this);
+
         if (!other.CompareTag("Player"))
             return;
 
@@ -85,10 +101,13 @@ public class RoomCombatAttackZone : MonoBehaviour, IInteractable
         {
             inputHandler.SetRoomCombatAttackEnabled(true);
             inputHandler.SetCurrentInteractable(this);
-            Debug.Log("Player entered combat room", this);
+            Log("Player entered combat room");
         }
 
         playerInside = true;
+
+        if (bossHealthBarUI != null && !bossDefeated)
+            bossHealthBarUI.Show();
 
         if (!startBossMusicOnInteract)
             StartBossMusic();
@@ -96,6 +115,9 @@ public class RoomCombatAttackZone : MonoBehaviour, IInteractable
 
     private void OnTriggerExit2D(Collider2D other)
     {
+        if (debugLogs)
+            Debug.Log("OnTriggerExit2D: " + other.name, this);
+
         if (!other.CompareTag("Player"))
             return;
 
@@ -104,10 +126,13 @@ public class RoomCombatAttackZone : MonoBehaviour, IInteractable
         {
             inputHandler.SetRoomCombatAttackEnabled(false);
             inputHandler.ClearCurrentInteractable(this);
-            Debug.Log("Player exited combat room", this);
+            Log("Player exited combat room");
         }
 
         playerInside = false;
+
+        if (bossHealthBarUI != null)
+            bossHealthBarUI.Hide();
 
         if (audioManager != null)
             audioManager.StopBackgroundMusic();
@@ -122,6 +147,9 @@ public class RoomCombatAttackZone : MonoBehaviour, IInteractable
             return;
 
         bossDefeated = true;
+
+        if (bossHealthBarUI != null)
+            bossHealthBarUI.Hide();
 
         if (audioManager != null)
             audioManager.StopBackgroundMusic();
@@ -171,6 +199,12 @@ public class RoomCombatAttackZone : MonoBehaviour, IInteractable
         if (resumeDelay > 0f)
             yield return new WaitForSeconds(resumeDelay);
 
+        if (audioManager == null)
+        {
+            resumeRoutine = null;
+            yield break;
+        }
+
         AudioClip clipToPlay = normalMusicOverride != null ? normalMusicOverride : audioManager.backgroundMusic;
         if (clipToPlay != null)
             audioManager.PlayBackgroundMusic(clipToPlay, normalMusicVolume, normalMusicLoop);
@@ -209,5 +243,13 @@ public class RoomCombatAttackZone : MonoBehaviour, IInteractable
 
         if (bossMusic != null)
             audioManager.PlayBackgroundMusic(bossMusic, bossMusicVolume, bossMusicLoop);
+    }
+
+    private void Log(string message)
+    {
+        if (!debugLogs)
+            return;
+
+        Debug.Log("[RoomCombatAttackZone] " + message, this);
     }
 }
