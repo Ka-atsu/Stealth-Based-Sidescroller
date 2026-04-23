@@ -58,6 +58,10 @@ public class BossAI2D : MonoBehaviour
 
     [Header("Hurt")]
     [SerializeField] private float hurtDuration = 0.35f;
+    [SerializeField] private float hurtKnockbackForceX = 7f;
+    [SerializeField] private float hurtKnockbackForceY = 2.5f;
+    [SerializeField] private float hurtVelocityDamping = 18f;
+    [SerializeField] private bool interruptAttackWhenHit = true;
 
     [Header("Debug")]
     [SerializeField] private bool debugLogs = true;
@@ -138,7 +142,15 @@ public class BossAI2D : MonoBehaviour
 
         if (currentState == BossState.Dead)
         {
-            rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+            rb.linearVelocity = Vector2.zero;
+            return;
+        }
+
+        if (currentState == BossState.Hurt)
+        {
+            Vector2 velocity = rb.linearVelocity;
+            velocity.x = Mathf.MoveTowards(velocity.x, 0f, hurtVelocityDamping * Time.fixedDeltaTime);
+            rb.linearVelocity = velocity;
             return;
         }
 
@@ -418,7 +430,8 @@ public class BossAI2D : MonoBehaviour
             return;
         }
 
-        InterruptCurrentAction();
+        if (interruptAttackWhenHit)
+            InterruptCurrentAction();
 
         if (hurtRoutine != null)
             StopCoroutine(hurtRoutine);
@@ -432,15 +445,20 @@ public class BossAI2D : MonoBehaviour
             yield break;
 
         isBusy = true;
+        canAttack = false;
+        currentAttackMode = AttackMode.None;
+        attackAnimationFinished = false;
+        hasDealtDamageThisAttack = false;
+
         ChangeState(BossState.Hurt);
 
-        if (rb != null)
-            rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+        ApplyHurtKnockback();
 
         yield return new WaitForSeconds(hurtDuration);
 
         hurtRoutine = null;
         isBusy = false;
+        canAttack = true;
 
         if (currentState == BossState.Dead)
             yield break;
@@ -449,6 +467,28 @@ public class BossAI2D : MonoBehaviour
             ChangeState(BossState.Chase);
         else
             ChangeState(BossState.Idle);
+    }
+
+    private void ApplyHurtKnockback()
+    {
+        if (rb == null)
+            return;
+
+        if (player == null)
+        {
+            rb.linearVelocity = new Vector2(
+                isFacingRight ? -hurtKnockbackForceX : hurtKnockbackForceX,
+                hurtKnockbackForceY
+            );
+            return;
+        }
+
+        float directionAwayFromPlayer = transform.position.x >= player.position.x ? 1f : -1f;
+
+        rb.linearVelocity = new Vector2(
+            directionAwayFromPlayer * hurtKnockbackForceX,
+            hurtKnockbackForceY
+        );
     }
 
     private void InterruptCurrentAction()

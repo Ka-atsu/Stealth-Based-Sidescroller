@@ -21859,6 +21859,10 @@ MonoBehaviour:
   rangedSpawnOffset: {x: 1.5, y: 0.35}
   attackAnimationTimeout: 1.2
   hurtDuration: 0.35
+  hurtKnockbackForceX: 7
+  hurtKnockbackForceY: 2.5
+  hurtVelocityDamping: 18
+  interruptAttackWhenHit: 1
   debugLogs: 1
 --- !u!61 &146125069
 BoxCollider2D:
