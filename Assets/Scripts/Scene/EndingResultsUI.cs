@@ -27,9 +27,10 @@ public class EndingResultsUI : MonoBehaviour
     [SerializeField] private float totalCountDuration = 1.2f;
     [SerializeField] private string totalPrefix = "Total Score: ";
 
-    [Header("Background Music")]
+    [Header("Audio")]
+    [SerializeField] private AudioSource musicSource;
     [SerializeField] private AudioClip backgroundMusic;
-    [Range(0f, 1f)] [SerializeField] private float backgroundMusicVolume = 0.8f;
+    [Range(0f, 1f)][SerializeField] private float backgroundMusicVolume = 0.8f;
     [SerializeField] private bool backgroundMusicLoop = true;
     [SerializeField] private bool playMusicOnStart = true;
     [SerializeField] private bool stopMusicOnDisable = false;
@@ -37,6 +38,29 @@ public class EndingResultsUI : MonoBehaviour
     [Header("Fallback Values")]
     [SerializeField] private int fallbackKillMultiplier = 100;
     [SerializeField] private int fallbackScrollMultiplier = 50;
+
+    private void Reset()
+    {
+        if (musicSource == null)
+            musicSource = GetComponent<AudioSource>();
+
+        if (musicSource == null)
+            musicSource = gameObject.AddComponent<AudioSource>();
+
+        musicSource.playOnAwake = false;
+        musicSource.loop = backgroundMusicLoop;
+    }
+
+    private void Awake()
+    {
+        if (musicSource == null)
+            musicSource = GetComponent<AudioSource>();
+
+        if (musicSource == null)
+            musicSource = gameObject.AddComponent<AudioSource>();
+
+        musicSource.playOnAwake = false;
+    }
 
     private void Start()
     {
@@ -60,29 +84,22 @@ public class EndingResultsUI : MonoBehaviour
 
     public void PlayBackgroundMusic()
     {
-        if (backgroundMusic == null)
+        if (musicSource == null || backgroundMusic == null)
             return;
 
-        NinjaAudioManager manager = NinjaAudioManager.Instance != null
-            ? NinjaAudioManager.Instance
-            : Object.FindFirstObjectByType<NinjaAudioManager>();
-
-        if (manager == null)
-            return;
-
-        manager.PlayBackgroundMusic(backgroundMusic, backgroundMusicVolume, backgroundMusicLoop);
+        musicSource.clip = backgroundMusic;
+        musicSource.volume = backgroundMusicVolume;
+        musicSource.loop = backgroundMusicLoop;
+        musicSource.Play();
     }
 
     public void StopBackgroundMusic()
     {
-        NinjaAudioManager manager = NinjaAudioManager.Instance != null
-            ? NinjaAudioManager.Instance
-            : Object.FindFirstObjectByType<NinjaAudioManager>();
-
-        if (manager == null)
+        if (musicSource == null)
             return;
 
-        manager.StopBackgroundMusic();
+        if (musicSource.isPlaying)
+            musicSource.Stop();
     }
 
     private List<ResultLine> BuildResultsFromGameManager()
@@ -98,7 +115,7 @@ public class EndingResultsUI : MonoBehaviour
         if (GameSceneManager.Instance != null)
         {
             missionScore = GameSceneManager.Instance.CurrentScore;
-            enemiesKilled = GameSceneManager.Instance.StealthKillCount; // currently using stealth kills
+            enemiesKilled = GameSceneManager.Instance.StealthKillCount;
             scrollsRead = GameSceneManager.Instance.ReadScrollCount;
             killMultiplier = GameSceneManager.Instance.EnemyKillMultiplier;
             scrollMultiplier = GameSceneManager.Instance.ScrollReadMultiplier;
@@ -112,7 +129,6 @@ public class EndingResultsUI : MonoBehaviour
             scrollMultiplier = fallbackScrollMultiplier;
         }
 
-        // Base score already earned during gameplay
         lines.Add(new ResultLine
         {
             label = "Mission Score",
@@ -121,7 +137,6 @@ public class EndingResultsUI : MonoBehaviour
             showMultiplier = false
         });
 
-        // Bonus from kills
         lines.Add(new ResultLine
         {
             label = "Enemies Killed",
@@ -130,7 +145,6 @@ public class EndingResultsUI : MonoBehaviour
             showMultiplier = true
         });
 
-        // Bonus from scrolls
         lines.Add(new ResultLine
         {
             label = "Scrolls Read",
@@ -163,13 +177,9 @@ public class EndingResultsUI : MonoBehaviour
             totalScore += lineScore;
 
             if (line.showMultiplier)
-            {
                 sb.AppendLine($"{line.label}: {line.amount} x {line.multiplier}   =   +{lineScore:N0}");
-            }
             else
-            {
                 sb.AppendLine($"{line.label}: +{lineScore:N0}");
-            }
 
             if (resultsText != null)
                 resultsText.text = sb.ToString();

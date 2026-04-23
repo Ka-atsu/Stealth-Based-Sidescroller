@@ -1186,8 +1186,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u516D"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 0c3f7c67409ec2f47b4ff2fe59e8c4e0, type: 2}
-  m_sharedMaterial: {fileID: -9114787933581097384, guid: 0c3f7c67409ec2f47b4ff2fe59e8c4e0, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 462ce7256fa8b534a88d714ebde254d0, type: 2}
+  m_sharedMaterial: {fileID: 8716126403745216048, guid: 462ce7256fa8b534a88d714ebde254d0, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

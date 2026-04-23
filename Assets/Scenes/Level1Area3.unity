@@ -21919,8 +21919,8 @@ MonoBehaviour:
   attackPoint: {fileID: 344587937}
   rangedSpawnPoint: {fileID: 344587937}
   hitVFXSpawner: {fileID: 146125073}
-  maxHealth: 20
-  moveSpeed: 3
+  maxHealth: 10
+  moveSpeed: 4
   detectionBoxSize: {x: 45, y: 10}
   detectionBoxOffset: {x: 0, y: 2}
   playerLayer:
@@ -21933,7 +21933,7 @@ MonoBehaviour:
   enableRangedAttack: 1
   rangedProjectilePrefab: {fileID: 1608016327368511092, guid: daf9ad41dc9b57a4b80cd51432ceff2b, type: 3}
   rangedMinDistance: 3
-  rangedMaxDistance: 9
+  rangedMaxDistance: 19
   rangedDamage: 1
   rangedProjectileSpeed: 9
   rangedImpactRadius: 0.85
@@ -46833,15 +46833,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 0.33962262, g: 0.33962262, b: 0.33962262, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: -2416150037048162122, guid: 5739d897110366d4e8ed604e340feb8a, type: 3}
+  m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 0
@@ -48955,7 +48955,7 @@ PrefabInstance:
       objectReference: {fileID: 8766457630898197766, guid: 031aeeb14930a5642b86a19e29c9690f, type: 3}
     - target: {fileID: 5811076112468340069, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
       propertyPath: dialogue.dialogueLines.Array.data[0].character.name
-      value: Boss
+      value: Boss Arguelles
       objectReference: {fileID: 0}
     - target: {fileID: 5811076112468340069, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
       propertyPath: dialogue.dialogueLines.Array.data[1].character.icon
@@ -48963,7 +48963,7 @@ PrefabInstance:
       objectReference: {fileID: -9180426125723624345, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
     - target: {fileID: 5811076112468340069, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
       propertyPath: dialogue.dialogueLines.Array.data[1].character.name
-      value: Player
+      value: MC
       objectReference: {fileID: 0}
     - target: {fileID: 5811076112468340069, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
       propertyPath: dialogue.dialogueLines.Array.data[2].character.icon
@@ -48971,7 +48971,7 @@ PrefabInstance:
       objectReference: {fileID: 8766457630898197766, guid: 031aeeb14930a5642b86a19e29c9690f, type: 3}
     - target: {fileID: 5811076112468340069, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
       propertyPath: dialogue.dialogueLines.Array.data[2].character.name
-      value: Boss
+      value: Boss Arguelles
       objectReference: {fileID: 0}
     - target: {fileID: 5811076112468340069, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
       propertyPath: dialogue.dialogueLines.Array.data[3].character.icon
@@ -48979,7 +48979,7 @@ PrefabInstance:
       objectReference: {fileID: -9180426125723624345, guid: c09aef7c4bb802b45b42144330f2c976, type: 3}
     - target: {fileID: 5811076112468340069, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
       propertyPath: dialogue.dialogueLines.Array.data[3].character.name
-      value: Player
+      value: MC
       objectReference: {fileID: 0}
     - target: {fileID: 5811076112468340069, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
       propertyPath: dialogue.dialogueLines.Array.data[4].character.icon
@@ -48987,7 +48987,7 @@ PrefabInstance:
       objectReference: {fileID: 8766457630898197766, guid: 031aeeb14930a5642b86a19e29c9690f, type: 3}
     - target: {fileID: 5811076112468340069, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
       propertyPath: dialogue.dialogueLines.Array.data[4].character.name
-      value: Boss
+      value: Boss Arguelles
       objectReference: {fileID: 0}
     - target: {fileID: 5811076112468340069, guid: a8cf3d0b8674b2841866aa6cf74848e5, type: 3}
       propertyPath: dialogue.dialogueLines.Array.data[5].character.icon
