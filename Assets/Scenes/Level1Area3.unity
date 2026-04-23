@@ -23338,7 +23338,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RoomCombatAttackZone
   audioManager: {fileID: 1638554613}
   bossAI: {fileID: 146125068}
-  bossMusic: {fileID: 8300000, guid: 6b269a1c3d6149a459cea14f22aaddf1, type: 3}
+  bossMusic: {fileID: 8300000, guid: c685ea7b47e04964caae88a216824ca9, type: 3}
   bossMusicVolume: 0.87
   bossMusicLoop: 1
   startBossMusicOnInteract: 1
