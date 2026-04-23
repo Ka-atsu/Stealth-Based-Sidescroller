@@ -115,6 +115,35 @@ public class EnemyAI : MonoBehaviour
 
         LogPerceptionChanges(canSeePlayer, hasBlood, hearingSearch, hearingTarget);
 
+        bool attackInProgress = attack != null && attack.IsAttacking;
+        bool canAttackNow = attack != null && attack.CanAttack();
+
+        //----------------------------------
+        // HARD ATTACK LOCK
+        //----------------------------------
+        // If attack animation is ongoing, DO NOT allow any state changes.
+        if (attackInProgress)
+        {
+            if (stateMachine.currentState != EnemyStateMachine.EnemyState.Attack)
+                stateMachine.SetState(EnemyStateMachine.EnemyState.Attack);
+
+            if (movement != null)
+                movement.Stop();
+
+            if (rb != null)
+                rb.linearVelocity = Vector2.zero;
+
+            LogAction("Attack locked - waiting for animation to finish");
+
+            if (stateMachine.currentState != lastState)
+            {
+                Log($"STATE -> {stateMachine.currentState}");
+                lastState = stateMachine.currentState;
+            }
+
+            return;
+        }
+
         // Reset shared alert only when calm again
         if (!canSeePlayer &&
             !hearingSearch &&
@@ -127,34 +156,10 @@ public class EnemyAI : MonoBehaviour
         }
 
         //----------------------------------
-        // STATE DECISION (PRIORITY)
+        // STATE DECISION (ONLY WHEN NOT ATTACKING)
         //----------------------------------
 
-        bool attackInProgress = attack != null && attack.IsAttacking;
-        bool canAttackNow = attack != null && attack.CanAttack();
-
-        bool shouldKeepAttackState = attackInProgress && canSeePlayer;
-        bool shouldStartAttack = canAttackNow && canSeePlayer;
-
-        if (shouldKeepAttackState)
-        {
-            LogAction("Decision -> Keep Attacking");
-            stateMachine.SetState(EnemyStateMachine.EnemyState.Attack);
-        }
-        else if (attackInProgress && !canSeePlayer)
-        {
-            LogAction("Player lost during attack -> Cancel attack state");
-
-            if (searchBrieflyAfterAttackCancel)
-            {
-                EnterBriefSearch(player.position);
-            }
-            else
-            {
-                stateMachine.SetState(EnemyStateMachine.EnemyState.Patrol);
-            }
-        }
-        else if (shouldStartAttack)
+        if (canAttackNow && canSeePlayer)
         {
             LogAction("Decision -> Attack");
             stateMachine.SetState(EnemyStateMachine.EnemyState.Attack);
@@ -320,26 +325,16 @@ public class EnemyAI : MonoBehaviour
             case EnemyStateMachine.EnemyState.Attack:
                 movement.Stop();
 
-                if (!canSeePlayer)
-                {
-                    LogAction("Attack state canceled: player out of range / not visible");
-
-                    if (searchBrieflyAfterAttackCancel)
-                        EnterBriefSearch(player.position);
-                    else
-                        stateMachine.SetState(EnemyStateMachine.EnemyState.Return);
-
-                    break;
-                }
+                if (rb != null)
+                    rb.linearVelocity = Vector2.zero;
 
                 LogAction("Stopping to attack");
 
-                if (attack != null && !attack.IsAttacking && attack.CanAttack())
+                if (attack != null && attack.CanAttack())
                 {
                     LogAction("TryAttack()");
                     attack.TryAttack();
                 }
-
                 break;
 
             case EnemyStateMachine.EnemyState.Return:
@@ -350,10 +345,6 @@ public class EnemyAI : MonoBehaviour
                 break;
         }
     }
-
-    //----------------------------------
-    // GROUP COORDINATION
-    //----------------------------------
 
     void AlertNearbyGuard(Vector3 target)
     {
@@ -431,10 +422,6 @@ public class EnemyAI : MonoBehaviour
         stateMachine.SetState(EnemyStateMachine.EnemyState.Search);
     }
 
-    //----------------------------------
-    // STEALTH STRIKE LOCK
-    //----------------------------------
-
     public void EnterStealthStrikeVictimState(Transform attacker)
     {
         isStealthStrikeVictim = true;
@@ -465,10 +452,6 @@ public class EnemyAI : MonoBehaviour
 
         Log("Exited stealth strike victim state");
     }
-
-    //----------------------------------
-    // ENTER SEARCH
-    //----------------------------------
 
     void EnterSearch(Vector3 target)
     {
@@ -529,10 +512,6 @@ public class EnemyAI : MonoBehaviour
         Destroy(gameObject);
     }
 
-    //----------------------------------
-    // DEBUG HELPERS
-    //----------------------------------
-
     void Log(string msg)
     {
         if (!debugLogs) return;
@@ -546,7 +525,6 @@ public class EnemyAI : MonoBehaviour
         if (msg == lastAction) return;
 
         lastAction = msg;
-
         Debug.Log($"<color=yellow>[EnemyAI Action]</color> {name}: {msg}", this);
     }
 
@@ -572,48 +550,4 @@ public class EnemyAI : MonoBehaviour
             lastHearingSearch = hearingSearch;
         }
     }
-
-    //----------------------------------
-    // GIZMOS
-    //----------------------------------
-
-    //    void OnDrawGizmos()
-    //    {
-    //        if (stateMachine == null) return;
-
-    //#if UNITY_EDITOR
-    //        UnityEditor.Handles.Label(
-    //            transform.position + Vector3.up * 1.5f,
-    //            "STATE: " + stateMachine.currentState.ToString()
-    //        );
-    //#endif
-
-    //        if (attack != null && attack.attackPoint != null)
-    //        {
-    //            Gizmos.color = Color.red;
-    //            Gizmos.DrawWireSphere(attack.attackPoint.position, attack.attackRange);
-    //        }
-
-    //        if (player != null)
-    //        {
-    //            Gizmos.color = Color.yellow;
-    //            Gizmos.DrawLine(transform.position, player.position);
-    //        }
-
-    //        if (stateMachine.currentState == EnemyStateMachine.EnemyState.Search)
-    //        {
-    //            Gizmos.color = Color.cyan;
-    //            Gizmos.DrawWireSphere(currentSearchTarget, 0.35f);
-    //            Gizmos.DrawLine(transform.position, currentSearchTarget);
-    //        }
-
-    //        if (bloodTracker != null && bloodTracker.HasBloodTarget())
-    //        {
-    //            Gizmos.color = Color.magenta;
-    //            Gizmos.DrawWireSphere(bloodTracker.GetBloodTargetPosition(), 0.25f);
-    //        }
-
-    //        Gizmos.color = new Color(0f, 0.7f, 1f, 0.35f);
-    //        Gizmos.DrawWireSphere(transform.position, allyAlertRadius);
-    //    }
 }
