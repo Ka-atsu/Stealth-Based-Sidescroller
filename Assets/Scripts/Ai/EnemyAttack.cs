@@ -10,9 +10,14 @@ public class EnemyAttack : MonoBehaviour
     public Vector2 attackBoxSize = new Vector2(2f, 2f);
     public LayerMask playerLayer;
 
+    [Header("Attack Timing")]
+    [Tooltip("Failsafe duration so attack always ends even if animation event is missed.")]
+    public float attackDuration = 0.6f;
+
     private Transform player;
     private float nextAttackTime = 0f;
     private bool isAttacking = false;
+    private float attackEndTime = 0f;
 
     public bool IsAttacking => isAttacking;
 
@@ -21,6 +26,15 @@ public class EnemyAttack : MonoBehaviour
         GameObject p = GameObject.FindGameObjectWithTag("Player");
         if (p != null)
             player = p.transform;
+    }
+
+    void Update()
+    {
+        // Failsafe: always end the attack after attackDuration
+        if (isAttacking && Time.time >= attackEndTime)
+        {
+            EndAttack();
+        }
     }
 
     public bool CanAttack()
@@ -40,6 +54,7 @@ public class EnemyAttack : MonoBehaviour
 
         isAttacking = true;
         nextAttackTime = Time.time + attackCooldown;
+        attackEndTime = Time.time + attackDuration;
     }
 
     // CALL THIS FROM ANIMATION EVENT at the hit frame
@@ -70,6 +85,13 @@ public class EnemyAttack : MonoBehaviour
     public void EndAttack()
     {
         isAttacking = false;
+        attackEndTime = 0f;
+    }
+
+    void OnDisable()
+    {
+        isAttacking = false;
+        attackEndTime = 0f;
     }
 
     void OnDrawGizmosSelected()

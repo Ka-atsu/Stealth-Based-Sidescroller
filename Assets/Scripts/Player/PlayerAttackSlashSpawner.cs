@@ -15,8 +15,16 @@ public class PlayerAttackSlashSpawner : MonoBehaviour
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private int damage = 1;
 
+    [Header("Attack Cooldown")]
+    [SerializeField] private float attackCooldown = 0.35f;
+    [SerializeField] private bool debugLogs = false;
+
     [Header("References")]
     [SerializeField] private PlayerController2D playerController;
+
+    private float lastAttackTime = -999f;
+
+    public bool CanAttack => Time.time >= lastAttackTime + attackCooldown;
 
     private float GetFacingSign()
     {
@@ -46,8 +54,20 @@ public class PlayerAttackSlashSpawner : MonoBehaviour
 
     public void PerformAttack()
     {
+        if (!CanAttack)
+        {
+            if (debugLogs)
+                Debug.Log("Attack blocked by cooldown.", this);
+            return;
+        }
+
+        lastAttackTime = Time.time;
+
         SpawnSlash();
         DoDamage();
+
+        if (debugLogs)
+            Debug.Log("Attack performed.", this);
     }
 
     public void SpawnSlash()
@@ -74,7 +94,8 @@ public class PlayerAttackSlashSpawner : MonoBehaviour
         if (effect != null)
             effect.SetFacing(facingRight);
 
-        Debug.Log($"Slash spawned at {spawnPosition} | facing={(facingRight ? "Right" : "Left")}", this);
+        if (debugLogs)
+            Debug.Log($"Slash spawned at {spawnPosition} | facing={(facingRight ? "Right" : "Left")}", this);
     }
 
     private void DoDamage()
@@ -96,7 +117,8 @@ public class PlayerAttackSlashSpawner : MonoBehaviour
             damagedBosses.Add(boss);
             boss.TakeDamage(damage);
 
-            Debug.Log($"Hit boss {boss.name} for {damage} damage.", boss);
+            if (debugLogs)
+                Debug.Log($"Hit boss {boss.name} for {damage} damage.", boss);
         }
     }
 
