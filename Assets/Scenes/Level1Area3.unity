@@ -23349,7 +23349,7 @@ MonoBehaviour:
   audioManager: {fileID: 1638554613}
   bossAI: {fileID: 146125068}
   bossHealthBarUI: {fileID: 888764917}
-  bossMusic: {fileID: 8300000, guid: c685ea7b47e04964caae88a216824ca9, type: 3}
+  bossMusic: {fileID: 8300000, guid: 671655e199acccb45b6717b851e9e204, type: 3}
   bossMusicVolume: 0.87
   bossMusicLoop: 1
   startBossMusicOnInteract: 1
